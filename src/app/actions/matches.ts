@@ -28,3 +28,4 @@ export async function getMatches(): Promise<{ matches: Match[]; isLiveSupabase: 
     isLiveSupabase: false,
   };
 }
+

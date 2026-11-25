@@ -1,88 +1,290 @@
 "use client";
 
-import React, { useState } from "react";
-import { submitRegistration } from "@/app/actions/registration";
-import { Registration } from "@/types/tournament";
-import { TOURNAMENT_CONFIG } from "@/lib/mock-data";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  submitBidangFullRegistration,
+  checkBidangRegistration,
+  BidangCategoryStatus,
+} from "@/app/actions/registration";
+import { cleanPhoneNumber } from "@/lib/phone";
+import { getBidangList } from "@/app/actions/bidang";
+import { Registration, BidangFullRegistrationPayload } from "@/types/tournament";
+import { TOURNAMENT_CONFIG, INVITED_BIDANG_LIST } from "@/lib/mock-data";
 import {
   FileText,
   User,
   Phone,
-  Mail,
-  MapPin,
   Trophy,
-  CreditCard,
   CheckCircle2,
   AlertCircle,
-  Copy,
-  Check,
   Send,
-  Sparkles,
+  Building,
+  Calendar,
+  Clock,
+  Users2,
+  PlusCircle,
+  XCircle,
+  Lock,
+  RotateCcw,
+  Users,
+  MapPin,
   ShieldCheck,
 } from "lucide-react";
 
 interface RegistrationFormProps {
-  onSuccess: (data: Registration) => void;
-  onGoToSchedule: () => void;
+  onSuccess?: (data: Registration) => void;
+  onGoToSchedule?: () => void;
 }
 
 export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   onSuccess,
-  onGoToSchedule,
 }) => {
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [city, setCity] = useState("");
-  const [clubName, setClubName] = useState("");
-  const [category, setCategory] = useState<"9-ball-open" | "10-ball-handicap" | "junior-under21">("10-ball-handicap");
-  const [handicap, setHandicap] = useState("HC 4");
-  const [paymentMethod, setPaymentMethod] = useState("BCA");
-  const [paymentProofNote, setPaymentProofNote] = useState("");
+  // Bidang list pre-populated immediately with 20 official Bidang to prevent spinning
+  const [bidangOptions, setBidangOptions] = useState<string[]>(INVITED_BIDANG_LIST);
+  const [isLoadingBidang, setIsLoadingBidang] = useState(false);
+  const [selectedBidang, setSelectedBidang] = useState<string>("");
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [categoryStatus, setCategoryStatus] = useState<BidangCategoryStatus | null>(null);
+
+  // Kategori Ganda Putra - Tim 1 (Opsional jika belum terdaftar)
+  const [gandaTim1P1, setGandaTim1P1] = useState("");
+  const [gandaTim1P1Phone, setGandaTim1P1Phone] = useState("");
+  const [gandaTim1P2, setGandaTim1P2] = useState("");
+  const [gandaTim1P2Phone, setGandaTim1P2Phone] = useState("");
+
+  // Kategori Ganda Putra - Tim 2 (Opsional jika belum terdaftar)
+  const [hasGandaTim2, setHasGandaTim2] = useState(false);
+  const [gandaTim2P1, setGandaTim2P1] = useState("");
+  const [gandaTim2P1Phone, setGandaTim2P1Phone] = useState("");
+  const [gandaTim2P2, setGandaTim2P2] = useState("");
+  const [gandaTim2P2Phone, setGandaTim2P2Phone] = useState("");
+
+  // Kategori Single Putra (1 Atlet)
+  const [singlePutra, setSinglePutra] = useState("");
+  const [singlePutraPhone, setSinglePutraPhone] = useState("");
+
+  // Kategori Single Putri (1 Atlet)
+  const [singlePutri, setSinglePutri] = useState("");
+  const [singlePutriPhone, setSinglePutriPhone] = useState("");
+
+  const [notes, setNotes] = useState("");
   const [agreedToRules, setAgreedToRules] = useState(false);
 
+  // Status states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [registeredData, setRegisteredData] = useState<Registration | null>(null);
-  const [hasCopiedCode, setHasCopiedCode] = useState(false);
+
+  // Helper to normalize phone numbers as user inputs or pastes:
+  // - Replaces +62 or 62 with 0
+  // - Removes hyphens '-'
+  // - Removes spaces ' '
+  const handlePhoneInputChange = (
+    rawValue: string,
+    setter: (val: string) => void
+  ) => {
+    setter(cleanPhoneNumber(rawValue));
+  };
+
+  // Reset fields helper
+  const resetFormFields = () => {
+    setGandaTim1P1("");
+    setGandaTim1P1Phone("");
+    setGandaTim1P2("");
+    setGandaTim1P2Phone("");
+    setHasGandaTim2(false);
+    setGandaTim2P1("");
+    setGandaTim2P1Phone("");
+    setGandaTim2P2("");
+    setGandaTim2P2Phone("");
+    setSinglePutra("");
+    setSinglePutraPhone("");
+    setSinglePutri("");
+    setSinglePutriPhone("");
+    setNotes("");
+    setAgreedToRules(false);
+  };
+
+  // Completely reset everything to a clean empty state for a new registration
+  const handleReturnToEmptyForm = () => {
+    setSelectedBidang("");
+    resetFormFields();
+    setCategoryStatus(null);
+    setRegisteredData(null);
+    setErrorMessage("");
+  };
+
+  // Sync latest Bidang list in background without blocking UI
+  useEffect(() => {
+    let isMounted = true;
+    getBidangList()
+      .then((res) => {
+        if (isMounted && res.bidang && res.bidang.length > 0) {
+          const names = res.bidang.map((b) => b.name);
+          setBidangOptions(names);
+        }
+      })
+      .catch((err) => {
+        console.warn("Background sync error, using default bidang list:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Handle Bidang Change: Check category registration status
+  const handleBidangChange = async (newBidang: string) => {
+    setSelectedBidang(newBidang);
+    setErrorMessage("");
+    resetFormFields();
+
+    if (!newBidang.trim()) {
+      setCategoryStatus(null);
+      return;
+    }
+
+    setIsCheckingStatus(true);
+    try {
+      const res = await checkBidangRegistration(newBidang);
+      setCategoryStatus(res);
+      if (res.isRegistered) {
+        setAgreedToRules(true);
+      }
+    } catch (err) {
+      console.warn("Failed checking registration status:", err);
+      setCategoryStatus(null);
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
+
+  const isGanda1Locked = !!categoryStatus?.gandaTim1?.isRegistered;
+  const isGanda2Locked = !!categoryStatus?.gandaTim2?.isRegistered;
+  const isSinglePaLocked = !!categoryStatus?.singlePutra?.isRegistered;
+  const isSinglePiLocked = !!categoryStatus?.singlePutri?.isRegistered;
+  const isAllLocked = !!categoryStatus?.isFullyRegistered;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!fullName.trim()) {
-      setErrorMessage("Nama Lengkap wajib diisi.");
+    if (!selectedBidang.trim()) {
+      setErrorMessage("Silakan pilih asal bidang dari daftar.");
       return;
     }
-    if (!phoneNumber.trim()) {
-      setErrorMessage("Nomor WhatsApp wajib diisi untuk konfirmasi jadwal & meja.");
+
+    if (isAllLocked) {
+      setErrorMessage("Seluruh kategori untuk bidang ini sudah terdaftar resmi. Hubungi panitia jika membutuhkan revisi.");
       return;
     }
+
+    const cleanG1P1Phone = cleanPhoneNumber(gandaTim1P1Phone);
+    const cleanG1P2Phone = cleanPhoneNumber(gandaTim1P2Phone);
+    const cleanG2P1Phone = cleanPhoneNumber(gandaTim2P1Phone);
+    const cleanG2P2Phone = cleanPhoneNumber(gandaTim2P2Phone);
+    const cleanSinglePaPhone = cleanPhoneNumber(singlePutraPhone);
+    const cleanSinglePiPhone = cleanPhoneNumber(singlePutriPhone);
+
+    // 1. Validasi Ganda Tim 1 (hanya jika belum terkunci)
+    if (!isGanda1Locked) {
+      const hasGandaTim1P1 = !!gandaTim1P1.trim();
+      const hasGandaTim1P2 = !!gandaTim1P2.trim();
+
+      if (hasGandaTim1P1 && !cleanG1P1Phone) {
+        setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 1) harus diisi.");
+        return;
+      }
+      if (hasGandaTim1P2 && !cleanG1P2Phone) {
+        setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 1) harus diisi.");
+        return;
+      }
+      if ((hasGandaTim1P1 && !hasGandaTim1P2) || (!hasGandaTim1P1 && hasGandaTim1P2)) {
+        setErrorMessage("Untuk Kategori Ganda Putra Tim 1, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau kosongkan jika tidak mendaftar.");
+        return;
+      }
+    }
+
+    // 2. Validasi Ganda Tim 2 (hanya jika belum terkunci dan diaktifkan)
+    if (!isGanda2Locked && hasGandaTim2) {
+      const hasGandaTim2P1 = !!gandaTim2P1.trim();
+      const hasGandaTim2P2 = !!gandaTim2P2.trim();
+
+      if (hasGandaTim2P1 && !cleanG2P1Phone) {
+        setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 2) harus diisi.");
+        return;
+      }
+      if (hasGandaTim2P2 && !cleanG2P2Phone) {
+        setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 2) harus diisi.");
+        return;
+      }
+      if ((hasGandaTim2P1 && !hasGandaTim2P2) || (!hasGandaTim2P1 && hasGandaTim2P2)) {
+        setErrorMessage("Untuk Kategori Ganda Putra Tim 2, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau hapus Tim 2 jika tidak mendaftar.");
+        return;
+      }
+    }
+
+    // 3. Validasi Single Putra (hanya jika belum terkunci)
+    if (!isSinglePaLocked) {
+      if (singlePutra.trim() && !cleanSinglePaPhone) {
+        setErrorMessage("Nomor WhatsApp Atlet Single Putra harus diisi.");
+        return;
+      }
+    }
+
+    // 4. Validasi Single Putri (hanya jika belum terkunci)
+    if (!isSinglePiLocked) {
+      if (singlePutri.trim() && !cleanSinglePiPhone) {
+        setErrorMessage("Nomor WhatsApp Atlet Single Putri harus diisi.");
+        return;
+      }
+    }
+
+    // 5. Harus ada minimal 1 kategori baru yang didaftarkan pada pengiriman ini
+    const hasNewGanda1 = !isGanda1Locked && !!(gandaTim1P1.trim() && gandaTim1P2.trim());
+    const hasNewGanda2 = !isGanda2Locked && hasGandaTim2 && !!(gandaTim2P1.trim() && gandaTim2P2.trim());
+    const hasNewSinglePa = !isSinglePaLocked && !!singlePutra.trim();
+    const hasNewSinglePi = !isSinglePiLocked && !!singlePutri.trim();
+
+    if (!hasNewGanda1 && !hasNewGanda2 && !hasNewSinglePa && !hasNewSinglePi) {
+      setErrorMessage("Silakan isi data minimal 1 kategori atlet yang belum didaftarkan.");
+      return;
+    }
+
+    // 6. Checkbox persetujuan HARUS dicentang
     if (!agreedToRules) {
-      setErrorMessage("Anda harus menyetujui regulasi dan tata tertib turnamen.");
+      setErrorMessage("Harap centang kotak persetujuan ketentuan partisipasi turnamen.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const res = await submitRegistration({
-        fullName,
-        phoneNumber,
-        email,
-        city,
-        clubName,
-        category,
-        handicap,
-        paymentMethod,
-        paymentProofNote,
-      });
+      const payload: BidangFullRegistrationPayload = {
+        bidangName: selectedBidang,
+        gandaTim1Player1: hasNewGanda1 ? gandaTim1P1.trim() : undefined,
+        gandaTim1Player1Phone: hasNewGanda1 ? cleanG1P1Phone : undefined,
+        gandaTim1Player2: hasNewGanda1 ? gandaTim1P2.trim() : undefined,
+        gandaTim1Player2Phone: hasNewGanda1 ? cleanG1P2Phone : undefined,
+        hasGandaTim2: !!hasNewGanda2,
+        gandaTim2Player1: hasNewGanda2 ? gandaTim2P1.trim() : undefined,
+        gandaTim2Player1Phone: hasNewGanda2 ? cleanG2P1Phone : undefined,
+        gandaTim2Player2: hasNewGanda2 ? gandaTim2P2.trim() : undefined,
+        gandaTim2Player2Phone: hasNewGanda2 ? cleanG2P2Phone : undefined,
+        singlePutraPlayer: hasNewSinglePa ? singlePutra.trim() : undefined,
+        singlePutraPhone: hasNewSinglePa ? cleanSinglePaPhone : undefined,
+        singlePutriPlayer: hasNewSinglePi ? singlePutri.trim() : undefined,
+        singlePutriPhone: hasNewSinglePi ? cleanSinglePiPhone : undefined,
+        notes,
+      };
+
+      const res = await submitBidangFullRegistration(payload);
 
       if (!res.success || !res.data) {
         setErrorMessage(res.message || "Gagal mengirim formulir pendaftaran.");
       } else {
         setRegisteredData(res.data);
-        onSuccess(res.data);
+        onSuccess?.(res.data);
       }
     } catch (err: unknown) {
       const error = err as Error;
@@ -92,116 +294,269 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setHasCopiedCode(true);
-    setTimeout(() => setHasCopiedCode(false), 2000);
-  };
-
-  // If registered successfully, show Tournament Pass Badge
+  // SUCCESS SCREEN: Redesigned Digital Athlete Tournament Pass (No Registration Code, Clear Athlete WA Details)
   if (registeredData) {
+    const hasGanda1 = !!(registeredData.ganda_tim1_player1 && registeredData.ganda_tim1_player2);
+    const hasGanda2 = !!(registeredData.ganda_tim2_player1 && registeredData.ganda_tim2_player2);
+    const hasSinglePa = !!registeredData.single_putra_player;
+    const hasSinglePi = !!registeredData.single_putri_player;
+
     return (
-      <div className="max-w-2xl mx-auto py-8">
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-900 to-emerald-950/40 border border-emerald-500/40 shadow-2xl emerald-glow text-center">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mx-auto mb-4 text-emerald-400">
+      <div className="max-w-2xl mx-auto py-4 px-2 sm:px-0">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/5 text-center">
+          {/* Header Icon & Status */}
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-xs">
             <CheckCircle2 className="w-8 h-8" />
           </div>
 
-          <span className="text-xs font-bold uppercase tracking-widest text-emerald-400 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30">
+          <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block">
             Pendaftaran Berhasil Diterima
           </span>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3">
-            Digital Tournament Pass
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 tracking-tight">
+            Digital Athlete Tournament Pass
           </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-md mx-auto">
-            Simpan atau screenshot kartu pass ini sebagai bukti registrasi resmi turnamen billiard.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto">
+            Simpan atau screenshot tiket kartu pass delegasi ini sebagai bukti keikutsertaan resmi turnamen BOLA 8 antar bidang.
           </p>
 
-          {/* Pass Card */}
-          <div className="mt-6 p-5 sm:p-6 rounded-2xl bg-zinc-950 border border-emerald-500/30 text-left relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <div>
-                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                  OFFICIAL ATHLETE PASS
-                </span>
-                <div className="text-sm font-extrabold text-white">
-                  {TOURNAMENT_CONFIG.name}
+          {/* PASS CARD PREVIEW */}
+          <div className="mt-7 rounded-2xl bg-gradient-to-b from-white via-slate-50/60 to-red-50/30 border-2 border-slate-200/90 text-left overflow-hidden shadow-xs">
+            {/* Card Top Brand Ribbon */}
+            <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                  TI
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black tracking-wide text-white">TI BILLIARD CUP 2026</h4>
+                  <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider block">
+                    TURNAMEN BOLA 8 ANTAR BIDANG
+                  </span>
                 </div>
               </div>
-              <div className="px-2.5 py-1 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-300 text-[10px] font-bold">
-                STATUS: {registeredData.payment_status.toUpperCase()}
-              </div>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-black uppercase tracking-wide flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                Terkonfirmasi Resmi
+              </span>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
+            {/* Bidang Info Bar */}
+            <div className="px-5 py-4 bg-white border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-[10px] text-zinc-500 uppercase">Nama Peserta</span>
-                <p className="font-bold text-white text-sm sm:text-base">{registeredData.full_name}</p>
-              </div>
-              <div>
-                <span className="text-[10px] text-zinc-500 uppercase">Handicap / Level</span>
-                <p className="font-bold text-emerald-400 text-sm sm:text-base">{registeredData.handicap}</p>
-              </div>
-              <div>
-                <span className="text-[10px] text-zinc-500 uppercase">Klub / Kota</span>
-                <p className="font-medium text-zinc-300">
-                  {registeredData.club_name || "Independent"} • {registeredData.city || "Indonesia"}
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  Asal Bidang Ganesha Operation
+                </span>
+                <p className="font-black text-slate-900 text-base sm:text-lg mt-0.5">
+                  {registeredData.bidang_name || registeredData.club_name}
                 </p>
               </div>
-              <div>
-                <span className="text-[10px] text-zinc-500 uppercase">Kategori Turnamen</span>
-                <p className="font-medium text-zinc-300">{registeredData.category.toUpperCase()}</p>
+              <div className="text-left sm:text-right">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center sm:justify-end gap-1">
+                  <MapPin className="w-3 h-3 text-red-600" />
+                  Venue &amp; Waktu
+                </span>
+                <p className="text-xs font-bold text-slate-700 mt-0.5">
+                  {TOURNAMENT_CONFIG.venue} • {TOURNAMENT_CONFIG.date_range}
+                </p>
               </div>
             </div>
 
-            {/* Registration Code Badge */}
-            <div className="mt-5 pt-4 border-t border-zinc-800 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] text-zinc-500 uppercase">Kode Pendaftaran</span>
-                <div className="text-lg sm:text-xl font-mono font-black text-amber-400 tracking-wider">
-                  {registeredData.registration_code}
-                </div>
+            {/* DETAIL ATLET & KONTAK WHATSAPP PER KATEGORI */}
+            <div className="p-5 space-y-3.5">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider">
+                  Rincian Atlet Delegasi &amp; Kontak WhatsApp
+                </span>
+                <span className="text-[10px] font-bold text-slate-400">
+                  Perwakilan Resmi
+                </span>
               </div>
-              <button
-                onClick={() => copyCode(registeredData.registration_code)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-all"
-              >
-                {hasCopiedCode ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Disalin!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Salin Kode</span>
-                  </>
-                )}
-              </button>
+
+              {/* Single Putra Card */}
+              {hasSinglePa && (
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-black text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      Single Putra
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
+                    <p className="font-black text-slate-900 text-sm">
+                      {registeredData.single_putra_player}
+                    </p>
+                    {registeredData.single_putra_phone && (
+                      <a
+                        href={`https://wa.me/${registeredData.single_putra_phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{registeredData.single_putra_phone}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Single Putri Card */}
+              {hasSinglePi && (
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-black text-pink-700 uppercase tracking-wider bg-pink-50 px-2 py-0.5 rounded-md border border-pink-200 flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      Single Putri
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
+                    <p className="font-black text-slate-900 text-sm">
+                      {registeredData.single_putri_player}
+                    </p>
+                    {registeredData.single_putri_phone && (
+                      <a
+                        href={`https://wa.me/${registeredData.single_putri_phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{registeredData.single_putri_phone}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Ganda Putra Tim 1 Card */}
+              {hasGanda1 && (
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-black text-red-700 uppercase tracking-wider bg-red-50 px-2 py-0.5 rounded-md border border-red-200 flex items-center gap-1">
+                      <Users2 className="w-3 h-3" />
+                      Ganda Putra (Tim 1)
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 1</span>
+                      <p className="font-black text-slate-900 text-xs mt-0.5">
+                        {registeredData.ganda_tim1_player1}
+                      </p>
+                      {registeredData.ganda_tim1_player1_phone && (
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                          <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{registeredData.ganda_tim1_player1_phone}</span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 2</span>
+                      <p className="font-black text-slate-900 text-xs mt-0.5">
+                        {registeredData.ganda_tim1_player2}
+                      </p>
+                      {registeredData.ganda_tim1_player2_phone && (
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                          <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{registeredData.ganda_tim1_player2_phone}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Ganda Putra Tim 2 Card */}
+              {hasGanda2 && (
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-black text-amber-700 uppercase tracking-wider bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 flex items-center gap-1">
+                      <Users2 className="w-3 h-3" />
+                      Ganda Putra (Tim 2)
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 1</span>
+                      <p className="font-black text-slate-900 text-xs mt-0.5">
+                        {registeredData.ganda_tim2_player1}
+                      </p>
+                      {registeredData.ganda_tim2_player1_phone && (
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                          <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{registeredData.ganda_tim2_player1_phone}</span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 2</span>
+                      <p className="font-black text-slate-900 text-xs mt-0.5">
+                        {registeredData.ganda_tim2_player2}
+                      </p>
+                      {registeredData.ganda_tim2_player2_phone && (
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                          <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{registeredData.ganda_tim2_player2_phone}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Card Footer Note */}
+            <div className="px-5 py-3 bg-slate-50 border-t border-slate-200/80 text-[11px] text-slate-500 font-medium text-center">
+              Data delegasi bidang ini telah resmi tercatat untuk pengundian bagan &amp; jadwal pertandingan.
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+          {/* TWO PRIMARY ACTION BUTTONS */}
+          <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+            {/* BUTTON 1: Partisipasi Langsung */}
+            <Link
+              href="/participants"
+              className="px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black btn-championship-red flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 text-center"
+            >
+              <Users className="w-4 h-4" />
+              <span>Lihat Daftar Peserta (Participants)</span>
+            </Link>
+
+            {/* BUTTON 2: Kembali ke pendaftaran dengan data kosong semua */}
+            <button
+              onClick={handleReturnToEmptyForm}
+              className="px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-bold btn-luxury-pearl flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4 text-slate-600" />
+              <span>Kembali ke Pendaftaran (Data Kosong)</span>
+            </button>
+          </div>
+
+          {/* Help Contact Link */}
+          <div className="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 flex flex-wrap items-center justify-center gap-3">
+            <span>Butuh revisi susunan atlet? Hubungi Panitia:</span>
             <a
-              href={`https://wa.me/${TOURNAMENT_CONFIG.contact_wa}?text=Halo%20Panitia%20Billiard,%20saya%20sudah%20mendaftar%20dengan%20Kode:%20${registeredData.registration_code}%20atas%20nama%20${encodeURIComponent(registeredData.full_name)}`}
+              href={`https://wa.me/${TOURNAMENT_CONFIG.contact_sean}?text=Halo%20Sean%20(Panitia%20TI%20Billiard%20Cup),%20saya%20dari%20bidang%20${encodeURIComponent(registeredData.bidang_name || registeredData.club_name || "")}%20ingin%20mengajukan%20perubahan/revisi%20data%20atlet`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+              className="font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 underline"
             >
-              <Send className="w-4 h-4" />
-              <span>Konfirmasi Bukti ke WA Panitia</span>
+              <Phone className="w-3 h-3" /> Sean - TI (0851-8997-0998)
             </a>
-
-            <button
-              onClick={onGoToSchedule}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs sm:text-sm"
+            <span>atau</span>
+            <a
+              href={`https://wa.me/${TOURNAMENT_CONFIG.contact_novi}?text=Halo%20Novi%20(Panitia%20TI%20Billiard%20Cup),%20saya%20dari%20bidang%20${encodeURIComponent(registeredData.bidang_name || registeredData.club_name || "")}%20ingin%20mengajukan%20perubahan/revisi%20data%20atlet`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-slate-700 hover:text-slate-900 flex items-center gap-1 underline"
             >
-              Kembali ke Jadwal Pertandingan
-            </button>
+              <Phone className="w-3 h-3" /> Novi (0856-2405-5869)
+            </a>
           </div>
         </div>
       </div>
@@ -209,312 +564,636 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-4">
-      {/* Google Form Style Container */}
-      <div className="space-y-4">
+    <div className="max-w-3xl mx-auto py-4 w-full min-w-0 max-w-full">
+      <div className="space-y-6">
         {/* Header Form Card */}
-        <div className="rounded-2xl bg-zinc-900/80 border-t-8 border-t-emerald-500 border border-emerald-950/80 p-6 sm:p-8 backdrop-blur-md shadow-xl">
-          <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="rounded-3xl bg-white border-t-8 border-t-red-600 border border-slate-200/90 p-6 sm:p-8 shadow-sm">
+          <div className="flex items-center gap-2 text-red-600 text-xs font-black uppercase tracking-wider mb-2">
             <FileText className="w-4 h-4" />
-            <span>Formulir Pendaftaran Resmi</span>
+            <span>Formulir Pendaftaran Resmi Antar Bidang</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-white">
-            Form Pendaftaran Atlet / Peserta Turnamen Billiard
+
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Pendaftaran Delegasi TI BILLIARD CUP 2026 (BOLA 8)
           </h2>
-          <p className="text-xs sm:text-sm text-zinc-300 mt-2 leading-relaxed">
-            Silakan lengkapi formulir di bawah ini dengan data yang valid. Data nomor WhatsApp akan digunakan oleh panitia meja untuk memanggil peserta dan mengabarkan jadwal match secara real-time.
+          <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+            Sesuai surat undangan resmi Bidang Teknologi Informasi, setiap bidang di lingkungan kerja Ganesha Operation dipersilakan mendaftarkan kontingennya secara <strong>GRATIS</strong> untuk memperebutkan <strong>Piala Bergilir Direktur Perencanaan</strong>.
           </p>
 
-          <div className="mt-4 pt-4 border-t border-zinc-800 flex flex-wrap items-center gap-4 text-xs text-zinc-400">
-            <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
-              <Trophy className="w-3.5 h-3.5" /> Biaya: {TOURNAMENT_CONFIG.registration_fee}
+          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5 text-red-700 font-bold bg-red-50 px-3 py-1 rounded-full border border-red-200">
+              <Trophy className="w-3.5 h-3.5 text-red-600" /> Biaya: GRATIS
             </span>
-            <span className="flex items-center gap-1.5 text-zinc-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Kuota Terbatas (64 Slot)
+            <span className="flex items-center gap-1.5 text-amber-800 font-bold bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              <Calendar className="w-3.5 h-3.5 text-amber-600" /> Batas: Selasa, 1 Desember 2026
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-700 font-semibold bg-slate-100 px-3 py-1 rounded-full">
+              <Clock className="w-3.5 h-3.5 text-slate-600" /> TM: Rabu, 2 Desember 2026
             </span>
           </div>
         </div>
 
         {/* Error Alert if any */}
         {errorMessage && (
-          <div className="p-4 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs sm:text-sm flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-            <span>{errorMessage}</span>
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <span className="font-semibold">{errorMessage}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Card 1: Data Diri */}
-          <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 p-5 sm:p-6 backdrop-blur-md">
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-800">
-              <User className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                1. Identitas Peserta
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* SECTION 1: ASAL BIDANG */}
+          <div className="rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Building className="w-4 h-4 text-red-600" />
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                1. Asal Bidang di Ganesha Operation
               </h3>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Nama Lengkap Atlet / Pemain <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Ricky Permana"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                Pilih Bidang *
+              </label>
+              {isLoadingBidang ? (
+                <div className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 animate-pulse flex items-center px-4 gap-2.5">
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span className="text-xs font-medium text-slate-500">
+                    Memuat daftar bidang resmi...
+                  </span>
+                </div>
+              ) : (
+                <select
+                  value={selectedBidang}
+                  onChange={(e) => handleBidangChange(e.target.value)}
+                  className="w-full px-4 py-3 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 font-bold text-slate-900 transition-colors"
+                >
+                  <option value="">
+                    -- Pilih Asal Bidang di Ganesha Operation --
+                  </option>
+                  {bidangOptions.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <span className="text-[11px] text-slate-400 mt-1.5 block">
+                * Pilihan 20 bidang terdaftar resmi di lingkungan kerja Ganesha Operation
+              </span>
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                    Nomor WhatsApp Aktif <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                    <input
-                      type="tel"
-                      required
-                      placeholder="Contoh: 081234567890"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
-                    />
+            {/* Checking Status Indicator */}
+            {isCheckingStatus && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600">
+                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                <span>Memeriksa status pendaftaran bidang...</span>
+              </div>
+            )}
+
+            {/* Prompt if no bidang selected yet */}
+            {!selectedBidang && !isCheckingStatus && (
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500 font-medium">
+                Pilih salah satu dari 20 asal bidang di atas untuk memeriksa status dan memulai pendaftaran atlet.
+              </div>
+            )}
+
+            {/* ALL CATEGORIES FULLY REGISTERED LOCK BANNER */}
+            {isAllLocked && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/90 border-2 border-amber-300 text-amber-950 shadow-xs space-y-3.5">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0 mt-0.5">
+                    <Lock className="w-5 h-5 text-white" />
                   </div>
-                  <p className="text-[10px] text-zinc-500 mt-1">
-                    Wajib aktif untuk pemanggilan meja & link jadwal.
+                  <div>
+                    <h4 className="font-black text-sm text-amber-950 uppercase tracking-tight">
+                      SELURUH KATEGORI TELAH TERDAFTAR RESMI &amp; TERKUNCI
+                    </h4>
+                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                      Bidang <strong>{selectedBidang}</strong> telah mendaftarkan seluruh kategori kontingen (Ganda Putra, Single Putra, dan Single Putri). Demi integritas pengundian bagan, data <strong>tidak dapat diubah secara mandiri</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white/80 p-3.5 rounded-xl border border-amber-200 text-xs text-slate-700 space-y-1">
+                  <p className="font-semibold text-slate-800">
+                    Perlu revisi susunan atlet atau koreksi nomor kontak?
+                  </p>
+                  <p className="text-slate-500 text-[11px]">
+                    Silakan hubungi Panitia TI Billiard Cup 2026 melalui WhatsApp resmi:
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                    Email (Opsional)
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                  <a
+                    href={`https://wa.me/${TOURNAMENT_CONFIG.contact_sean}?text=Halo%20Sean%20(Panitia%20TI%20Billiard%20Cup),%20saya%20dari%20bidang%20${encodeURIComponent(selectedBidang)}%20ingin%20mengajukan%20perubahan/revisi%20data%20atlet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-2xs"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Chat Sean - TI (0851-8997-0998)</span>
+                  </a>
+
+                  <a
+                    href={`https://wa.me/${TOURNAMENT_CONFIG.contact_novi}?text=Halo%20Novi%20(Panitia%20TI%20Billiard%20Cup),%20saya%20dari%20bidang%20${encodeURIComponent(selectedBidang)}%20ingin%20mengajukan%20perubahan/revisi%20data%20atlet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-2xs"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Chat Novi - Panitia (0856-2405-5869)</span>
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* PARTIAL REGISTRATION INFO BANNER */}
+            {categoryStatus?.isRegistered && !isAllLocked && (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 shadow-2xs space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <h4 className="font-black text-xs sm:text-sm text-emerald-950 uppercase tracking-tight">
+                    Pendaftaran Bertahap Aktif
+                  </h4>
+                </div>
+                <p className="text-xs text-emerald-800 leading-relaxed">
+                  Bidang <strong>{selectedBidang}</strong> sudah mendaftarkan sebagian kategori (ditandai badge <strong>Terkunci</strong>). Anda dapat melanjutkan pendaftaran untuk kategori lain yang belum terdaftar di bawah ini.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* SECTION 2: KATEGORI GANDA PUTRA */}
+          <div className="rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-xs space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Users2 className="w-4 h-4 text-red-600" />
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                  2. Kategori Ganda Putra
+                </h3>
+              </div>
+              <span className="text-[11px] font-bold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+                Maksimal 2 Tim • 2 Orang per Tim
+              </span>
+            </div>
+
+            {/* Tim 1 Ganda Putra */}
+            {isGanda1Locked ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Tim 1 Ganda Putra: Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 1</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                      {categoryStatus?.gandaTim1?.player1}
+                    </p>
+                    {categoryStatus?.gandaTim1?.phone1 && (
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim1.phone1}
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 2</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                      {categoryStatus?.gandaTim1?.player2}
+                    </p>
+                    {categoryStatus?.gandaTim1?.phone2 && (
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim1.phone2}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Kategori Ganda Putra Tim 1 sudah terdaftar. Hubungi panitia jika membutuhkan revisi pemain.
+                </p>
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                    Tim 1 Ganda Putra
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">2 Atlet</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nama Pemain 1
+                    </label>
                     <input
-                      type="email"
-                      placeholder="nama@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
+                      type="text"
+                      placeholder="Contoh: Rudolf Sidauruk"
+                      value={gandaTim1P1}
+                      onChange={(e) => setGandaTim1P1(e.target.value)}
+                      disabled={!selectedBidang || isAllLocked}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nomor WhatsApp Pemain 1
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Contoh: 081234567890"
+                      value={gandaTim1P1Phone}
+                      onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim1P1Phone)}
+                      onBlur={() => setGandaTim1P1Phone(cleanPhoneNumber(gandaTim1P1Phone))}
+                      disabled={!selectedBidang || isAllLocked}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nama Pemain 2
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Contoh: Eko Prasetyo"
+                      value={gandaTim1P2}
+                      onChange={(e) => setGandaTim1P2(e.target.value)}
+                      disabled={!selectedBidang || isAllLocked}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nomor WhatsApp Pemain 2
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Contoh: 081234567891"
+                      value={gandaTim1P2Phone}
+                      onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim1P2Phone)}
+                      onBlur={() => setGandaTim1P2Phone(cleanPhoneNumber(gandaTim1P2Phone))}
+                      disabled={!selectedBidang || isAllLocked}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
               </div>
+            )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                    Kota Asal / Domisili
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                    <input
-                      type="text"
-                      placeholder="Contoh: Jakarta / Surabaya / Bandung"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
-                    />
+            {/* Tim 2 Ganda Putra */}
+            {isGanda2Locked ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Tim 2 Ganda Putra: Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 1</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                      {categoryStatus?.gandaTim2?.player1}
+                    </p>
+                    {categoryStatus?.gandaTim2?.phone1 && (
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim2.phone1}
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 2</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                      {categoryStatus?.gandaTim2?.player2}
+                    </p>
+                    {categoryStatus?.gandaTim2?.phone2 && (
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim2.phone2}
+                      </p>
+                    )}
                   </div>
                 </div>
+              </div>
+            ) : (
+              <div className="pt-1">
+                {!hasGandaTim2 ? (
+                  <button
+                    type="button"
+                    onClick={() => setHasGandaTim2(true)}
+                    disabled={!selectedBidang || isAllLocked}
+                    className="w-full py-2.5 px-4 rounded-xl border border-dashed border-red-300 bg-red-50/50 hover:bg-red-50 text-red-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <PlusCircle className="w-4 h-4 text-red-600" />
+                    <span>+ Tambah Tim 2 Ganda Putra</span>
+                  </button>
+                ) : (
+                  <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                        Tim 2 Ganda Putra
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setHasGandaTim2(false)}
+                        className="text-slate-400 hover:text-red-600 text-xs flex items-center gap-1"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>Hapus Tim 2</span>
+                      </button>
+                    </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          Nama Pemain 1 (Tim 2)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nama Pemain 1"
+                          value={gandaTim2P1}
+                          onChange={(e) => setGandaTim2P1(e.target.value)}
+                          disabled={!selectedBidang || isAllLocked}
+                          className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          Nomor WhatsApp Pemain 1 (Tim 2)
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Nomor WhatsApp"
+                          value={gandaTim2P1Phone}
+                          onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim2P1Phone)}
+                          onBlur={() => setGandaTim2P1Phone(cleanPhoneNumber(gandaTim2P1Phone))}
+                          disabled={!selectedBidang || isAllLocked}
+                          className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          Nama Pemain 2 (Tim 2)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nama Pemain 2"
+                          value={gandaTim2P2}
+                          onChange={(e) => setGandaTim2P2(e.target.value)}
+                          disabled={!selectedBidang || isAllLocked}
+                          className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          Nomor WhatsApp Pemain 2 (Tim 2)
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Nomor WhatsApp"
+                          value={gandaTim2P2Phone}
+                          onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim2P2Phone)}
+                          onBlur={() => setGandaTim2P2Phone(cleanPhoneNumber(gandaTim2P2Phone))}
+                          disabled={!selectedBidang || isAllLocked}
+                          className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* SECTION 3: KATEGORI SINGLE PUTRA */}
+          <div className="rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-red-600" />
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                  3. Kategori Single Putra
+                </h3>
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                1 Tim • 1 Orang
+              </span>
+            </div>
+
+            {isSinglePaLocked ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Single Putra: Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Nama Atlet</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                      {categoryStatus?.singlePutra?.player}
+                    </p>
+                  </div>
+                  {categoryStatus?.singlePutra?.phone && (
+                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{categoryStatus.singlePutra.phone}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Kategori Single Putra sudah terdaftar resmi. Hubungi panitia jika membutuhkan revisi pemain.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                    Klub / Rumah Billiard (Home Base)
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Nama Lengkap Atlet Single Putra
                   </label>
                   <input
                     type="text"
-                    placeholder="Contoh: Master Cue Club / Independent"
-                    value={clubName}
-                    onChange={(e) => setClubName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
+                    placeholder="Contoh: Ahmad Fauzi"
+                    value={singlePutra}
+                    onChange={(e) => setSinglePutra(e.target.value)}
+                    disabled={!selectedBidang || isAllLocked}
+                    className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 font-medium text-slate-900 transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Nomor WhatsApp Atlet
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Contoh: 081234567892"
+                    value={singlePutraPhone}
+                    onChange={(e) => handlePhoneInputChange(e.target.value, setSinglePutraPhone)}
+                    onBlur={() => setSinglePutraPhone(cleanPhoneNumber(singlePutraPhone))}
+                    disabled={!selectedBidang || isAllLocked}
+                    className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 font-medium text-slate-900 transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Card 2: Kategori & Handicap */}
-          <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 p-5 sm:p-6 backdrop-blur-md">
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-800">
-              <Trophy className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                2. Kategori Pertandingan & Handicap
-              </h3>
+          {/* SECTION 4: KATEGORI SINGLE PUTRI */}
+          <div className="rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-red-600" />
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                  4. Kategori Single Putri
+                </h3>
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                1 Tim • 1 Orang
+              </span>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-2">
-                  Pilih Kategori Turnamen <span className="text-red-400">*</span>
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[
-                    {
-                      id: "10-ball-handicap",
-                      label: "10-Ball Handicap",
-                      desc: "HC 3 s/d HC 6 (Race to 7)",
-                    },
-                    {
-                      id: "9-ball-open",
-                      label: "9-Ball Open Pro",
-                      desc: "Semua Handicap (Race to 9)",
-                    },
-                    {
-                      id: "junior-under21",
-                      label: "Junior U-21",
-                      desc: "Atlet Muda di bawah 21 Thn",
-                    },
-                  ].map((cat) => (
-                    <label
-                      key={cat.id}
-                      onClick={() => setCategory(cat.id as any)}
-                      className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                        category === cat.id
-                          ? "bg-emerald-950/60 border-emerald-500 text-white shadow-md shadow-emerald-950"
-                          : "bg-zinc-950/60 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="tournamentCategory"
-                        checked={category === cat.id}
-                        onChange={() => {}}
-                        className="sr-only"
-                      />
-                      <div className="font-bold text-xs sm:text-sm text-white">
-                        {cat.label}
-                      </div>
-                      <div className="text-[11px] text-zinc-400 mt-1">{cat.desc}</div>
-                    </label>
-                  ))}
+            {isSinglePiLocked ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Single Putri: Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Tingkat Handicap (HC) Saat Ini <span className="text-red-400">*</span>
-                </label>
-                <select
-                  value={handicap}
-                  onChange={(e) => setHandicap(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="HC 3">Handicap 3 (Pemula / Beginner)</option>
-                  <option value="HC 4">Handicap 4 (Pratama)</option>
-                  <option value="HC 4+">Handicap 4+ (Madya Bawah)</option>
-                  <option value="HC 5">Handicap 5 (Madya)</option>
-                  <option value="HC 5+">Handicap 5+ (Madya Atas)</option>
-                  <option value="HC 6">Handicap 6 (Utama)</option>
-                  <option value="HC 6+ / Pro">Handicap 6+ / Master / Pro</option>
-                </select>
-                <p className="text-[10px] text-zinc-500 mt-1">
-                  *Panitia berhak melakukan verifikasi ulang handicap saat technical meeting.
+                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Nama Atlet</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                      {categoryStatus?.singlePutri?.player}
+                    </p>
+                  </div>
+                  {categoryStatus?.singlePutri?.phone && (
+                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{categoryStatus.singlePutri.phone}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Kategori Single Putri sudah terdaftar resmi. Hubungi panitia jika membutuhkan revisi pemain.
                 </p>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Nama Lengkap Atlet Single Putri
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: Dewi Lestari"
+                    value={singlePutri}
+                    onChange={(e) => setSinglePutri(e.target.value)}
+                    disabled={!selectedBidang || isAllLocked}
+                    className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 font-medium text-slate-900 transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Nomor WhatsApp Atlet
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Contoh: 081234567893"
+                    value={singlePutriPhone}
+                    onChange={(e) => handlePhoneInputChange(e.target.value, setSinglePutriPhone)}
+                    onBlur={() => setSinglePutriPhone(cleanPhoneNumber(singlePutriPhone))}
+                    disabled={!selectedBidang || isAllLocked}
+                    className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 font-medium text-slate-900 transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Card 3: Pembayaran & Konfirmasi */}
-          <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 p-5 sm:p-6 backdrop-blur-md">
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-800">
-              <CreditCard className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                3. Pembayaran Uang Pendaftaran
-              </h3>
-            </div>
-
-            {/* Rekening Card */}
-            <div className="p-4 rounded-xl bg-zinc-950 border border-emerald-950 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">
-                  Transfer Bank Resmi Panitia
-                </span>
-                <div className="text-sm font-bold text-white mt-0.5">
-                  BCA: <span className="font-mono text-emerald-400">882-019-2811</span>
-                </div>
-                <div className="text-xs text-zinc-400">A/N PANITIA TOURNAMENT BILLIARD NUSANTARA</div>
-              </div>
-              <div className="text-left sm:text-right">
-                <span className="text-[10px] text-zinc-500 uppercase font-bold">Nominal</span>
-                <div className="text-base font-black text-amber-400">
-                  {TOURNAMENT_CONFIG.registration_fee}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Metode Pembayaran
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="BCA Transfer">BCA Transfer</option>
-                  <option value="Mandiri Transfer">Mandiri Transfer</option>
-                  <option value="QRIS / E-Wallet">QRIS / E-Wallet (GoPay/OVO/Dana)</option>
-                  <option value="Cash di Kasir Meja">Bayar Tunai di Kasir Arena (Sebelum Match)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Catatan Transfer / Nomor Ref (Opsional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Transfer atas nama Budi / No Ref BCA 192837"
-                  value={paymentProofNote}
-                  onChange={(e) => setPaymentProofNote(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500 transition-all"
-                />
-              </div>
-
-              {/* Rules Agreement */}
-              <label className="flex items-start gap-3 pt-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreedToRules}
-                  onChange={(e) => setAgreedToRules(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-emerald-500"
-                />
-                <span className="text-xs text-zinc-300 leading-relaxed">
-                  Saya bersedia mematuhi seluruh regulasi turnamen, dress code rapi (polo shirt & sepatu), datang tepat waktu sesuai jadwal meja, serta menjunjung tinggi sportivitas dan fair play.
-                </span>
+          {/* SECTION 5: KETENTUAN & SUBMIT */}
+          <div className="rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="rules"
+                checked={agreedToRules}
+                onChange={(e) => setAgreedToRules(e.target.checked)}
+                disabled={!selectedBidang || isAllLocked}
+                required
+                className="mt-1 w-4 h-4 text-red-600 rounded-md border-slate-300 focus:ring-red-500 disabled:opacity-50 cursor-pointer"
+              />
+              <label htmlFor="rules" className="text-xs text-slate-700 font-medium leading-relaxed cursor-pointer select-none">
+                Kami menyatakan bahwa data atlet yang didaftarkan di atas adalah perwakilan resmi bidang kami di lingkungan <strong>Ganesha Operation</strong>, bersedia hadir tepat waktu pada Technical Meeting (Rabu, 02 Desember 2026) dan bertanding di Greenlight Cafe &amp; Billiard dengan menjunjung tinggi <strong>SPORTIVITAS ANTAR BIDANG</strong>. <span className="text-red-600 font-bold">*</span>
               </label>
             </div>
-          </div>
 
-          {/* Submit Button */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-sm sm:text-base shadow-xl shadow-emerald-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <>
-                  <Sparkles className="w-5 h-5 animate-spin" />
-                  <span>Sedang Mendaftarkan ke Database...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-5 h-5" />
-                  <span>Kirim Formulir Pendaftaran</span>
-                </>
-              )}
-            </button>
-            <p className="text-center text-[11px] text-zinc-500 mt-2">
-              Data pendaftaran akan langsung terhubung ke database Supabase Anda secara aman.
-            </p>
+            {/* Submit / Lock Button */}
+            {isAllLocked ? (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-center space-y-1.5">
+                <div className="flex items-center justify-center gap-2 text-amber-950 font-black text-sm">
+                  <Lock className="w-4 h-4 text-amber-700" />
+                  <span>Seluruh Kategori Sudah Terdaftar &amp; Terkunci</span>
+                </div>
+                <p className="text-xs text-amber-800">
+                  Data atlet telah terekam lengkap. Silakan kontak panitia jika memerlukan perubahan susunan kontingen.
+                </p>
+              </div>
+            ) : !selectedBidang ? (
+              <button
+                type="button"
+                disabled
+                className="w-full py-4 rounded-2xl text-sm font-bold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed text-center"
+              >
+                Silakan Pilih Asal Bidang Terlebih Dahulu
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full py-4 rounded-2xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 transition-all ${
+                  isSubmitting
+                    ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                    : "btn-championship-red"
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Menyimpan formulir pendaftaran...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>
+                      {categoryStatus?.isRegistered
+                        ? "Kirim Pendaftaran Kategori Ini (GRATIS)"
+                        : "Kirim Formulir Pendaftaran Delegasi (GRATIS)"}
+                    </span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </form>
       </div>

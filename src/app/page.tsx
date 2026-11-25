@@ -1,175 +1,185 @@
-"use client";
-
-import React, { useState, useEffect, useTransition } from "react";
-import { Navbar } from "@/components/Navbar";
+import React from "react";
+import Link from "next/link";
 import { HeroBanner } from "@/components/HeroBanner";
-import { ScheduleView } from "@/components/ScheduleView";
-import { RegistrationForm } from "@/components/RegistrationForm";
-import { CheckRegistrationModal } from "@/components/CheckRegistrationModal";
-import { SupabaseSetupGuide } from "@/components/SupabaseSetupGuide";
-import { getMatches } from "@/app/actions/matches";
-import { Match, Registration } from "@/types/tournament";
-import { INITIAL_MATCHES, TOURNAMENT_CONFIG } from "@/lib/mock-data";
-import { isSupabaseConfigured } from "@/lib/supabase";
-import { Trophy, Calendar, FileText, CheckCircle2, MessageCircle } from "lucide-react";
+import {
+  Trophy,
+  Users,
+  TableProperties,
+  GitFork,
+  FileText,
+  Search,
+  ChevronRight,
+  Gift,
+  BookOpen,
+  Calendar,
+  Sparkles,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  Flame,
+  Award,
+} from "lucide-react";
+import { TOURNAMENT_CONFIG } from "@/lib/mock-data";
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<"schedule" | "register" | "check">("schedule");
-  const [matches, setMatches] = useState<Match[]>(INITIAL_MATCHES);
-  const [isLiveSupabase, setIsLiveSupabase] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [, startTransition] = useTransition();
-
-  // Load matches from database or seed
-  const loadMatches = async () => {
-    setIsRefreshing(true);
-    try {
-      const res = await getMatches();
-      setMatches(res.matches);
-      setIsLiveSupabase(res.isLiveSupabase);
-    } catch (e) {
-      console.error("Error loading matches:", e);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadMatches();
-  }, []);
-
-  const liveMatchesCount = matches.filter((m) => m.status === "live").length;
-
-  const handleRegistrationSuccess = (reg: Registration) => {
-    console.log("Registered athlete:", reg);
-  };
+  const tournamentModules = [
+    {
+      title: "Playoffs (Bagan Gugur)",
+      description: "Bagan gugur Single Elimination babak 8 Besar hingga Grand Final memperebutkan Piala Bergilir Direktur Perencanaan.",
+      href: "/playoffs",
+      icon: GitFork,
+      badge: "8 Besar",
+      badgeColor: "bg-red-50 text-red-700 border-red-200",
+      cta: "Buka Bagan Playoffs",
+    },
+    {
+      title: "Group Stage (Penyisihan)",
+      description: "Klasemen Babak Penyisihan 4 Grup (A, B, C, D) 20 bidang untuk kategori Ganda Putra, Single Putra, dan Single Putri.",
+      href: "/group-stage",
+      icon: TableProperties,
+      badge: "4 Grup (20 Tim)",
+      badgeColor: "bg-amber-50 text-amber-800 border-amber-200",
+      cta: "Lihat Klasemen Grup",
+    },
+    {
+      title: "Daftar Peserta (Bidang)",
+      description: "Daftar 20 tim perwakilan bidang di lingkungan Ganesha Operation Pusat beserta data atlet delegasi siap tanding.",
+      href: "/participants",
+      icon: Users,
+      badge: "19 Bidang + IT Host",
+      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      cta: "Cek Roster Bidang",
+    },
+    {
+      title: "Prize Pool & Rincian Hadiah",
+      description: "Alokasi 3 Piala Bergilir DirRen, uang tunai pembinaan, piala tetap juara 1-3, suporter terbaik, dan mini games.",
+      href: "/prize-pool",
+      icon: Trophy,
+      badge: "3 Piala Bergilir",
+      badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
+      cta: "Rincian Hadiah Juara",
+    },
+    {
+      title: "Merchandise & Doorprize",
+      description: "Koleksi kaos dry-fit, topi drill, tumbler stainless, mug, dan voucher belanja Indomaret Rp 100K & 50K.",
+      href: "/merchandise",
+      icon: Gift,
+      badge: "Voucher Belanja",
+      badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
+      cta: "Lihat Merchandise",
+    },
+    {
+      title: "Regulasi & SK Resmi Bola 8",
+      description: "Surat keputusan resmi panitia, sistem pertandingan Bola 8 WPA, toleransi waktu, dan ketentuan WO.",
+      href: "/regulation",
+      icon: BookOpen,
+      badge: "Official WPA",
+      badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
+      cta: "Baca Aturan Resmi",
+    },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col justify-between">
-      <div>
-        {/* Navigation Bar */}
-        <Navbar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          isSupabaseLive={isLiveSupabase}
-          onOpenSupabaseGuide={() => setIsGuideOpen(true)}
-        />
+    <div className="space-y-12 sm:space-y-16">
+      {/* 1. Hero Section with Official Tournament Poster */}
+      <HeroBanner />
 
-        {/* Hero Section */}
-        <HeroBanner
-          onRegisterClick={() => setActiveTab("register")}
-          onViewScheduleClick={() => setActiveTab("schedule")}
-          totalMatches={matches.length}
-          liveMatchesCount={liveMatchesCount}
-        />
-
-        {/* Main Content Area */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Quick tab switcher pill on mobile */}
-          <div className="flex md:hidden items-center justify-center mb-6">
-            <div className="inline-flex p-1 rounded-xl bg-zinc-900 border border-zinc-800">
-              <button
-                onClick={() => setActiveTab("schedule")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                  activeTab === "schedule"
-                    ? "bg-emerald-600 text-white"
-                    : "text-zinc-400"
-                }`}
-              >
-                Jadwal Pertandingan
-              </button>
-              <button
-                onClick={() => setActiveTab("register")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                  activeTab === "register"
-                    ? "bg-emerald-600 text-white"
-                    : "text-zinc-400"
-                }`}
-              >
-                Pendaftaran (G-Form)
-              </button>
-              <button
-                onClick={() => setActiveTab("check")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                  activeTab === "check"
-                    ? "bg-emerald-600 text-white"
-                    : "text-zinc-400"
-                }`}
-              >
-                Cek Status
-              </button>
-            </div>
+      {/* 2. Main Module Hub Section */}
+      <section className="max-w-7xl mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="text-center sm:text-left border-b border-slate-200 pb-4">
+          <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
+              Pusat Modul Kejuaraan
+            </h2>
+            <span className="text-xs font-mono font-bold text-red-700 bg-red-50 px-3 py-0.5 rounded-full border border-red-200">
+              6 SCREEN UTAMA
+            </span>
           </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Pilih modul turnamen di bawah ini untuk melihat detail bagan gugur, klasemen, roster bidang, dan rincian hadiah
+          </p>
+        </div>
 
-          {/* Active Tab View */}
-          {activeTab === "schedule" && (
-            <ScheduleView
-              matches={matches}
-              isLiveSupabase={isLiveSupabase}
-              onRefresh={loadMatches}
-              isRefreshing={isRefreshing}
-            />
-          )}
+        {/* 6 Module Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {tournamentModules.map((mod) => {
+            const Icon = mod.icon;
 
-          {activeTab === "register" && (
-            <RegistrationForm
-              onSuccess={handleRegistrationSuccess}
-              onGoToSchedule={() => setActiveTab("schedule")}
-            />
-          )}
+            return (
+              <Link
+                key={mod.href}
+                href={mod.href}
+                className="group p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-red-400 hover:shadow-lg transition-all duration-200 flex flex-col justify-between shadow-xs"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="w-11 h-11 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shadow-2xs group-hover:scale-105 group-hover:bg-red-600 group-hover:text-white transition-all">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border font-mono ${mod.badgeColor}`}>
+                      {mod.badge}
+                    </span>
+                  </div>
 
-          {activeTab === "check" && <CheckRegistrationModal />}
-        </main>
-      </div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-red-600 transition-colors">
+                    {mod.title}
+                  </h3>
 
-      {/* Supabase Integration Modal */}
-      <SupabaseSetupGuide
-        isOpen={isGuideOpen}
-        onClose={() => setIsGuideOpen(false)}
-        isConfigured={isLiveSupabase}
-      />
+                  <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                    {mod.description}
+                  </p>
+                </div>
 
-      {/* Footer */}
-      <footer className="mt-16 border-t border-emerald-950/80 bg-zinc-950/80 backdrop-blur-md py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-600 text-black font-black text-xs">
-                8
-              </div>
-              <div>
-                <span className="font-bold text-white">{TOURNAMENT_CONFIG.name}</span>
-                <p className="text-[11px] text-zinc-500">
-                  {TOURNAMENT_CONFIG.venue} • {TOURNAMENT_CONFIG.address}
-                </p>
-              </div>
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group-hover:text-red-700">
+                  <span>{mod.cta}</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. Fast Action Banner: Pendaftaran & Cek Status */}
+      <section className="max-w-7xl mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white p-6 sm:p-10 shadow-xl border border-slate-800 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
+            <div className="space-y-2 text-center lg:text-left">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/20 px-3 py-1 rounded-full border border-amber-400/30 inline-block">
+                Pendaftaran Delegasi Bidang Masih Dibuka
+              </span>
+              <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+                Daftarkan Kontingen Bidang Anda Sekarang
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                Batas pendaftaran resmi hingga <strong>Selasa, 01 Desember 2026</strong>. Technical Meeting diadakan pada <strong>Rabu, 02 Desember 2026</strong>. Biaya keikutsertaan <strong>GRATIS</strong> untuk seluruh bidang di lingkungan Ganesha Operation.
+              </p>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsGuideOpen(true)}
-                className="hover:text-emerald-400 transition-colors"
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto shrink-0">
+              <Link
+                href="/register"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black btn-championship-red flex items-center justify-center gap-2 shadow-lg shadow-red-600/30"
               >
-                Koneksi Supabase
-              </button>
-              <a
-                href={`https://wa.me/${TOURNAMENT_CONFIG.contact_wa}?text=Halo%20Panitia%20Billiard%20Championship`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-semibold"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span>WhatsApp Panitia</span>
-              </a>
-            </div>
-          </div>
+                <FileText className="w-4 h-4" />
+                <span>Formulir Pendaftaran Tim</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
 
-          <div className="mt-6 pt-4 border-t border-zinc-900 text-center text-[11px] text-zinc-600">
-            © 2026 Billiard Tournament Dashboard. Built with Next.js & Supabase. Ultra-fast performance.
+              <Link
+                href="/playoffs"
+                className="w-full sm:w-auto px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 flex items-center justify-center gap-2 transition-colors"
+              >
+                <GitFork className="w-4 h-4 text-slate-300" />
+                <span>Lihat Bagan (Playoffs)</span>
+              </Link>
+            </div>
           </div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }

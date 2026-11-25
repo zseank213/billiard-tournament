@@ -2,7 +2,19 @@
 
 import React, { useState, useMemo } from "react";
 import { Match } from "@/types/tournament";
-import { Search, Filter, RefreshCw, Radio, CheckCircle2, Clock, Swords } from "lucide-react";
+import {
+  Search,
+  Filter,
+  RefreshCw,
+  Radio,
+  CheckCircle2,
+  Clock,
+  Swords,
+  Trophy,
+  Users,
+  Building,
+  Award,
+} from "lucide-react";
 
 interface ScheduleViewProps {
   matches: Match[];
@@ -20,17 +32,22 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "live" | "upcoming" | "completed">("all");
   const [tableFilter, setTableFilter] = useState<number | "all">("all");
+  const [roundFilter, setRoundFilter] = useState<string>("all");
 
-  // Filter matches based on search, status, and table
+  // Extract unique rounds
+  const rounds = useMemo(() => {
+    const set = new Set<string>();
+    matches.forEach((m) => set.add(m.round_name));
+    return Array.from(set);
+  }, [matches]);
+
+  // Filter matches based on search, status, table, and round
   const filteredMatches = useMemo(() => {
     return matches.filter((m) => {
-      // Status filter
       if (statusFilter !== "all" && m.status !== statusFilter) return false;
-
-      // Table filter
       if (tableFilter !== "all" && m.table_number !== tableFilter) return false;
+      if (roundFilter !== "all" && m.round_name !== roundFilter) return false;
 
-      // Search query
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase();
         const p1 = m.player1_name.toLowerCase();
@@ -50,7 +67,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
       return true;
     });
-  }, [matches, statusFilter, tableFilter, searchQuery]);
+  }, [matches, statusFilter, tableFilter, roundFilter, searchQuery]);
 
   // Extract unique table numbers
   const tableNumbers = useMemo(() => {
@@ -62,76 +79,76 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Search & Filter Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border border-emerald-950/80 backdrop-blur-md shadow-xl">
+      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Search Box */}
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Cari pemain, klub, atau babak..."
+              placeholder="Cari nama atlet, divisi/bidang kerja (IT, Akademik, Marketing, dll)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-emerald-950 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+              className="w-full pl-11 pr-16 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-500/10 transition-all font-medium"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-700 bg-slate-200 px-2 py-1 rounded-lg"
               >
                 Clear
               </button>
             )}
           </div>
 
-          {/* Quick Refresh & Supabase indicator */}
+          {/* Quick Refresh Button */}
           <div className="flex items-center gap-3">
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/60 text-xs font-semibold text-zinc-300 hover:text-white transition-all disabled:opacity-50"
-              title="Refresh Jadwal"
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold btn-luxury-pearl disabled:opacity-50"
+              title="Perbarui Jadwal Pertandingan"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-emerald-400" : ""}`} />
-              <span className="hidden sm:inline">Refresh</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-red-600" : ""}`} />
+              <span>{isRefreshing ? "Memperbarui..." : "Refresh Jadwal"}</span>
             </button>
           </div>
         </div>
 
-        {/* Filter Controls */}
-        <div className="mt-4 pt-4 border-t border-zinc-800/60 flex flex-wrap items-center justify-between gap-3 text-xs">
-          {/* Status Pills */}
+        {/* Filter Controls Row */}
+        <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+          {/* Status Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            <span className="text-zinc-500 font-medium mr-1 flex items-center gap-1">
-              <Filter className="w-3 h-3" /> Status:
+            <span className="text-slate-400 font-bold mr-1 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5" /> Status:
             </span>
             <button
               onClick={() => setStatusFilter("all")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold transition-all ${
                 statusFilter === "all"
-                  ? "bg-zinc-200 text-zinc-900 font-bold"
-                  : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                  ? "bg-slate-900 text-white shadow-xs font-black"
+                  : "btn-luxury-pearl"
               }`}
             >
               Semua ({matches.length})
             </button>
             <button
               onClick={() => setStatusFilter("live")}
-              className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
                 statusFilter === "live"
-                  ? "bg-red-500/20 text-red-400 border border-red-500/50 font-bold"
-                  : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                  ? "btn-championship-red"
+                  : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
               }`}
             >
-              <Radio className="w-3 h-3 text-red-500 animate-pulse" />
+              <Radio className="w-3 h-3 text-red-600 animate-pulse" />
               Live ({matches.filter((m) => m.status === "live").length})
             </button>
             <button
               onClick={() => setStatusFilter("upcoming")}
-              className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
                 statusFilter === "upcoming"
-                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 font-bold"
-                  : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                  ? "btn-luxury-gold"
+                  : "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200"
               }`}
             >
               <Clock className="w-3 h-3" />
@@ -139,10 +156,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             </button>
             <button
               onClick={() => setStatusFilter("completed")}
-              className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
                 statusFilter === "completed"
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 font-bold"
-                  : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                  ? "bg-emerald-600 text-white shadow-xs font-black"
+                  : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
               }`}
             >
               <CheckCircle2 className="w-3 h-3" />
@@ -150,15 +167,27 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             </button>
           </div>
 
-          {/* Table Selector */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-zinc-500 font-medium">Meja:</span>
+          {/* Selectors for Table and Round */}
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={roundFilter}
+              onChange={(e) => setRoundFilter(e.target.value)}
+              className="bg-slate-50 border border-slate-300 text-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:border-red-500"
+            >
+              <option value="all">Semua Babak</option>
+              {rounds.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+
             <select
               value={tableFilter}
               onChange={(e) =>
                 setTableFilter(e.target.value === "all" ? "all" : Number(e.target.value))
               }
-              className="bg-zinc-950 border border-zinc-800 text-zinc-300 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-emerald-500"
+              className="bg-slate-50 border border-slate-300 text-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:border-red-500"
             >
               <option value="all">Semua Meja</option>
               {tableNumbers.map((num) => (
@@ -173,10 +202,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
       {/* Match Cards List */}
       {filteredMatches.length === 0 ? (
-        <div className="text-center py-16 px-4 rounded-2xl bg-zinc-900/30 border border-zinc-800/60">
-          <Swords className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-white">Tidak ada jadwal pertandingan</h3>
-          <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+        <div className="text-center py-16 px-4 rounded-3xl bg-white border border-slate-200 shadow-sm">
+          <Swords className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800">Tidak ada jadwal pertandingan</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             Tidak ada pertandingan yang cocok dengan filter atau kata kunci pencarian Anda.
           </p>
           <button
@@ -184,55 +213,62 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               setSearchQuery("");
               setStatusFilter("all");
               setTableFilter("all");
+              setRoundFilter("all");
             }}
-            className="mt-4 px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-500"
+            className="mt-4 px-4 py-2 rounded-xl btn-championship-red text-xs font-bold"
           >
             Reset Semua Filter
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredMatches.map((match) => (
             <div
               key={match.id}
-              className={`relative overflow-hidden rounded-2xl border transition-all duration-200 ${
+              className={`relative overflow-hidden rounded-3xl border bg-white luxury-card flex flex-col justify-between ${
                 match.status === "live"
-                  ? "bg-gradient-to-br from-zinc-900 via-zinc-900/90 to-red-950/20 border-red-500/40 shadow-lg shadow-red-950/20"
+                  ? "border-red-400 ring-2 ring-red-500/15"
                   : match.status === "completed"
-                  ? "bg-zinc-900/40 border-zinc-800/80 hover:border-zinc-700"
-                  : "bg-zinc-900/70 border-emerald-950/80 hover:border-emerald-700/50"
+                  ? "border-slate-200 bg-slate-50/40"
+                  : "border-slate-200"
               }`}
             >
               {/* Header Match Card */}
-              <div className="px-4 py-3 border-b border-zinc-800/60 flex items-center justify-between text-xs">
+              <div
+                className={`px-5 py-3.5 border-b flex items-center justify-between text-xs ${
+                  match.status === "live"
+                    ? "bg-red-50/80 border-red-100"
+                    : "bg-slate-50 border-slate-100"
+                }`}
+              >
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-emerald-400">
+                  <span className="font-black text-red-600 tracking-wide bg-white px-2.5 py-0.5 rounded-lg border border-red-200 shadow-2xs">
                     MEJA {match.table_number}
                   </span>
-                  <span className="text-zinc-600">•</span>
-                  <span className="text-zinc-300 font-medium">{match.round_name}</span>
+                  <span className="text-slate-300 font-bold">•</span>
+                  <span className="text-slate-800 font-black">{match.round_name}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-zinc-400 font-mono text-[11px]">
+                  <span className="text-slate-600 font-mono text-[11px] font-bold bg-white px-2 py-0.5 rounded-md border border-slate-200">
                     Race to {match.race_to}
                   </span>
 
                   {match.status === "live" && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-950 border border-red-500/60 text-red-400 font-bold text-[10px] uppercase tracking-wider animate-pulse">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-[10px] uppercase tracking-wider animate-pulse shadow-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
                       LIVE
                     </span>
                   )}
                   {match.status === "upcoming" && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-300 text-[10px] font-semibold">
-                      <Clock className="w-2.5 h-2.5" />
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-bold">
+                      <Clock className="w-2.5 h-2.5 text-amber-600" />
                       {match.scheduled_time.split(" ")[1] || match.scheduled_time}
                     </span>
                   )}
                   {match.status === "completed" && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[10px] font-semibold">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
+                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
                       SELESAI
                     </span>
                   )}
@@ -240,126 +276,146 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               </div>
 
               {/* Match Content (Player 1 vs Player 2) */}
-              <div className="p-4 sm:p-5">
-                {/* Player 1 */}
-                <div className="flex items-center justify-between gap-4 py-2">
+              <div className="p-5 space-y-3">
+                {/* Player 1 Card */}
+                <div
+                  className={`flex items-center justify-between gap-4 p-3 rounded-2xl border transition-all ${
+                    match.winner === match.player1_name
+                      ? "bg-amber-50/70 border-amber-300"
+                      : "bg-slate-50/60 border-slate-150"
+                  }`}
+                >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
                         match.winner === match.player1_name
-                          ? "bg-amber-400 text-black shadow-md shadow-amber-400/30"
-                          : "bg-zinc-800 text-zinc-300"
+                          ? "bg-amber-400 text-slate-900 shadow-xs"
+                          : "bg-white text-slate-700 border border-slate-200"
                       }`}
                     >
-                      1
+                      {match.winner === match.player1_name ? (
+                        <Trophy className="w-4 h-4 text-slate-900" />
+                      ) : (
+                        "1"
+                      )}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`font-bold text-sm truncate ${
+                          className={`font-black text-sm truncate ${
                             match.winner === match.player1_name
-                              ? "text-emerald-300"
-                              : "text-white"
+                              ? "text-red-700"
+                              : "text-slate-900"
                           }`}
                         >
                           {match.player1_name}
                         </span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-zinc-800 border border-zinc-700 text-zinc-300">
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-white border border-slate-200 text-slate-600">
                           {match.player1_handicap}
                         </span>
                       </div>
-                      {match.player1_club && (
-                        <p className="text-[11px] text-zinc-400 truncate">
-                          {match.player1_club}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        <Building className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">{match.player1_club}</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Score Player 1 */}
                   <div
-                    className={`text-2xl font-black font-mono w-10 text-right ${
+                    className={`text-2xl sm:text-3xl font-black font-mono w-12 text-right ${
                       match.status === "live"
-                        ? "text-emerald-400"
+                        ? "text-red-600"
                         : match.winner === match.player1_name
-                        ? "text-amber-400"
-                        : "text-zinc-400"
+                        ? "text-amber-600"
+                        : "text-slate-400"
                     }`}
                   >
                     {match.score1}
                   </div>
                 </div>
 
-                <div className="my-1 border-t border-zinc-800/40 relative">
-                  <div className="absolute left-1/2 -translate-x-1/2 -top-2 bg-zinc-900 px-2 text-[10px] text-zinc-500 font-bold uppercase">
+                <div className="flex items-center justify-center -my-1">
+                  <span className="px-3 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-400 font-black tracking-wider uppercase border border-slate-200">
                     VS
-                  </div>
+                  </span>
                 </div>
 
-                {/* Player 2 */}
-                <div className="flex items-center justify-between gap-4 py-2">
+                {/* Player 2 Card */}
+                <div
+                  className={`flex items-center justify-between gap-4 p-3 rounded-2xl border transition-all ${
+                    match.winner === match.player2_name
+                      ? "bg-amber-50/70 border-amber-300"
+                      : "bg-slate-50/60 border-slate-150"
+                  }`}
+                >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
                         match.winner === match.player2_name
-                          ? "bg-amber-400 text-black shadow-md shadow-amber-400/30"
-                          : "bg-zinc-800 text-zinc-300"
+                          ? "bg-amber-400 text-slate-900 shadow-xs"
+                          : "bg-white text-slate-700 border border-slate-200"
                       }`}
                     >
-                      2
+                      {match.winner === match.player2_name ? (
+                        <Trophy className="w-4 h-4 text-slate-900" />
+                      ) : (
+                        "2"
+                      )}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`font-bold text-sm truncate ${
+                          className={`font-black text-sm truncate ${
                             match.winner === match.player2_name
-                              ? "text-emerald-300"
-                              : "text-white"
+                              ? "text-red-700"
+                              : "text-slate-900"
                           }`}
                         >
                           {match.player2_name}
                         </span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-zinc-800 border border-zinc-700 text-zinc-300">
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-white border border-slate-200 text-slate-600">
                           {match.player2_handicap}
                         </span>
                       </div>
-                      {match.player2_club && (
-                        <p className="text-[11px] text-zinc-400 truncate">
-                          {match.player2_club}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        <Building className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">{match.player2_club}</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Score Player 2 */}
                   <div
-                    className={`text-2xl font-black font-mono w-10 text-right ${
+                    className={`text-2xl sm:text-3xl font-black font-mono w-12 text-right ${
                       match.status === "live"
-                        ? "text-emerald-400"
+                        ? "text-red-600"
                         : match.winner === match.player2_name
-                        ? "text-amber-400"
-                        : "text-zinc-400"
+                        ? "text-amber-600"
+                        : "text-slate-400"
                     }`}
                   >
                     {match.score2}
                   </div>
                 </div>
+              </div>
 
-                {/* Match Footer Details */}
-                <div className="mt-3 pt-2.5 border-t border-zinc-800/40 flex items-center justify-between text-[11px] text-zinc-500">
-                  <span>Jadwal: {match.scheduled_time}</span>
-                  {match.winner ? (
-                    <span className="text-amber-400 font-semibold flex items-center gap-1">
-                      🏆 Pemenang: {match.winner}
-                    </span>
-                  ) : match.status === "live" ? (
-                    <span className="text-red-400 font-semibold animate-pulse">
-                      🔴 Live Score Update
-                    </span>
-                  ) : (
-                    <span>Match #{match.match_number}</span>
-                  )}
-                </div>
+              {/* Match Card Footer */}
+              <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/40 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span>Waktu Tanding: {match.scheduled_time}</span>
+                {match.winner ? (
+                  <span className="text-amber-800 font-black flex items-center gap-1 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200">
+                    <Trophy className="w-3 h-3 text-amber-600" />
+                    Pemenang: {match.winner}
+                  </span>
+                ) : match.status === "live" ? (
+                  <span className="text-red-600 font-black flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+                    Sedang Berlangsung di Meja {match.table_number}
+                  </span>
+                ) : (
+                  <span>Match #{match.match_number}</span>
+                )}
               </div>
             </div>
           ))}
