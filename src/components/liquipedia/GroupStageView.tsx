@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { getBidangList, BidangRecord } from "@/app/actions/bidang";
-import { GroupStageData, GroupTeamStanding } from "@/types/tournament";
 import {
   Trophy,
-  TableProperties,
   Users2,
   User,
   ShieldCheck,
-  CheckCircle2,
   Calendar,
   Sparkles,
+  CheckCircle2,
+  Clock,
+  Layers,
+  ArrowRight,
 } from "lucide-react";
 
 interface CategoryStageConfig {
@@ -26,6 +27,7 @@ interface CategoryStageConfig {
 export const GroupStageView: React.FC = () => {
   const [bidangList, setBidangList] = useState<BidangRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     let isMounted = true;
@@ -48,58 +50,6 @@ export const GroupStageView: React.FC = () => {
     };
   }, []);
 
-  // Helper to generate 4 groups (A, B, C, D) of 5 teams each (TBD awaiting drawing)
-  const generateGroupsForCategory = (categoryKey: string, categoryName: string): GroupStageData[] => {
-    const groupLetters: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
-
-    return groupLetters.map((letter) => {
-      const standings: GroupTeamStanding[] = Array.from({ length: 5 }, (_, idx) => ({
-        pos: idx + 1,
-        teamId: `${categoryKey}-${letter.toLowerCase()}-slot-${idx + 1}`,
-        teamName: "TBD",
-        shortName: "TBD",
-        matchesPlayed: 0,
-        seriesWon: 0,
-        seriesLost: 0,
-        racksWon: 0,
-        racksLost: 0,
-        rackDiff: 0,
-        points: 0,
-        status: null,
-      }));
-
-      // Generate 10 round-robin match pairs for 5 teams (0-1, 2-3, 0-2, 1-4, etc.)
-      const roundRobinPairs: [number, number][] = [
-        [0, 1],
-        [2, 3],
-        [0, 2],
-        [1, 4],
-        [0, 3],
-        [2, 4],
-        [0, 4],
-        [1, 3],
-        [1, 2],
-        [3, 4],
-      ];
-
-      const matches = roundRobinPairs.map(([t1, t2], mIdx) => ({
-        id: `${categoryKey}-${letter}-m${mIdx + 1}`,
-        team1: "TBD",
-        team2: "TBD",
-        score1: 0,
-        score2: 0,
-        status: "upcoming" as const,
-      }));
-
-      return {
-        groupId: `${categoryKey}-group-${letter.toLowerCase()}`,
-        groupName: `Grup ${letter} — Babak Penyisihan`,
-        standings,
-        matches,
-      };
-    });
-  };
-
   const categories: CategoryStageConfig[] = [
     {
       id: "ganda-putra",
@@ -112,258 +62,322 @@ export const GroupStageView: React.FC = () => {
     {
       id: "single-putra",
       title: "Kategori Single Putra",
-      subtitle: "1 Tim (1 Atlet) / Bidang • 20 Atlet Antar Bidang Ganesha Operation",
-      badge: "Trophy Tetap Juara 1, 2, 3",
+      subtitle: "1 Atlet / Bidang • 20 Atlet Antar Bidang Ganesha Operation",
+      badge: "Trophy Juara 1, 2, 3",
       badgeColor: "bg-amber-50 text-amber-800 border-amber-200",
       icon: User,
     },
     {
       id: "single-putri",
       title: "Kategori Single Putri",
-      subtitle: "1 Tim (1 Atlet) / Bidang • 20 Atlet Antar Bidang Ganesha Operation",
-      badge: "Trophy Tetap Juara 1, 2, 3",
+      subtitle: "1 Atlet / Bidang • 20 Atlet Antar Bidang Ganesha Operation",
+      badge: "Trophy Juara 1, 2, 3",
       badgeColor: "bg-rose-50 text-rose-700 border-rose-200",
       icon: User,
     },
   ];
 
-  const renderGroupTable = (group: GroupStageData) => {
-    return (
-      <div
-        key={group.groupId}
-        className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between"
-      >
-        {/* Table Header Banner */}
-        <div className="p-3.5 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 text-white flex items-center justify-between border-b border-slate-800">
-          <div>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/30">
-              Babak Penyisihan
-            </span>
-            <h3 className="text-sm sm:text-lg font-black mt-1 text-white tracking-tight">
-              {group.groupName}
-            </h3>
-          </div>
-          <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-300 bg-slate-800/80 px-2.5 sm:px-3 py-1 rounded-xl border border-slate-700">
-            5 Bidang
-          </span>
-        </div>
+  const groupLetters = [
+    { letter: "A", title: "Grup A", accent: "border-red-200 bg-red-50/30 text-red-700" },
+    { letter: "B", title: "Grup B", accent: "border-blue-200 bg-blue-50/30 text-blue-700" },
+    { letter: "C", title: "Grup C", accent: "border-amber-200 bg-amber-50/30 text-amber-700" },
+    { letter: "D", title: "Grup D", accent: "border-emerald-200 bg-emerald-50/30 text-emerald-700" },
+  ];
 
-        {/* Standings Table */}
-        <div className="overflow-x-auto touch-pan-x">
-          <table className="w-full text-left text-xs border-collapse min-w-[340px]">
-            <thead>
-              <tr className="bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
-                <th className="py-2.5 sm:py-3 px-2 sm:px-4 w-7 sm:w-10 text-center">#</th>
-                <th className="py-2.5 sm:py-3 px-2 sm:px-4 min-w-[110px]">Bidang / Tim</th>
-                <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  <span className="hidden xs:inline">Match (W-L)</span>
-                  <span className="xs:hidden">W-L</span>
-                </th>
-                <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  <span className="hidden xs:inline">Racks</span>
-                  <span className="xs:hidden">R</span>
-                </th>
-                <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  <span className="hidden xs:inline">Diff</span>
-                  <span className="xs:hidden">+/-</span>
-                </th>
-                <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center font-black text-slate-900">PTS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-semibold text-slate-800 text-[11px] sm:text-xs">
-              {group.standings.map((st) => {
-                const isPlayed = st.matchesPlayed > 0;
-                const isQualified = isPlayed && (st.pos === 1 || st.pos === 2);
-                const isEliminated = isPlayed && st.pos > 2;
-
-                const rowBgClass = isQualified
-                  ? "bg-emerald-50/80 hover:bg-emerald-100/70"
-                  : isEliminated
-                  ? "bg-rose-50/70 hover:bg-rose-100/60"
-                  : "bg-white hover:bg-slate-50/90";
-
-                return (
-                  <tr key={st.teamId} className={`${rowBgClass} transition-colors`}>
-                    <td className="py-2.5 sm:py-3.5 px-2 sm:px-4 text-center">
-                      <span
-                        className={`inline-flex items-center justify-center w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-md text-[10px] sm:text-[11px] font-black ${
-                          isQualified
-                            ? "bg-emerald-600 text-white shadow-2xs"
-                            : isEliminated
-                            ? "bg-rose-500 text-white shadow-2xs"
-                            : "bg-slate-100 text-slate-500 border border-slate-200"
-                        }`}
-                      >
-                        {st.pos}
-                      </span>
-                    </td>
-                    <td className="py-2.5 sm:py-3.5 px-2 sm:px-4 font-bold">
-                      <span className="text-[11px] sm:text-sm text-slate-400 font-mono font-bold block truncate max-w-[130px] sm:max-w-none">
-                        {st.teamName}
-                      </span>
-                    </td>
-                    <td className="py-2.5 sm:py-3.5 px-1.5 sm:px-3 text-center whitespace-nowrap font-mono text-slate-700 text-[11px] sm:text-xs">
-                      {st.seriesWon} - {st.seriesLost}
-                    </td>
-                    <td className="py-2.5 sm:py-3.5 px-1.5 sm:px-3 text-center whitespace-nowrap font-mono text-slate-600 text-[11px] sm:text-xs">
-                      {st.racksWon} - {st.racksLost}
-                    </td>
-                    <td className="py-2.5 sm:py-3.5 px-1.5 sm:px-3 text-center whitespace-nowrap font-mono text-[11px] sm:text-xs">
-                      <span
-                        className={
-                          st.rackDiff > 0
-                            ? "text-emerald-600 font-black"
-                            : st.rackDiff < 0
-                            ? "text-red-600 font-bold"
-                            : "text-slate-400"
-                        }
-                      >
-                        {st.rackDiff > 0 ? `+${st.rackDiff}` : st.rackDiff}
-                      </span>
-                    </td>
-                    <td className="py-2.5 sm:py-3.5 px-2 sm:px-4 text-center whitespace-nowrap font-black text-slate-900 text-xs sm:text-sm">
-                      {st.points}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Legend */}
-        <div className="p-3.5 bg-slate-50/90 border-t border-slate-200/90 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-600 font-medium">
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded bg-emerald-100 border border-emerald-300 inline-block shrink-0" />
-              <span>
-                Hijau muda: <strong>Lolos ke Playoffs (Peringkat 1 &amp; 2)</strong>
-              </span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded bg-rose-100 border border-rose-300 inline-block shrink-0" />
-              <span>
-                Merah muda: <strong>Gugur di Fase Grup (Peringkat 3, 4, 5)</strong>
-              </span>
-            </span>
-          </div>
-        </div>
-
-        {/* Head-to-Head Matches List */}
-        <div className="p-4 border-t border-slate-200 bg-white space-y-2.5">
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-            Jadwal Pertandingan Head-to-Head (10 Match):
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {group.matches.map((m) => (
-              <div
-                key={m.id}
-                className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs hover:border-slate-300 transition-colors"
-              >
-                <div className="flex-1 min-w-0 pr-2">
-                  <div className="flex items-center justify-between">
-                    <span className="truncate text-xs font-mono font-bold text-slate-400">
-                      {m.team1}
-                    </span>
-                    <span className="font-mono text-xs ml-2 px-2 py-0.5 rounded-md text-slate-400 bg-slate-100 font-bold">
-                      {m.score1}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1.5">
-                    <span className="truncate text-xs font-mono font-bold text-slate-400">
-                      {m.team2}
-                    </span>
-                    <span className="font-mono text-xs ml-2 px-2 py-0.5 rounded-md text-slate-400 bg-slate-100 font-bold">
-                      {m.score2}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const filteredCategories =
+    selectedCategory === "all"
+      ? categories
+      : categories.filter((c) => c.id === selectedCategory);
 
   return (
-    <div className="space-y-10 w-full min-w-0 max-w-full">
-      {/* Top Header */}
-      <div className="pb-4 border-b border-slate-200 text-center sm:text-left">
-        <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-            Group Stage (Babak Penyisihan)
-          </h2>
-          <span className="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-3 py-0.5 rounded-full border border-amber-200">
-            SLOT TBD • MENUNGGU DRAWING TECHNICAL MEETING
-          </span>
+    <div className="space-y-8 w-full min-w-0 max-w-full">
+      {/* 1. Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
+              Group Stage (Fase Grup)
+            </h2>
+            <span className="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-3 py-0.5 rounded-full border border-amber-200">
+              Drawing TM: Rabu, 02 Des 2026
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Bagan pembagian 4 grup (A, B, C, D) babak penyisihan 20 bidang di lingkungan kerja Ganesha Operation
+          </p>
         </div>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Penyisihan seluruh kategori antar 20 bidang di lingkungan Ganesha Operation. Juara dan Runner-up masing-masing grup (Peringkat 1 &amp; 2) melaju ke Babak 8 Besar (Quarterfinal / Bagan Gugur).
-        </p>
+
+        {/* Category Filter Tabs */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200/80 self-start sm:self-auto overflow-x-auto max-w-full">
+          <button
+            onClick={() => setSelectedCategory("all")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              selectedCategory === "all"
+                ? "bg-white text-slate-900 shadow-2xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Semua Kategori
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setSelectedCategory(c.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                selectedCategory === c.id
+                  ? "bg-white text-red-600 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {c.title.replace("Kategori ", "")}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Shimmer Skeleton if loading */}
+      {/* 2. Format & Rules Summary Bar (Light Championship Style) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
+            <Layers className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+              Format Kompetisi
+            </span>
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900 mt-0.5">
+              Round Robin (Setengah Kompetisi)
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Tiap grup berisi 5 bidang, bertanding saling bertemu (4 laga per tim).
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+              Syarat Kelolosan
+            </span>
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900 mt-0.5">
+              Juara &amp; Runner-up (Posisi 1 &amp; 2)
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Peringkat 1 &amp; 2 tiap grup otomatis melaju ke Babak 8 Besar (Quarterfinal).
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+            <Clock className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+              Jadwal Tanding
+            </span>
+            <h4 className="font-bold text-xs sm:text-sm text-slate-900 mt-0.5">
+              Kamis, 03 Des 2026 (18.00 - 20.00 WIB)
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Bertempat di Greenlight Cafe &amp; Billiard (Samping Mall BEC Bandung).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Shimmer Skeleton Loading State */}
       {isLoading ? (
-        <div className="space-y-10">
-          {Array.from({ length: 3 }).map((_, cIdx) => (
+        <div className="space-y-8">
+          {Array.from({ length: 2 }).map((_, cIdx) => (
             <div key={cIdx} className="space-y-4">
-              <div className="h-8 w-64 bg-slate-200 rounded-xl animate-pulse" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="h-14 bg-white rounded-2xl border border-slate-200 p-4 animate-pulse flex items-center justify-between">
+                <div className="h-5 bg-slate-200 rounded w-1/4" />
+                <div className="h-5 bg-slate-200 rounded-full w-24" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Array.from({ length: 4 }).map((_, gIdx) => (
                   <div
                     key={gIdx}
-                    className="h-80 bg-slate-100 rounded-3xl border border-slate-200 animate-pulse p-6"
-                  />
+                    className="p-5 bg-white rounded-2xl border border-slate-200 animate-pulse space-y-3"
+                  >
+                    <div className="h-4 bg-slate-200 rounded w-1/2" />
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      {Array.from({ length: 5 }).map((_, rIdx) => (
+                        <div key={rIdx} className="h-6 bg-slate-100 rounded w-full" />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        /* Sequential Continuous Display for all 3 Categories (Without Tab Bar) */
-        <div className="space-y-14">
-          {categories.map((cat, catIdx) => {
+        /* 4. Category Sections (Clean, Light Theme) */
+        <div className="space-y-10">
+          {filteredCategories.map((cat) => {
             const Icon = cat.icon;
-            const groups = generateGroupsForCategory(cat.id, cat.title);
 
             return (
-              <section key={cat.id} className="space-y-6">
-                {/* Prominent Category Section Title Banner */}
-                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black shadow-sm shrink-0">
-                      <Icon className="w-6 h-6 text-white" />
+              <section key={cat.id} className="space-y-4">
+                {/* Clean Category Header Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center font-black shadow-xs shrink-0">
+                      <Icon className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-400 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-400/30">
-                          STAGE {catIdx + 1}
-                        </span>
-                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                          {cat.title}
-                        </h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                        {cat.title}
+                      </h3>
+                      <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
                         {cat.subtitle}
                       </p>
                     </div>
                   </div>
 
-                  <span className={`text-xs font-black uppercase px-3.5 py-1.5 rounded-xl border ${cat.badgeColor} shrink-0 self-start sm:self-auto`}>
+                  <span
+                    className={`text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full border self-start sm:self-auto ${cat.badgeColor}`}
+                  >
                     {cat.badge}
                   </span>
                 </div>
 
-                {/* 4 Groups for this Category (Grup A, B, C, D) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {groups.map((group) => renderGroupTable(group))}
+                {/* 4 Groups Grid (Grup A, B, C, D) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {groupLetters.map((grp) => (
+                    <div
+                      key={grp.letter}
+                      className="rounded-2xl bg-white border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-colors"
+                    >
+                      {/* Group Header */}
+                      <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center border shadow-2xs ${grp.accent}`}
+                          >
+                            {grp.letter}
+                          </span>
+                          <span className="font-black text-slate-900 text-sm">
+                            {grp.title}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                          5 Bidang
+                        </span>
+                      </div>
+
+                      {/* 5 Slot Rows */}
+                      <div className="p-3 divide-y divide-slate-100 text-xs">
+                        {/* Slot 1: Juara Grup (Lolos) */}
+                        <div className="py-2.5 px-2 flex items-center justify-between gap-2 bg-emerald-50/40 rounded-xl mb-1">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
+                              1
+                            </span>
+                            <span className="font-bold text-slate-800 text-xs truncate">
+                              Slot 1 (TBD)
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
+                            Lolos 8 Besar
+                          </span>
+                        </div>
+
+                        {/* Slot 2: Runner-up (Lolos) */}
+                        <div className="py-2.5 px-2 flex items-center justify-between gap-2 bg-emerald-50/40 rounded-xl mb-1">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
+                              2
+                            </span>
+                            <span className="font-bold text-slate-800 text-xs truncate">
+                              Slot 2 (TBD)
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
+                            Lolos 8 Besar
+                          </span>
+                        </div>
+
+                        {/* Slot 3 */}
+                        <div className="py-2.5 px-2 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-500 font-bold text-[10px] flex items-center justify-center shrink-0 border border-slate-200">
+                              3
+                            </span>
+                            <span className="font-medium text-slate-500 text-xs truncate">
+                              Slot 3 (TBD)
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-medium text-slate-400">
+                            Fase Grup
+                          </span>
+                        </div>
+
+                        {/* Slot 4 */}
+                        <div className="py-2.5 px-2 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-500 font-bold text-[10px] flex items-center justify-center shrink-0 border border-slate-200">
+                              4
+                            </span>
+                            <span className="font-medium text-slate-500 text-xs truncate">
+                              Slot 4 (TBD)
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-medium text-slate-400">
+                            Fase Grup
+                          </span>
+                        </div>
+
+                        {/* Slot 5 */}
+                        <div className="py-2.5 px-2 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-500 font-bold text-[10px] flex items-center justify-center shrink-0 border border-slate-200">
+                              5
+                            </span>
+                            <span className="font-medium text-slate-500 text-xs truncate">
+                              Slot 5 (TBD)
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-medium text-slate-400">
+                            Fase Grup
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Group Card Footer */}
+                      <div className="p-3 bg-slate-50/60 border-t border-slate-100 text-[10px] text-slate-400 font-medium text-center">
+                        Pengundian tim di TM (02 Des 2026)
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </section>
             );
           })}
         </div>
       )}
+
+      {/* 5. Minimal Bottom Legend */}
+      <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+        <div className="flex items-center gap-4 flex-wrap">
+          <span className="flex items-center gap-1.5">
+            <span className="w-3.5 h-3.5 rounded bg-emerald-100 border border-emerald-300 inline-block shrink-0" />
+            <span>Peringkat 1 &amp; 2: <strong>Lolos ke 8 Besar (Quarterfinal)</strong></span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-300 inline-block shrink-0" />
+            <span>Peringkat 3, 4, 5: <strong>Terhenti di Fase Grup</strong></span>
+          </span>
+        </div>
+        <span className="text-[11px] text-slate-400">
+          TI BILLIARD CUP 2026 • Ganesha Operation
+        </span>
+      </div>
     </div>
   );
 };
