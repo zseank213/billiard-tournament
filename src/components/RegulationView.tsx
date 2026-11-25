@@ -161,7 +161,7 @@ export const RegulationView: React.FC = () => {
             <p className="font-black text-amber-950 text-xs leading-snug">
               3 Piala Bergilir DirRen
             </p>
-            <p className="text-[11px] text-amber-800 font-bold">Ganda, Single Pa &amp; Pi</p>
+            <p className="text-[11px] text-amber-800 font-bold">Ganda, Single Putra &amp; Putri</p>
           </div>
         </div>
 

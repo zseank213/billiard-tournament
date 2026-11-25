@@ -178,8 +178,8 @@ export async function submitBidangFullRegistration(
       payload.hasGandaTim2 && payload.gandaTim2Player1 && payload.gandaTim2Player2
         ? `Ganda 2: ${payload.gandaTim2Player1} & ${payload.gandaTim2Player2}`
         : "",
-      payload.singlePutraPlayer ? `Single Pa: ${payload.singlePutraPlayer}` : "",
-      payload.singlePutriPlayer ? `Single Pi: ${payload.singlePutriPlayer}` : "",
+      payload.singlePutraPlayer ? `Single Putra: ${payload.singlePutraPlayer}` : "",
+      payload.singlePutriPlayer ? `Single Putri: ${payload.singlePutriPlayer}` : "",
     ]
       .filter(Boolean)
       .join(" | ") || `Delegasi ${payload.bidangName}`;
@@ -264,8 +264,8 @@ export async function submitBidangFullRegistration(
         const mergedAthleteDisplay = [
           updatedGanda1P1 && updatedGanda1P2 ? `Ganda 1: ${updatedGanda1P1} & ${updatedGanda1P2}` : "",
           updatedGanda2P1 && updatedGanda2P2 ? `Ganda 2: ${updatedGanda2P1} & ${updatedGanda2P2}` : "",
-          updatedSinglePutra ? `Single Pa: ${updatedSinglePutra}` : "",
-          updatedSinglePutri ? `Single Pi: ${updatedSinglePutri}` : "",
+          updatedSinglePutra ? `Single Putra: ${updatedSinglePutra}` : "",
+          updatedSinglePutri ? `Single Putri: ${updatedSinglePutri}` : "",
         ]
           .filter(Boolean)
           .join(" | ") || `Delegasi ${payload.bidangName}`;

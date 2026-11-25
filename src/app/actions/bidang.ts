@@ -129,49 +129,59 @@ export async function getParticipantsWithRosters(): Promise<{
     const hasGandaTim2 = !!(ganda2P1 || ganda2P2);
     const isRegistered = regs.length > 0 && !!(gandaP1 || singlePa || singlePi);
 
-    const slots: ParticipantMemberSlot[] = [
+    // Order: 1. Team Ganda 1 -> 2. Team Ganda 2 (if exists) -> 3. Single Putra -> 4. Single Putri
+    const slots: ParticipantMemberSlot[] = [];
+    let slotIdx = 1;
+
+    // 1. Team Ganda 1
+    slots.push(
       {
-        slotNumber: 1,
+        slotNumber: slotIdx++,
         category: "Ganda Putra",
         role: "Ganda Putra (Tim 1 - Pemain 1)",
         playerName: gandaP1.trim() || "Belum Didaftarkan (TBD)",
       },
       {
-        slotNumber: 2,
+        slotNumber: slotIdx++,
         category: "Ganda Putra",
         role: "Ganda Putra (Tim 1 - Pemain 2)",
         playerName: gandaP2.trim() || "Belum Didaftarkan (TBD)",
-      },
-      {
-        slotNumber: 3,
-        category: "Single Putra",
-        role: "Single Putra",
-        playerName: singlePa.trim() || "Belum Didaftarkan (TBD)",
-      },
-      {
-        slotNumber: 4,
-        category: "Single Putri",
-        role: "Single Putri",
-        playerName: singlePi.trim() || "Belum Didaftarkan (TBD)",
-      },
-    ];
+      }
+    );
 
+    // 2. Team Ganda 2 (if exists)
     if (hasGandaTim2) {
       slots.push(
         {
-          slotNumber: 5,
+          slotNumber: slotIdx++,
           category: "Ganda Putra",
           role: "Ganda Putra (Tim 2 - Pemain 1)",
           playerName: ganda2P1.trim() || "Belum Didaftarkan (TBD)",
         },
         {
-          slotNumber: 6,
+          slotNumber: slotIdx++,
           category: "Ganda Putra",
           role: "Ganda Putra (Tim 2 - Pemain 2)",
           playerName: ganda2P2.trim() || "Belum Didaftarkan (TBD)",
         }
       );
     }
+
+    // 3. Single Putra
+    slots.push({
+      slotNumber: slotIdx++,
+      category: "Single Putra",
+      role: "Single Putra",
+      playerName: singlePa.trim() || "Belum Didaftarkan (TBD)",
+    });
+
+    // 4. Single Putri
+    slots.push({
+      slotNumber: slotIdx++,
+      category: "Single Putri",
+      role: "Single Putri",
+      playerName: singlePi.trim() || "Belum Didaftarkan (TBD)",
+    });
 
     return {
       id: `team-${b.id}`,

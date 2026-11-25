@@ -226,7 +226,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   3 Kategori
                 </div>
                 <p className="text-[10px] text-slate-500 font-medium truncate">
-                  Ganda Pa, Single Pa &amp; Pi
+                  Ganda, Single Putra &amp; Putri
                 </p>
               </div>
 

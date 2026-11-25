@@ -378,65 +378,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </span>
               </div>
 
-              {/* Single Putra Card */}
-              {hasSinglePa && (
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      Single Putra
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
-                    <p className="font-black text-slate-900 text-sm">
-                      {registeredData.single_putra_player}
-                    </p>
-                    {registeredData.single_putra_phone && (
-                      <a
-                        href={`https://wa.me/${registeredData.single_putra_phone.replace(/\D/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
-                      >
-                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{registeredData.single_putra_phone}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Single Putri Card */}
-              {hasSinglePi && (
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black text-pink-700 uppercase tracking-wider bg-pink-50 px-2 py-0.5 rounded-md border border-pink-200 flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      Single Putri
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
-                    <p className="font-black text-slate-900 text-sm">
-                      {registeredData.single_putri_player}
-                    </p>
-                    {registeredData.single_putri_phone && (
-                      <a
-                        href={`https://wa.me/${registeredData.single_putri_phone.replace(/\D/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
-                      >
-                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{registeredData.single_putri_phone}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Ganda Putra Tim 1 Card */}
+              {/* 1. Ganda Putra Tim 1 Card */}
               {hasGanda1 && (
                 <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
                   <div className="flex items-center justify-between mb-2">
@@ -475,7 +417,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               )}
 
-              {/* Ganda Putra Tim 2 Card */}
+              {/* 2. Ganda Putra Tim 2 Card (jika ada) */}
               {hasGanda2 && (
                 <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
                   <div className="flex items-center justify-between mb-2">
@@ -510,6 +452,64 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         </p>
                       )}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Single Putra Card */}
+              {hasSinglePa && (
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-black text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      Single Putra
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
+                    <p className="font-black text-slate-900 text-sm">
+                      {registeredData.single_putra_player}
+                    </p>
+                    {registeredData.single_putra_phone && (
+                      <a
+                        href={`https://wa.me/${registeredData.single_putra_phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{registeredData.single_putra_phone}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Single Putri Card */}
+              {hasSinglePi && (
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-black text-pink-700 uppercase tracking-wider bg-pink-50 px-2 py-0.5 rounded-md border border-pink-200 flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      Single Putri
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
+                    <p className="font-black text-slate-900 text-sm">
+                      {registeredData.single_putri_player}
+                    </p>
+                    {registeredData.single_putri_phone && (
+                      <a
+                        href={`https://wa.me/${registeredData.single_putri_phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{registeredData.single_putri_phone}</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
