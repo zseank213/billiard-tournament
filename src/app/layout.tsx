@@ -32,7 +32,12 @@ export const metadata: Metadata = {
     "Jadwal Billiard",
   ],
   icons: {
-    icon: "/images/logo-it-dept.png",
+    icon: [
+      { url: "/images/logo-it-dept.png", sizes: "any" },
+      { url: "/icon.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    shortcut: "/images/logo-it-dept.png",
     apple: "/images/logo-it-dept.png",
   },
 };
