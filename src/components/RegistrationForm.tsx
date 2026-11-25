@@ -40,9 +40,8 @@ interface RegistrationFormProps {
 export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   onSuccess,
 }) => {
-  // Bidang list pre-populated immediately with 20 official Bidang to prevent spinning
-  const [bidangOptions, setBidangOptions] = useState<string[]>(INVITED_BIDANG_LIST);
-  const [isLoadingBidang, setIsLoadingBidang] = useState(false);
+  const [bidangOptions, setBidangOptions] = useState<string[]>([]);
+  const [isLoadingBidang, setIsLoadingBidang] = useState(true);
   const [selectedBidang, setSelectedBidang] = useState<string>("");
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [categoryStatus, setCategoryStatus] = useState<BidangCategoryStatus | null>(null);
@@ -115,18 +114,23 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     setErrorMessage("");
   };
 
-  // Sync latest Bidang list in background without blocking UI
+  // Load official Bidang list with skeleton loading state
   useEffect(() => {
     let isMounted = true;
+    setIsLoadingBidang(true);
     getBidangList()
       .then((res) => {
-        if (isMounted && res.bidang && res.bidang.length > 0) {
-          const names = res.bidang.map((b) => b.name);
-          setBidangOptions(names);
+        if (isMounted) {
+          if (res.bidang && res.bidang.length > 0) {
+            const names = res.bidang.map((b) => b.name);
+            setBidangOptions(names);
+          }
+          setIsLoadingBidang(false);
         }
       })
       .catch((err) => {
-        console.warn("Background sync error, using default bidang list:", err);
+        console.warn("Error fetching bidang list:", err);
+        if (isMounted) setIsLoadingBidang(false);
       });
     return () => {
       isMounted = false;

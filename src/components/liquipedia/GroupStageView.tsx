@@ -25,17 +25,24 @@ interface CategoryStageConfig {
 
 export const GroupStageView: React.FC = () => {
   const [bidangList, setBidangList] = useState<BidangRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
+    setIsLoading(true);
     getBidangList()
       .then((res) => {
-        if (isMounted && res.bidang && res.bidang.length > 0) {
-          setBidangList(res.bidang);
+        if (isMounted) {
+          if (res.bidang && res.bidang.length > 0) {
+            setBidangList(res.bidang);
+          }
+          setIsLoading(false);
         }
       })
-      .catch((err) => console.warn("Using default group stage data:", err));
+      .catch((err) => {
+        console.warn("Using default group stage data:", err);
+        if (isMounted) setIsLoading(false);
+      });
     return () => {
       isMounted = false;
     };

@@ -18,23 +18,30 @@ import {
 } from "lucide-react";
 
 export const ParticipantsView: React.FC = () => {
-  const [participants, setParticipants] = useState<ParticipantTeam[]>(LIQUIPEDIA_PARTICIPANTS);
-  const [isLoading, setIsLoading] = useState(false);
+  const [participants, setParticipants] = useState<ParticipantTeam[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLiveSupabase, setIsLiveSupabase] = useState(false);
   const [search, setSearch] = useState("");
   const [expandedTeams, setExpandedTeams] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let isMounted = true;
+    setIsLoading(true);
     getParticipantsWithRosters()
       .then((res) => {
-        if (isMounted && res.participants && res.participants.length > 0) {
-          setParticipants(res.participants);
-          setIsLiveSupabase(res.isLiveSupabase);
+        if (isMounted) {
+          if (res.participants && res.participants.length > 0) {
+            setParticipants(res.participants);
+            setIsLiveSupabase(res.isLiveSupabase);
+          }
+          setIsLoading(false);
         }
       })
       .catch((err) => {
         console.warn("Using default participants list:", err);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       });
     return () => {
       isMounted = false;
@@ -127,11 +134,16 @@ export const ParticipantsView: React.FC = () => {
           {Array.from({ length: 20 }).map((_, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-2xl border border-slate-200/80 bg-white shadow-2xs space-y-2.5 animate-pulse"
+              className="p-4 rounded-2xl border border-slate-200/90 bg-white shadow-2xs space-y-3 animate-pulse"
             >
               <div className="flex items-center justify-between gap-3">
-                <div className="h-4 bg-slate-200 rounded-md flex-1" />
-                <div className="h-4 bg-slate-200 rounded-md w-14 shrink-0" />
+                <div className="h-4 bg-slate-200 rounded-md w-3/5" />
+                <div className="h-5 bg-slate-200 rounded-full w-14 shrink-0" />
+              </div>
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="h-3 bg-slate-100 rounded w-4/5" />
+                <div className="h-3 bg-slate-100 rounded w-2/3" />
+                <div className="h-3 bg-slate-100 rounded w-3/4" />
               </div>
             </div>
           ))}
