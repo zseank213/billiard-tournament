@@ -521,23 +521,23 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </div>
 
           {/* TWO PRIMARY ACTION BUTTONS */}
-          <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5">
             {/* BUTTON 1: Partisipasi Langsung */}
             <Link
               href="/participants"
-              className="px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black btn-championship-red flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 text-center"
+              className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-championship-red flex items-center justify-center gap-2 shadow-sm shadow-red-500/20 text-center"
             >
               <Users className="w-4 h-4" />
-              <span>Lihat Daftar Peserta (Participants)</span>
+              <span>Lihat Peserta</span>
             </Link>
 
             {/* BUTTON 2: Kembali ke pendaftaran dengan data kosong semua */}
             <button
               onClick={handleReturnToEmptyForm}
-              className="px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-bold btn-luxury-pearl flex items-center justify-center gap-2"
+              className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-luxury-pearl flex items-center justify-center gap-2"
             >
-              <RotateCcw className="w-4 h-4 text-slate-600" />
-              <span>Kembali ke Pendaftaran (Data Kosong)</span>
+              <RotateCcw className="w-4 h-4 text-slate-500" />
+              <span>Daftar Bidang Lain</span>
             </button>
           </div>
 
@@ -1148,55 +1148,55 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 className="mt-1 w-4 h-4 text-red-600 rounded-md border-slate-300 focus:ring-red-500 disabled:opacity-50 cursor-pointer"
               />
               <label htmlFor="rules" className="text-xs text-slate-700 font-medium leading-relaxed cursor-pointer select-none">
-                Kami menyatakan bahwa data atlet yang didaftarkan di atas adalah perwakilan resmi bidang kami di lingkungan <strong>Ganesha Operation</strong>, bersedia hadir tepat waktu pada Technical Meeting (Rabu, 02 Desember 2026) dan bertanding di Greenlight Cafe &amp; Billiard dengan menjunjung tinggi <strong>SPORTIVITAS ANTAR BIDANG</strong>. <span className="text-red-600 font-bold">*</span>
+                Kami menyatakan bahwa data pemain yang didaftarkan adalah perwakilan resmi bidang kami di <strong>Ganesha Operation</strong>, bersedia hadir tepat waktu pada Pertemuan Teknis (02 Desember 2026) dan bertanding dengan menjunjung tinggi <strong>sportivitas</strong>. <span className="text-red-600 font-bold">*</span>
               </label>
             </div>
 
             {/* Submit / Lock Button */}
             {isAllLocked ? (
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-center space-y-1.5">
-                <div className="flex items-center justify-center gap-2 text-amber-950 font-black text-sm">
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-1">
+                <div className="flex items-center justify-center gap-2 text-amber-900 font-bold text-xs sm:text-sm">
                   <Lock className="w-4 h-4 text-amber-700" />
-                  <span>Seluruh Kategori Sudah Terdaftar &amp; Terkunci</span>
+                  <span>Semua Kategori Sudah Terdaftar</span>
                 </div>
                 <p className="text-xs text-amber-800">
-                  Data atlet telah terekam lengkap. Silakan kontak panitia jika memerlukan perubahan susunan kontingen.
+                  Data telah terekam. Hubungi panitia jika memerlukan perubahan susunan pemain.
                 </p>
               </div>
             ) : !selectedBidang ? (
-              <button
-                type="button"
-                disabled
-                className="w-full py-4 rounded-2xl text-sm font-bold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed text-center"
-              >
-                Silakan Pilih Asal Bidang Terlebih Dahulu
-              </button>
+              <div className="flex justify-center pt-1">
+                <button
+                  type="button"
+                  disabled
+                  className="w-full sm:w-auto min-w-[220px] max-w-sm h-11 px-6 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed flex items-center justify-center text-center"
+                >
+                  Pilih Asal Bidang Terlebih Dahulu
+                </button>
+              </div>
             ) : (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full py-4 rounded-2xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 transition-all ${
-                  isSubmitting
-                    ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                    : "btn-championship-red"
-                }`}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Menyimpan formulir pendaftaran...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>
-                      {categoryStatus?.isRegistered
-                        ? "Kirim Pendaftaran Kategori Ini (GRATIS)"
-                        : "Kirim Formulir Pendaftaran Delegasi (GRATIS)"}
-                    </span>
-                  </>
-                )}
-              </button>
+              <div className="flex justify-center pt-1">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full sm:w-auto min-w-[220px] max-w-sm h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-sm shadow-red-500/20 active:scale-[0.98] transition-all ${
+                    isSubmitting
+                      ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                      : "btn-championship-red"
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Kirim Pendaftaran</span>
+                    </>
+                  )}
+                </button>
+              </div>
             )}
           </div>
         </form>
