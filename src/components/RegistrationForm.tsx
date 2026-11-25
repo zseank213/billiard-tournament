@@ -27,6 +27,7 @@ import {
   XCircle,
   Lock,
   RotateCcw,
+  ArrowLeft,
   Users,
   MapPin,
   ShieldCheck,
@@ -536,8 +537,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               onClick={handleReturnToEmptyForm}
               className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-luxury-pearl flex items-center justify-center gap-2"
             >
-              <RotateCcw className="w-4 h-4 text-slate-500" />
-              <span>Daftar Bidang Lain</span>
+              <ArrowLeft className="w-4 h-4 text-slate-500" />
+              <span>Kembali</span>
             </button>
           </div>
 
