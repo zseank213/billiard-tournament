@@ -29,6 +29,18 @@ export const Navbar: React.FC = () => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsMobileMenuOpen(false);
@@ -44,12 +56,12 @@ export const Navbar: React.FC = () => {
   };
 
   const navMenuItems = [
-    { href: "/playoffs", label: "Playoffs (Bagan Gugur)", icon: GitFork, badge: "8 Besar" },
-    { href: "/group-stage", label: "Group Stage (Penyisihan)", icon: TableProperties, badge: "4 Grup" },
-    { href: "/participants", label: "Daftar Peserta (Bidang)", icon: Users, badge: "20 Bidang" },
-    { href: "/prize-pool", label: "Prize Pool & Hadiah", icon: Trophy, badge: "3 Piala" },
-    { href: "/merchandise", label: "Merchandise & Doorprize", icon: Gift, badge: "Voucher" },
-    { href: "/regulation", label: "Regulasi Resmi Bola 8", icon: BookOpen, badge: "WPA Rules" },
+    { href: "/playoffs", label: "Playoffs (Bagan Gugur)", icon: GitFork },
+    { href: "/group-stage", label: "Group Stage (Penyisihan)", icon: TableProperties },
+    { href: "/participants", label: "Daftar Peserta (Bidang)", icon: Users },
+    { href: "/prize-pool", label: "Prize Pool & Hadiah", icon: Trophy },
+    { href: "/merchandise", label: "Merchandise & Doorprize", icon: Gift },
+    { href: "/regulation", label: "Regulasi Resmi Bola 8", icon: BookOpen },
   ];
 
   return (
@@ -218,26 +230,26 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Dimmed Background Overlay on mobile/tablet when drawer is open */}
+      {/* Dimmed & Blurred Background Overlay on mobile/tablet when drawer is open */}
       {isMobileMenuOpen && (
         <div
           onClick={() => setIsMobileMenuOpen(false)}
-          className="lg:hidden fixed inset-0 top-14 sm:top-20 bg-slate-950/40 backdrop-blur-[2px] z-40 transition-opacity duration-200"
+          className="lg:hidden fixed inset-0 top-14 sm:top-20 bg-black/65 backdrop-blur-md z-40 transition-all duration-300"
           aria-hidden="true"
         />
       )}
 
       {/* Modern Responsive Navigation Drawer for Tablet & Mobile (Visible below lg) */}
       {isMobileMenuOpen && (
-        <div className="relative lg:hidden z-50 border-t border-slate-200 bg-white/98 backdrop-blur-xl shadow-2xl px-4 sm:px-6 py-4 space-y-3.5 max-h-[calc(100dvh-3.5rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain transition-all duration-200">
+        <div className="relative lg:hidden z-50 border-t border-slate-200/80 bg-white/98 backdrop-blur-2xl shadow-2xl rounded-b-3xl px-4 sm:px-6 py-4 space-y-3.5 max-h-[calc(100dvh-4.5rem)] sm:max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain transition-all duration-200">
           {/* Quick Action Banner on Top of Menu */}
           <Link
             href="/register"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-red-600 via-red-600 to-amber-600 text-white text-left shadow-md flex items-center justify-between group"
+            className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-red-600 via-red-600 to-amber-600 text-white text-left shadow-md flex items-center justify-between group active:scale-[0.99] transition-transform"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -262,19 +274,24 @@ export const Navbar: React.FC = () => {
               <Link
                 href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-3 rounded-xl text-xs sm:text-sm font-bold transition-colors ${
+                className={`flex items-center p-2.5 sm:p-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                   pathname === "/"
                     ? "bg-red-50 text-red-700 font-black border border-red-200/80 shadow-2xs"
-                    : "text-slate-700 hover:bg-slate-50 border border-transparent"
+                    : "text-slate-700 hover:bg-slate-50 border border-slate-100"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Home className={`w-4 h-4 ${pathname === "/" ? "text-red-600" : "text-slate-500"}`} />
+                  <div
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                      pathname === "/"
+                        ? "bg-red-600 text-white"
+                        : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
                   <span>Beranda Turnamen</span>
                 </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-md font-mono bg-slate-100 text-slate-500">
-                  Home
-                </span>
               </Link>
 
               {navMenuItems.map((item) => {
@@ -286,25 +303,24 @@ export const Navbar: React.FC = () => {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center justify-between p-3 rounded-xl text-xs sm:text-sm font-bold transition-colors ${
+                    className={`flex items-center p-2.5 sm:p-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                       isActive
                         ? "bg-red-50 text-red-700 font-black border border-red-200/80 shadow-2xs"
-                        : "text-slate-700 hover:bg-slate-50 border border-transparent"
+                        : "text-slate-700 hover:bg-slate-50 border border-slate-100"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon className={`w-4 h-4 ${isActive ? "text-red-600" : "text-slate-500"}`} />
+                      <div
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                          isActive
+                            ? "bg-red-600 text-white"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </div>
                       <span>{item.label}</span>
                     </div>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-md font-mono ${
-                        isActive
-                          ? "bg-red-600 text-white font-bold"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
                   </Link>
                 );
               })}
@@ -312,26 +328,26 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile Footer WhatsApp Contact */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-            <span className="flex items-center gap-1 font-bold text-slate-700">
+          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
+            <span className="flex items-center gap-1.5 font-bold text-slate-700">
               <Phone className="w-3.5 h-3.5 text-red-600" />
-              <span>Panitia:</span>
+              <span>Kontak Panitia:</span>
             </span>
             <div className="flex items-center gap-2">
               <a
                 href="https://wa.me/6285189970998?text=Halo%20Sean%20(Panitia%20TI%20Billiard%20Cup%202026)"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-emerald-700 font-bold hover:underline"
+                className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors text-xs flex items-center gap-1"
               >
                 Sean
               </a>
-              <span>•</span>
+              <span className="text-slate-300">•</span>
               <a
                 href="https://wa.me/6285624055869?text=Halo%20Novi%20(Panitia%20TI%20Billiard%20Cup%202026)"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-emerald-700 font-bold hover:underline"
+                className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors text-xs flex items-center gap-1"
               >
                 Novi
               </a>
