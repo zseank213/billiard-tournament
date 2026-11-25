@@ -149,7 +149,7 @@ export const GroupStageView: React.FC = () => {
         </div>
 
         {/* Standings Table */}
-        <div className="overflow-x-auto touch-pan-x">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse min-w-[340px]">
             <thead>
               <tr className="bg-slate-100/70 text-slate-600 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">

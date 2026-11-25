@@ -2,7 +2,7 @@
 
 import { Registration, BidangFullRegistrationPayload } from "@/types/tournament";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { cleanPhoneNumber } from "@/lib/phone";
+import { cleanPhoneNumber, validateIndonesianPhone } from "@/lib/phone";
 
 export interface RegistrationResult {
   success: boolean;
@@ -190,6 +190,32 @@ export async function submitBidangFullRegistration(
     const g2p2Phone = cleanPhoneNumber(payload.gandaTim2Player2Phone);
     const spPhone = cleanPhoneNumber(payload.singlePutraPhone);
     const spiPhone = cleanPhoneNumber(payload.singlePutriPhone);
+
+    // Validate phone number format (must start with 08, 10-13 digits)
+    if (payload.gandaTim1Player1 && g1p1Phone) {
+      const v = validateIndonesianPhone(g1p1Phone);
+      if (!v.isValid) return { success: false, message: `Pemain 1 Ganda Tim 1: ${v.message}` };
+    }
+    if (payload.gandaTim1Player2 && g1p2Phone) {
+      const v = validateIndonesianPhone(g1p2Phone);
+      if (!v.isValid) return { success: false, message: `Pemain 2 Ganda Tim 1: ${v.message}` };
+    }
+    if (payload.hasGandaTim2 && payload.gandaTim2Player1 && g2p1Phone) {
+      const v = validateIndonesianPhone(g2p1Phone);
+      if (!v.isValid) return { success: false, message: `Pemain 1 Ganda Tim 2: ${v.message}` };
+    }
+    if (payload.hasGandaTim2 && payload.gandaTim2Player2 && g2p2Phone) {
+      const v = validateIndonesianPhone(g2p2Phone);
+      if (!v.isValid) return { success: false, message: `Pemain 2 Ganda Tim 2: ${v.message}` };
+    }
+    if (payload.singlePutraPlayer && spPhone) {
+      const v = validateIndonesianPhone(spPhone);
+      if (!v.isValid) return { success: false, message: `Single Putra: ${v.message}` };
+    }
+    if (payload.singlePutriPlayer && spiPhone) {
+      const v = validateIndonesianPhone(spiPhone);
+      if (!v.isValid) return { success: false, message: `Single Putri: ${v.message}` };
+    }
 
     const primaryPhone =
       spPhone ||

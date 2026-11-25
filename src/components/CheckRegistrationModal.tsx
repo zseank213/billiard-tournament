@@ -116,9 +116,9 @@ export const CheckRegistrationModal: React.FC = () => {
                       <Building className="w-3.5 h-3.5 text-slate-400" />
                       {reg.club_name || "Perwakilan Bidang"}
                     </span>
-                    <span className="flex items-center gap-1 text-slate-600">
-                      <Phone className="w-3.5 h-3.5 text-slate-400" />
-                      {reg.phone_number}
+                    <span className="flex items-center gap-1 text-slate-600 min-w-0 max-w-full overflow-hidden">
+                      <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="break-all font-mono">{reg.phone_number}</span>
                     </span>
                     <span className="text-red-600 font-bold">
                       {reg.handicap}

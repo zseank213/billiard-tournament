@@ -172,7 +172,7 @@ export const BracketView: React.FC = () => {
           </span>
         </div>
 
-        <div className="w-full max-w-full min-w-0 bg-white p-3 sm:p-8 lg:p-10 rounded-3xl border border-slate-200 shadow-sm overflow-x-auto touch-pan-x">
+        <div className="w-full max-w-full min-w-0 bg-white p-3 sm:p-8 lg:p-10 rounded-3xl border border-slate-200 shadow-sm overflow-x-auto">
           <div className="min-w-[1020px] pb-4 space-y-8">
           {/* Column Stage Headers */}
           <div className="grid grid-cols-3 gap-8 text-xs font-black uppercase tracking-wider text-slate-600">

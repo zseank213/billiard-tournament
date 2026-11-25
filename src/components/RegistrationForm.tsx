@@ -7,7 +7,7 @@ import {
   checkBidangRegistration,
   BidangCategoryStatus,
 } from "@/app/actions/registration";
-import { cleanPhoneNumber } from "@/lib/phone";
+import { cleanPhoneNumber, validateIndonesianPhone } from "@/lib/phone";
 import { getBidangList } from "@/app/actions/bidang";
 import { Registration, BidangFullRegistrationPayload } from "@/types/tournament";
 import { TOURNAMENT_CONFIG, INVITED_BIDANG_LIST } from "@/lib/mock-data";
@@ -196,13 +196,27 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       const hasGandaTim1P1 = !!gandaTim1P1.trim();
       const hasGandaTim1P2 = !!gandaTim1P2.trim();
 
-      if (hasGandaTim1P1 && !cleanG1P1Phone) {
-        setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 1) harus diisi.");
-        return;
+      if (hasGandaTim1P1) {
+        if (!cleanG1P1Phone) {
+          setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 1) harus diisi.");
+          return;
+        }
+        const v = validateIndonesianPhone(cleanG1P1Phone);
+        if (!v.isValid) {
+          setErrorMessage(`Pemain 1 Ganda Tim 1: ${v.message}`);
+          return;
+        }
       }
-      if (hasGandaTim1P2 && !cleanG1P2Phone) {
-        setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 1) harus diisi.");
-        return;
+      if (hasGandaTim1P2) {
+        if (!cleanG1P2Phone) {
+          setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 1) harus diisi.");
+          return;
+        }
+        const v = validateIndonesianPhone(cleanG1P2Phone);
+        if (!v.isValid) {
+          setErrorMessage(`Pemain 2 Ganda Tim 1: ${v.message}`);
+          return;
+        }
       }
       if ((hasGandaTim1P1 && !hasGandaTim1P2) || (!hasGandaTim1P1 && hasGandaTim1P2)) {
         setErrorMessage("Untuk Kategori Ganda Putra Tim 1, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau kosongkan jika tidak mendaftar.");
@@ -215,13 +229,27 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       const hasGandaTim2P1 = !!gandaTim2P1.trim();
       const hasGandaTim2P2 = !!gandaTim2P2.trim();
 
-      if (hasGandaTim2P1 && !cleanG2P1Phone) {
-        setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 2) harus diisi.");
-        return;
+      if (hasGandaTim2P1) {
+        if (!cleanG2P1Phone) {
+          setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 2) harus diisi.");
+          return;
+        }
+        const v = validateIndonesianPhone(cleanG2P1Phone);
+        if (!v.isValid) {
+          setErrorMessage(`Pemain 1 Ganda Tim 2: ${v.message}`);
+          return;
+        }
       }
-      if (hasGandaTim2P2 && !cleanG2P2Phone) {
-        setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 2) harus diisi.");
-        return;
+      if (hasGandaTim2P2) {
+        if (!cleanG2P2Phone) {
+          setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 2) harus diisi.");
+          return;
+        }
+        const v = validateIndonesianPhone(cleanG2P2Phone);
+        if (!v.isValid) {
+          setErrorMessage(`Pemain 2 Ganda Tim 2: ${v.message}`);
+          return;
+        }
       }
       if ((hasGandaTim2P1 && !hasGandaTim2P2) || (!hasGandaTim2P1 && hasGandaTim2P2)) {
         setErrorMessage("Untuk Kategori Ganda Putra Tim 2, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau hapus Tim 2 jika tidak mendaftar.");
@@ -230,17 +258,27 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
 
     // 3. Validasi Single Putra (hanya jika belum terkunci)
-    if (!isSinglePaLocked) {
-      if (singlePutra.trim() && !cleanSinglePaPhone) {
+    if (!isSinglePaLocked && singlePutra.trim()) {
+      if (!cleanSinglePaPhone) {
         setErrorMessage("Nomor WhatsApp Atlet Single Putra harus diisi.");
+        return;
+      }
+      const v = validateIndonesianPhone(cleanSinglePaPhone);
+      if (!v.isValid) {
+        setErrorMessage(`Single Putra: ${v.message}`);
         return;
       }
     }
 
     // 4. Validasi Single Putri (hanya jika belum terkunci)
-    if (!isSinglePiLocked) {
-      if (singlePutri.trim() && !cleanSinglePiPhone) {
+    if (!isSinglePiLocked && singlePutri.trim()) {
+      if (!cleanSinglePiPhone) {
         setErrorMessage("Nomor WhatsApp Atlet Single Putri harus diisi.");
+        return;
+      }
+      const v = validateIndonesianPhone(cleanSinglePiPhone);
+      if (!v.isValid) {
+        setErrorMessage(`Single Putri: ${v.message}`);
         return;
       }
     }
@@ -395,9 +433,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         {registeredData.ganda_tim1_player1}
                       </p>
                       {registeredData.ganda_tim1_player1_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>{registeredData.ganda_tim1_player1_phone}</span>
+                          <span className="break-all font-mono">{registeredData.ganda_tim1_player1_phone}</span>
                         </p>
                       )}
                     </div>
@@ -407,9 +445,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         {registeredData.ganda_tim1_player2}
                       </p>
                       {registeredData.ganda_tim1_player2_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>{registeredData.ganda_tim1_player2_phone}</span>
+                          <span className="break-all font-mono">{registeredData.ganda_tim1_player2_phone}</span>
                         </p>
                       )}
                     </div>
@@ -434,9 +472,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         {registeredData.ganda_tim2_player1}
                       </p>
                       {registeredData.ganda_tim2_player1_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>{registeredData.ganda_tim2_player1_phone}</span>
+                          <span className="break-all font-mono">{registeredData.ganda_tim2_player1_phone}</span>
                         </p>
                       )}
                     </div>
@@ -446,9 +484,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         {registeredData.ganda_tim2_player2}
                       </p>
                       {registeredData.ganda_tim2_player2_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1">
+                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>{registeredData.ganda_tim2_player2_phone}</span>
+                          <span className="break-all font-mono">{registeredData.ganda_tim2_player2_phone}</span>
                         </p>
                       )}
                     </div>
@@ -466,8 +504,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
-                    <p className="font-black text-slate-900 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1 min-w-0">
+                    <p className="font-black text-slate-900 text-sm truncate">
                       {registeredData.single_putra_player}
                     </p>
                     {registeredData.single_putra_phone && (
@@ -475,10 +513,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         href={`https://wa.me/${registeredData.single_putra_phone.replace(/\D/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
+                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors min-w-0 max-w-full overflow-hidden"
                       >
-                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{registeredData.single_putra_phone}</span>
+                        <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{registeredData.single_putra_phone}</span>
                       </a>
                     )}
                   </div>
@@ -495,8 +533,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1">
-                    <p className="font-black text-slate-900 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1 min-w-0">
+                    <p className="font-black text-slate-900 text-sm truncate">
                       {registeredData.single_putri_player}
                     </p>
                     {registeredData.single_putri_phone && (
@@ -504,10 +542,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         href={`https://wa.me/${registeredData.single_putri_phone.replace(/\D/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors"
+                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors min-w-0 max-w-full overflow-hidden"
                       >
-                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{registeredData.single_putri_phone}</span>
+                        <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{registeredData.single_putri_phone}</span>
                       </a>
                     )}
                   </div>
@@ -756,25 +794,27 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs min-w-0">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 1</span>
-                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">
                       {categoryStatus?.gandaTim1?.player1}
                     </p>
                     {categoryStatus?.gandaTim1?.phone1 && (
-                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim1.phone1}
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+                        <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{categoryStatus.gandaTim1.phone1}</span>
                       </p>
                     )}
                   </div>
-                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs min-w-0">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 2</span>
-                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">
                       {categoryStatus?.gandaTim1?.player2}
                     </p>
                     {categoryStatus?.gandaTim1?.phone2 && (
-                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim1.phone2}
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+                        <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{categoryStatus.gandaTim1.phone2}</span>
                       </p>
                     )}
                   </div>
@@ -813,7 +853,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     </label>
                     <input
                       type="tel"
-                      placeholder="Contoh: 081234567890"
+                      inputMode="tel"
+                      maxLength={14}
+                      placeholder="Contoh: 08123456789"
                       value={gandaTim1P1Phone}
                       onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim1P1Phone)}
                       onBlur={() => setGandaTim1P1Phone(cleanPhoneNumber(gandaTim1P1Phone))}
@@ -841,7 +883,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     </label>
                     <input
                       type="tel"
-                      placeholder="Contoh: 081234567891"
+                      inputMode="tel"
+                      maxLength={14}
+                      placeholder="Contoh: 08123456789"
                       value={gandaTim1P2Phone}
                       onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim1P2Phone)}
                       onBlur={() => setGandaTim1P2Phone(cleanPhoneNumber(gandaTim1P2Phone))}
@@ -866,25 +910,27 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs min-w-0">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 1</span>
-                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">
                       {categoryStatus?.gandaTim2?.player1}
                     </p>
                     {categoryStatus?.gandaTim2?.phone1 && (
-                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim2.phone1}
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+                        <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{categoryStatus.gandaTim2.phone1}</span>
                       </p>
                     )}
                   </div>
-                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs min-w-0">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 2</span>
-                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">
                       {categoryStatus?.gandaTim2?.player2}
                     </p>
                     {categoryStatus?.gandaTim2?.phone2 && (
-                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-emerald-600" /> {categoryStatus.gandaTim2.phone2}
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+                        <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{categoryStatus.gandaTim2.phone2}</span>
                       </p>
                     )}
                   </div>
@@ -939,7 +985,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         </label>
                         <input
                           type="tel"
-                          placeholder="Nomor WhatsApp"
+                          inputMode="tel"
+                          maxLength={14}
+                          placeholder="Contoh: 08123456789"
                           value={gandaTim2P1Phone}
                           onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim2P1Phone)}
                           onBlur={() => setGandaTim2P1Phone(cleanPhoneNumber(gandaTim2P1Phone))}
@@ -967,7 +1015,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         </label>
                         <input
                           type="tel"
-                          placeholder="Nomor WhatsApp"
+                          inputMode="tel"
+                          maxLength={14}
+                          placeholder="Contoh: 08123456789"
                           value={gandaTim2P2Phone}
                           onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim2P2Phone)}
                           onBlur={() => setGandaTim2P2Phone(cleanPhoneNumber(gandaTim2P2Phone))}
@@ -1007,17 +1057,17 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Terkunci
                   </span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <div>
+                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 min-w-0">
+                  <div className="min-w-0">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Nama Atlet</span>
-                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">
                       {categoryStatus?.singlePutra?.player}
                     </p>
                   </div>
                   {categoryStatus?.singlePutra?.phone && (
-                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs">
-                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{categoryStatus.singlePutra.phone}</span>
+                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs min-w-0 max-w-full overflow-hidden">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="break-all font-mono">{categoryStatus.singlePutra.phone}</span>
                     </div>
                   )}
                 </div>
@@ -1047,7 +1097,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </label>
                   <input
                     type="tel"
-                    placeholder="Contoh: 081234567892"
+                    inputMode="tel"
+                    maxLength={14}
+                    placeholder="Contoh: 08123456789"
                     value={singlePutraPhone}
                     onChange={(e) => handlePhoneInputChange(e.target.value, setSinglePutraPhone)}
                     onBlur={() => setSinglePutraPhone(cleanPhoneNumber(singlePutraPhone))}
@@ -1084,17 +1136,17 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Terkunci
                   </span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <div>
+                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 min-w-0">
+                  <div className="min-w-0">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Nama Atlet</span>
-                    <p className="font-black text-slate-900 text-sm mt-0.5">
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">
                       {categoryStatus?.singlePutri?.player}
                     </p>
                   </div>
                   {categoryStatus?.singlePutri?.phone && (
-                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs">
-                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{categoryStatus.singlePutri.phone}</span>
+                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs min-w-0 max-w-full overflow-hidden">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="break-all font-mono">{categoryStatus.singlePutri.phone}</span>
                     </div>
                   )}
                 </div>
@@ -1124,7 +1176,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </label>
                   <input
                     type="tel"
-                    placeholder="Contoh: 081234567893"
+                    inputMode="tel"
+                    maxLength={14}
+                    placeholder="Contoh: 08123456789"
                     value={singlePutriPhone}
                     onChange={(e) => handlePhoneInputChange(e.target.value, setSinglePutriPhone)}
                     onBlur={() => setSinglePutriPhone(cleanPhoneNumber(singlePutriPhone))}
