@@ -20,16 +20,19 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "TI BILLIARD CUP 2026 — Sportivitas Antar Bidang IT DEPT x Ganesha Operation",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://open-tournament.vercel.app"
+  ),
+  title: "TI BILLIARD CUP 2026 — Turnamen Bola 8 Antar Bidang Ganesha Operation",
   description:
-    "Portal Resmi Turnamen TI BILLIARD CUP 2026. Sportivitas Antar Bidang IT DEPT & Ganesha Operation. Live Skor, Jadwal Pertandingan, Pendaftaran & Merchandise.",
+    "Portal Resmi Turnamen TI BILLIARD CUP 2026. Sportivitas Antar Bidang IT DEPT & Ganesha Operation. Perebutan Piala Bergilir Direktur Perencanaan.",
   keywords: [
     "TI BILLIARD CUP 2026",
     "IT DEPT",
     "Ganesha Operation",
-    "Sportivitas Antar Bidang",
+    "Turnamen Bola 8",
     "Billiard Tournament 2026",
-    "Jadwal Billiard",
+    "Piala Bergilir Direktur Perencanaan",
   ],
   icons: {
     icon: [
@@ -39,6 +42,30 @@ export const metadata: Metadata = {
     ],
     shortcut: "/images/logo-it-dept.png",
     apple: "/images/logo-it-dept.png",
+  },
+  openGraph: {
+    title: "TI BILLIARD CUP 2026 — Turnamen Bola 8 Antar Bidang",
+    description:
+      "Portal Resmi Turnamen TI BILLIARD CUP 2026. Perebutan Piala Bergilir Direktur Perencanaan. Mulai Kamis, 03 Desember 2026 di Greenlight Cafe & Billiard.",
+    url: "https://open-tournament.vercel.app",
+    siteName: "TI BILLIARD CUP 2026",
+    images: [
+      {
+        url: "/images/ti-billiard-cup-banner-2026.jpg",
+        width: 683,
+        height: 1024,
+        alt: "TI BILLIARD CUP 2026 Official Banner",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TI BILLIARD CUP 2026 — Turnamen Bola 8 Antar Bidang",
+    description:
+      "Portal Resmi Turnamen TI BILLIARD CUP 2026. Perebutan Piala Bergilir Direktur Perencanaan. Mulai Kamis, 03 Desember 2026 di Greenlight Cafe & Billiard.",
+    images: ["/images/ti-billiard-cup-banner-2026.jpg"],
   },
 };
 
