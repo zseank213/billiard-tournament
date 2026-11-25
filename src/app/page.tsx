@@ -25,17 +25,17 @@ import { TOURNAMENT_CONFIG } from "@/lib/mock-data";
 export default function HomePage() {
   const tournamentModules = [
     {
-      title: "Playoffs (Bagan Gugur)",
-      description: "Bagan gugur Single Elimination babak 8 Besar hingga Grand Final memperebutkan Piala Bergilir Direktur Perencanaan.",
+      title: "Bagan Gugur (8 Besar & Final)",
+      description: "Bagan pertandingan sistem gugur mulai dari babak 8 Besar hingga Babak Final memperebutkan Piala Bergilir Direktur Perencanaan.",
       href: "/playoffs",
       icon: GitFork,
       badge: "8 Besar",
       badgeColor: "bg-red-50 text-red-700 border-red-200",
-      cta: "Buka Bagan Playoffs",
+      cta: "Buka Bagan Pertandingan",
     },
     {
-      title: "Group Stage (Penyisihan)",
-      description: "Klasemen Babak Penyisihan 4 Grup (A, B, C, D) 20 bidang untuk kategori Ganda Putra, Single Putra, dan Single Putri.",
+      title: "Babak Grup (Penyisihan)",
+      description: "Klasemen babak penyisihan 4 grup (A, B, C, D) untuk kategori Ganda Putra, Single Putra, dan Single Putri.",
       href: "/group-stage",
       icon: TableProperties,
       badge: "4 Grup (20 Tim)",
@@ -44,16 +44,16 @@ export default function HomePage() {
     },
     {
       title: "Daftar Peserta (Bidang)",
-      description: "Daftar 20 tim perwakilan bidang di lingkungan Ganesha Operation Pusat beserta data atlet delegasi siap tanding.",
+      description: "Daftar 20 tim perwakilan bidang di lingkungan kerja Ganesha Operation Pusat beserta data nama pemain.",
       href: "/participants",
       icon: Users,
-      badge: "19 Bidang + IT Host",
+      badge: "20 Bidang",
       badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      cta: "Cek Roster Bidang",
+      cta: "Lihat Daftar Pemain",
     },
     {
-      title: "Prize Pool & Rincian Hadiah",
-      description: "Alokasi 3 Piala Bergilir DirRen, uang tunai pembinaan, piala tetap juara 1-3, suporter terbaik, dan mini games.",
+      title: "Total Hadiah & Piala",
+      description: "Alokasi 3 Piala Bergilir, piala tetap juara 1-3 per kategori, hadiah suporter terbaik, dan doorprize.",
       href: "/prize-pool",
       icon: Trophy,
       badge: "3 Piala Bergilir",
@@ -61,22 +61,22 @@ export default function HomePage() {
       cta: "Rincian Hadiah Juara",
     },
     {
-      title: "Merchandise & Doorprize",
-      description: "Koleksi kaos dry-fit, topi drill, tumbler stainless, mug, dan voucher belanja Indomaret Rp 100K & 50K.",
+      title: "Souvenir & Hadiah Hiburan",
+      description: "Koleksi kaos turnamen, topi, tumbler, mug, serta voucher belanja Indomaret Rp 100.000 & Rp 50.000.",
       href: "/merchandise",
       icon: Gift,
       badge: "Voucher Belanja",
       badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
-      cta: "Lihat Merchandise",
+      cta: "Lihat Koleksi Souvenir",
     },
     {
-      title: "Regulasi & SK Resmi Bola 8",
-      description: "Surat keputusan resmi panitia, sistem pertandingan Bola 8 WPA, toleransi waktu, dan ketentuan WO.",
+      title: "Aturan Pertandingan Bola 8",
+      description: "Tata tertib resmi turnamen, aturan permainan Bola 8, ketentuan waktu hadir, dan etika pertandingan.",
       href: "/regulation",
       icon: BookOpen,
-      badge: "Official WPA",
+      badge: "Aturan Resmi",
       badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
-      cta: "Baca Aturan Resmi",
+      cta: "Baca Aturan Pertandingan",
     },
   ];
 
@@ -86,18 +86,13 @@ export default function HomePage() {
       <HeroBanner />
 
       {/* 2. Main Module Hub Section */}
-      <section className="max-w-7xl mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 space-y-8">
+      <section className="max-w-7xl mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="text-center sm:text-left border-b border-slate-200 pb-4">
-          <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-              Pusat Modul Kejuaraan
-            </h2>
-            <span className="text-xs font-mono font-bold text-red-700 bg-red-50 px-3 py-0.5 rounded-full border border-red-200">
-              6 SCREEN UTAMA
-            </span>
-          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
+            Menu Utama Turnamen
+          </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Pilih modul turnamen di bawah ini untuk melihat detail bagan gugur, klasemen, roster bidang, dan rincian hadiah
+            Pilih menu di bawah ini untuk melihat bagan gugur, babak grup, daftar peserta, dan rincian hadiah
           </p>
         </div>
 
@@ -110,7 +105,7 @@ export default function HomePage() {
               <Link
                 key={mod.href}
                 href={mod.href}
-                className="group p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-red-400 hover:shadow-lg transition-all duration-200 flex flex-col justify-between shadow-xs"
+                className="group p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 hover:border-red-400 hover:shadow-md transition-all duration-200 flex flex-col justify-between shadow-xs"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -141,28 +136,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. Fast Action Banner: Pendaftaran & Cek Status */}
+      {/* 3. Pendaftaran Delegasi Banner (Light Championship Theme) */}
       <section className="max-w-7xl mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white p-6 sm:p-10 shadow-xl border border-slate-800 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="rounded-3xl bg-gradient-to-br from-red-50/80 via-white to-amber-50/60 text-slate-900 p-6 sm:p-10 shadow-sm border border-red-200/90 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
             <div className="space-y-2 text-center lg:text-left">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/20 px-3 py-1 rounded-full border border-amber-400/30 inline-block">
+              <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-100 px-3 py-1 rounded-full border border-red-200 inline-block">
                 Pendaftaran Delegasi Bidang Masih Dibuka
               </span>
-              <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
-                Daftarkan Kontingen Bidang Anda Sekarang
+              <h3 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Daftarkan Tim Bidang Anda Sekarang
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                Batas pendaftaran resmi hingga <strong>Selasa, 01 Desember 2026</strong>. Technical Meeting diadakan pada <strong>Rabu, 02 Desember 2026</strong>. Biaya keikutsertaan <strong>GRATIS</strong> untuk seluruh bidang di lingkungan Ganesha Operation.
+              <p className="text-xs sm:text-sm text-slate-600 max-w-xl">
+                Batas pendaftaran resmi hingga <strong>Selasa, 01 Desember 2026</strong>. Pertemuan Teknis &amp; Undian diadakan pada <strong>Rabu, 02 Desember 2026</strong>. Biaya keikutsertaan <strong>GRATIS</strong> untuk seluruh bidang di lingkungan Ganesha Operation.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto shrink-0">
               <Link
                 href="/register"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black btn-championship-red flex items-center justify-center gap-2 shadow-lg shadow-red-600/30"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black btn-championship-red flex items-center justify-center gap-2 shadow-sm shadow-red-600/20"
               >
                 <FileText className="w-4 h-4" />
                 <span>Formulir Pendaftaran Tim</span>
@@ -171,10 +166,10 @@ export default function HomePage() {
 
               <Link
                 href="/playoffs"
-                className="w-full sm:w-auto px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 flex items-center justify-center gap-2 transition-colors"
+                className="w-full sm:w-auto px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 shadow-2xs flex items-center justify-center gap-2 transition-colors"
               >
-                <GitFork className="w-4 h-4 text-slate-300" />
-                <span>Lihat Bagan (Playoffs)</span>
+                <GitFork className="w-4 h-4 text-slate-500" />
+                <span>Lihat Bagan (8 Besar)</span>
               </Link>
             </div>
           </div>

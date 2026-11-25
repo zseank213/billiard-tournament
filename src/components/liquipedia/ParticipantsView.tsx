@@ -80,16 +80,16 @@ export const ParticipantsView: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-              Participants
+              Daftar Peserta
             </h2>
             {isLoading ? (
-              <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-3 py-0.5 rounded-full border border-slate-200 animate-pulse flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-0.5 rounded-full border border-slate-200 animate-pulse flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-slate-400 animate-ping" />
-                MEMUAT DATA BIDANG...
+                Memuat data bidang...
               </span>
             ) : (
-              <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-0.5 rounded-full border border-emerald-200">
-                {participants.length} BIDANG TERDAFTAR DI DATABASE
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-0.5 rounded-full border border-emerald-200">
+                {participants.length} Bidang Terdaftar
               </span>
             )}
           </div>
@@ -184,7 +184,7 @@ export const ParticipantsView: React.FC = () => {
                         : "bg-slate-100 text-slate-600 border-slate-200"
                     }`}
                   >
-                    {isHost ? "Host" : team.status === "registered" ? "Terdaftar" : "Invited"}
+                    {isHost ? "Tuan Rumah" : team.status === "registered" ? "Terdaftar" : "Belum Daftar"}
                   </span>
                   <div className="text-slate-400 hover:text-slate-700 transition-colors">
                     {isExpanded ? (
@@ -196,13 +196,13 @@ export const ParticipantsView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Expanded Roster Slots (Bersih & Rapi, Tanpa Badge 'Siap Tanding') */}
+              {/* Expanded Player Slots (Bersih & Rapi) */}
               {isExpanded && (
                 <div className="border-t border-slate-100 bg-slate-50/80 p-3 space-y-2 text-xs">
                   <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-200/60">
-                    <span>Roster Atlet Delegasi:</span>
+                    <span>Daftar Pemain:</span>
                     <span className="font-mono text-slate-500 font-bold">
-                      {team.slots.filter((s) => s.playerName && !s.playerName.includes("TBD") && !s.playerName.includes("Belum Didaftarkan")).length} / {team.slots.length} Atlet
+                      {team.slots.filter((s) => s.playerName && !s.playerName.includes("TBD") && !s.playerName.includes("Belum Didaftarkan")).length} / {team.slots.length} Pemain
                     </span>
                   </div>
 

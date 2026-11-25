@@ -405,7 +405,7 @@ export const LIQUIPEDIA_PARTICIPANTS: ParticipantTeam[] = INVITED_BIDANG_LIST.ma
     bidang: bidang,
     seed: idx + 1,
     status: isHost ? ("host" as const) : ("invited" as const),
-    accentColor: isHost ? "bg-red-600 text-white" : "bg-slate-900 text-white",
+    accentColor: isHost ? "bg-red-600 text-white" : "bg-slate-100 text-slate-800",
     slots: [
       {
         slotNumber: 1,

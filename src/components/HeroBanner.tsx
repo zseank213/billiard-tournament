@@ -68,13 +68,13 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               </p>
             </div>
 
-            {/* Mobile-Only Interactive Poster Spotlight Card */}
+            {/* Mobile-Only Interactive Poster Spotlight Card (Light Championship Pearl Theme) */}
             <div
-              className="lg:hidden relative rounded-2xl overflow-hidden border border-slate-200/90 shadow-md bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 text-white cursor-pointer group active:scale-[0.99] transition-transform"
+              className="lg:hidden relative rounded-2xl overflow-hidden border border-amber-200/90 shadow-xs bg-gradient-to-br from-amber-50/70 via-white to-red-50/40 text-slate-900 cursor-pointer group active:scale-[0.99] transition-transform"
               onClick={() => setIsBannerModalOpen(true)}
             >
               <div className="relative flex items-center gap-3.5 p-3 sm:p-4">
-                <div className="relative w-16 h-24 sm:w-20 sm:h-28 rounded-xl overflow-hidden shrink-0 shadow-md border border-white/20">
+                <div className="relative w-16 h-24 sm:w-20 sm:h-28 rounded-xl overflow-hidden shrink-0 shadow-xs border border-amber-200/80">
                   <Image
                     src="/images/ti-billiard-cup-banner-2026.jpg"
                     alt="Banner TI Billiard Cup 2026"
@@ -83,22 +83,22 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   />
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-amber-400">
-                    <Sparkles className="w-3 h-3 text-amber-400" />
+                  <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-amber-800">
+                    <Sparkles className="w-3 h-3 text-amber-600" />
                     <span>Poster Resmi Turnamen</span>
                   </div>
-                  <h4 className="text-sm font-black text-white truncate">
+                  <h4 className="text-sm font-black text-slate-900 truncate">
                     TI BILLIARD CUP 2026
                   </h4>
-                  <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
                     Mulai 03 Des 2026 • Greenlight Cafe &amp; Billiard Bandung
                   </p>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-400 group-hover:text-red-300 pt-0.5">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 group-hover:text-red-700 pt-0.5">
                     <Maximize2 className="w-3 h-3" />
-                    <span>Ketuk untuk perbesar poster</span>
+                    <span>Lihat poster lengkap</span>
                   </span>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-white transition-all shrink-0" />
+                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 group-hover:text-slate-600 transition-all shrink-0" />
               </div>
             </div>
 
@@ -145,7 +145,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
             {/* Quick Action Navigation Grid (Mobile & Desktop Friendly) */}
             <div className="space-y-2 pt-1">
-              {/* Primary Dual Action Buttons */}
+              {/* Primary Dual Action Buttons (Light Championship Theme) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <Link
                   href="/register"
@@ -160,11 +160,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
                 <Link
                   href="/playoffs"
-                  className="p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm font-black bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-between shadow-md active:scale-[0.99] transition-transform"
+                  className="p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm font-black bg-white hover:bg-red-50/60 text-slate-800 hover:text-red-700 border border-slate-200/90 flex items-center justify-between shadow-xs active:scale-[0.99] transition-all"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Trophy className="w-4 h-4 text-amber-400" />
-                    <span>Bagan Gugur (Playoffs)</span>
+                    <Trophy className="w-4 h-4 text-amber-600" />
+                    <span>Bagan Gugur (8 Besar)</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </Link>
@@ -179,7 +179,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
                     <TableProperties className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] sm:text-xs font-bold text-slate-800">Group Stage</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800">Babak Grup</span>
                 </Link>
 
                 <Link
@@ -189,7 +189,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
                     <Users className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] sm:text-xs font-bold text-slate-800">20 Bidang</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800">Daftar Peserta</span>
                 </Link>
 
                 <Link
@@ -199,7 +199,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
                     <Gift className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] sm:text-xs font-bold text-slate-800">Prize Pool</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800">Hadiah &amp; Piala</span>
                 </Link>
               </div>
             </div>
@@ -238,7 +238,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   BOLA 8
                 </div>
                 <p className="text-[10px] text-slate-500 font-medium">
-                  Official WPA Rules
+                  Aturan Resmi Bola 8
                 </p>
               </div>
 
@@ -250,7 +250,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   01 Des 2026
                 </div>
                 <p className="text-[10px] text-amber-700 font-bold">
-                  TM: 02 Des 2026
+                  Undian: 02 Des 2026
                 </p>
               </div>
             </div>
@@ -316,7 +316,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
       {/* Full Resolution Banner Modal */}
       {isBannerModalOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
           onClick={() => setIsBannerModalOpen(false)}
         >
           <div 

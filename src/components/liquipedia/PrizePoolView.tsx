@@ -105,16 +105,16 @@ export const PrizePoolView: React.FC<PrizePoolViewProps> = ({ onViewMerchandise 
               key={idx}
               className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between"
             >
-              <div className="p-4 bg-slate-900 text-white border-b border-slate-800 flex items-center justify-between">
+              <div className="p-4 bg-slate-50 text-slate-900 border-b border-slate-200 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-400/20 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-black uppercase text-red-700 bg-red-100/80 px-2 py-0.5 rounded border border-red-200">
                     Kategori Lomba
                   </span>
-                  <h3 className="text-base font-black mt-1 text-white">
+                  <h3 className="text-base font-black mt-1 text-slate-900">
                     Juara {cat.category}
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono font-bold">Bola 8</span>
+                <span className="text-xs text-slate-500 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200">Bola 8</span>
               </div>
 
               <div className="p-4 space-y-3 flex-1 text-xs">

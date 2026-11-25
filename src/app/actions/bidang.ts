@@ -180,7 +180,7 @@ export async function getParticipantsWithRosters(): Promise<{
       bidang: b.name,
       seed: b.order_no,
       status: b.is_host ? ("host" as const) : isRegistered ? ("registered" as const) : ("invited" as const),
-      accentColor: b.is_host ? "bg-red-600 text-white" : "bg-slate-900 text-white",
+      accentColor: b.is_host ? "bg-red-600 text-white" : "bg-slate-100 text-slate-800",
       slots,
     };
   });

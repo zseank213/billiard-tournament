@@ -133,17 +133,17 @@ export const GroupStageView: React.FC = () => {
         key={group.groupId}
         className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between"
       >
-        {/* Table Header Banner */}
-        <div className="p-3.5 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+        {/* Table Header Banner (Light Championship Theme) */}
+        <div className="p-3.5 sm:p-4 bg-slate-50 text-slate-900 flex items-center justify-between border-b border-slate-200">
           <div>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/30">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-100/80 px-2 py-0.5 rounded-full border border-red-200">
               Babak Penyisihan
             </span>
-            <h3 className="text-sm sm:text-lg font-black mt-1 text-white tracking-tight">
+            <h3 className="text-sm sm:text-base font-black mt-1 text-slate-900 tracking-tight">
               {group.groupName}
             </h3>
           </div>
-          <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-300 bg-slate-800/80 px-2.5 sm:px-3 py-1 rounded-xl border border-slate-700">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-600 bg-white px-2.5 sm:px-3 py-1 rounded-xl border border-slate-200 shadow-2xs">
             5 Bidang
           </span>
         </div>
@@ -152,22 +152,19 @@ export const GroupStageView: React.FC = () => {
         <div className="overflow-x-auto touch-pan-x">
           <table className="w-full text-left text-xs border-collapse min-w-[340px]">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-slate-100/70 text-slate-600 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
                 <th className="py-2.5 sm:py-3 px-2 sm:px-4 w-7 sm:w-10 text-center">#</th>
                 <th className="py-2.5 sm:py-3 px-2 sm:px-4 min-w-[110px]">Bidang / Tim</th>
                 <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  <span className="hidden xs:inline">Match (W-L)</span>
-                  <span className="xs:hidden">W-L</span>
+                  Menang - Kalah
                 </th>
                 <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  <span className="hidden xs:inline">Racks</span>
-                  <span className="xs:hidden">R</span>
+                  Game
                 </th>
                 <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  <span className="hidden xs:inline">Diff</span>
-                  <span className="xs:hidden">+/-</span>
+                  Selisih
                 </th>
-                <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center font-black text-slate-900">PTS</th>
+                <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center font-black text-slate-900">Poin</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-semibold text-slate-800 text-[11px] sm:text-xs">
@@ -292,14 +289,14 @@ export const GroupStageView: React.FC = () => {
       <div className="pb-4 border-b border-slate-200 text-center sm:text-left">
         <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-            Group Stage (Babak Penyisihan)
+            Babak Grup (Penyisihan)
           </h2>
-          <span className="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-3 py-0.5 rounded-full border border-amber-200">
-            SLOT TBD • MENUNGGU DRAWING TECHNICAL MEETING
+          <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-0.5 rounded-full border border-amber-200">
+            Jadwal Pertandingan Menunggu Undian Resmi
           </span>
         </div>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Penyisihan seluruh kategori antar 20 bidang di lingkungan Ganesha Operation. Juara dan Runner-up masing-masing grup (Peringkat 1 &amp; 2) melaju ke Babak 8 Besar (Quarterfinal / Bagan Gugur).
+          Babak penyisihan seluruh kategori antar 20 bidang di lingkungan Ganesha Operation. Juara dan peringkat 2 masing-masing grup berhak melaju ke Babak 8 Besar.
         </p>
       </div>
 
@@ -321,36 +318,33 @@ export const GroupStageView: React.FC = () => {
           ))}
         </div>
       ) : (
-        /* Sequential Continuous Display for all 3 Categories (Without Tab Bar) */
-        <div className="space-y-14">
-          {categories.map((cat, catIdx) => {
+        /* Sequential Continuous Display for all 3 Categories (Light Championship Theme) */
+        <div className="space-y-12">
+          {categories.map((cat) => {
             const Icon = cat.icon;
             const groups = generateGroupsForCategory(cat.id, cat.title);
 
             return (
-              <section key={cat.id} className="space-y-6">
-                {/* Prominent Category Section Title Banner */}
-                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <section key={cat.id} className="space-y-5">
+                {/* Prominent Category Section Title Banner (Light Championship Theme) */}
+                <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-red-50/90 via-white to-amber-50/70 text-slate-900 border border-red-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
                     <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black shadow-sm shrink-0">
                       <Icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-400 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-400/30">
-                          STAGE {catIdx + 1}
-                        </span>
-                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                        <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                           {cat.title}
                         </h3>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
+                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
                         {cat.subtitle}
                       </p>
                     </div>
                   </div>
 
-                  <span className={`text-xs font-black uppercase px-3.5 py-1.5 rounded-xl border ${cat.badgeColor} shrink-0 self-start sm:self-auto`}>
+                  <span className={`text-xs font-black uppercase px-3.5 py-1.5 rounded-xl border ${cat.badgeColor} shrink-0 self-start sm:self-auto shadow-2xs`}>
                     {cat.badge}
                   </span>
                 </div>

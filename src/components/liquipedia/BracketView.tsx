@@ -280,7 +280,7 @@ export const BracketView: React.FC = () => {
 
             <button
               onClick={() => setActiveMatchModal(null)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition-colors"
+              className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-800 font-bold text-xs hover:bg-slate-200 border border-slate-200 transition-colors"
             >
               Tutup
             </button>

@@ -56,12 +56,12 @@ export const Navbar: React.FC = () => {
   };
 
   const navMenuItems = [
-    { href: "/playoffs", label: "Playoffs (Bagan Gugur)", icon: GitFork },
-    { href: "/group-stage", label: "Group Stage (Penyisihan)", icon: TableProperties },
+    { href: "/playoffs", label: "Bagan Gugur (8 Besar)", icon: GitFork },
+    { href: "/group-stage", label: "Babak Grup (Penyisihan)", icon: TableProperties },
     { href: "/participants", label: "Daftar Peserta (Bidang)", icon: Users },
-    { href: "/prize-pool", label: "Prize Pool & Hadiah", icon: Trophy },
-    { href: "/merchandise", label: "Merchandise & Doorprize", icon: Gift },
-    { href: "/regulation", label: "Regulasi Resmi Bola 8", icon: BookOpen },
+    { href: "/prize-pool", label: "Total Hadiah & Piala", icon: Trophy },
+    { href: "/merchandise", label: "Souvenir & Hadiah Hiburan", icon: Gift },
+    { href: "/regulation", label: "Aturan Resmi Bola 8", icon: BookOpen },
   ];
 
   return (
@@ -109,7 +109,7 @@ export const Navbar: React.FC = () => {
                 <span className="font-black text-xs sm:text-base md:text-lg text-slate-900 group-hover:text-red-600 transition-colors tracking-tight whitespace-nowrap">
                   TI BILLIARD <span className="text-red-600">CUP</span>
                 </span>
-                <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded bg-slate-900 text-white whitespace-nowrap">
+                <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded bg-red-600 text-white whitespace-nowrap shadow-2xs">
                   2026
                 </span>
               </div>
@@ -215,7 +215,7 @@ export const Navbar: React.FC = () => {
               className={`lg:hidden w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer touch-manipulation select-none active:scale-95 shadow-xs ${
                 isMobileMenuOpen
                   ? "bg-red-600 text-white ring-2 ring-red-400/40 shadow-red-600/30"
-                  : "bg-slate-900 hover:bg-slate-800 text-white"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/90"
               }`}
               aria-label={isMobileMenuOpen ? "Tutup Menu Turnamen" : "Buka Menu Turnamen"}
               aria-expanded={isMobileMenuOpen}
@@ -234,7 +234,7 @@ export const Navbar: React.FC = () => {
       {isMobileMenuOpen && (
         <div
           onClick={() => setIsMobileMenuOpen(false)}
-          className="lg:hidden fixed inset-0 top-14 sm:top-20 bg-black/65 backdrop-blur-md z-40 transition-all duration-300"
+          className="lg:hidden fixed inset-0 top-14 sm:top-20 bg-slate-900/40 backdrop-blur-sm z-40 transition-all duration-200"
           aria-hidden="true"
         />
       )}
@@ -267,7 +267,7 @@ export const Navbar: React.FC = () => {
           {/* Module Navigation Grid (1 col on Mobile, 2 cols on Tablet) */}
           <div className="space-y-1.5 pt-1">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1 block mb-1">
-              Modul Utama Kejuaraan:
+              Menu Turnamen:
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
