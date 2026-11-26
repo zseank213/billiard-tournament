@@ -65,9 +65,6 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
           quota_single_putri: 1,
         }))
   );
-  const [activeSkTab, setActiveSkTab] = useState<
-    "all" | "pertandingan" | "games" | "supporter" | "penonton"
-  >("all");
   const [tableOfficials, setTableOfficials] = useState<TableOfficialRecord[]>(initialOfficials);
 
   useEffect(() => {
@@ -257,73 +254,17 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
 
       {/* 2. PIC / PENANGGUNG JAWAB & SYARAT & KETENTUAN (S&K) RESMI */}
       <div className="rounded-3xl bg-white border border-slate-200 shadow-xs p-4 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200 inline-block mb-1">
-              Petunjuk Pelaksanaan Resmi 2026
-            </span>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <ShieldAlert className="w-6 h-6 text-red-600 inline-block" />
-              PIC Penanggung Jawab &amp; Syarat Ketentuan (S&amp;K)
-            </h3>
-            <p className="text-xs text-slate-500 mt-1">
-              Panduan ketat untuk menjamin kelancaran, sportivitas, dan ketertiban seluruh rangkaian kegiatan turnamen
-            </p>
-          </div>
-
-          {/* Filter Tab Kategori S&K */}
-          <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/80 self-start sm:self-auto">
-            <button
-              onClick={() => setActiveSkTab("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                activeSkTab === "all"
-                  ? "bg-white text-slate-900 shadow-xs border border-slate-200"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Semua ({4})
-            </button>
-            <button
-              onClick={() => setActiveSkTab("pertandingan")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                activeSkTab === "pertandingan"
-                  ? "bg-red-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-red-600"
-              }`}
-            >
-              1. Pertandingan
-            </button>
-            <button
-              onClick={() => setActiveSkTab("games")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                activeSkTab === "games"
-                  ? "bg-amber-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-amber-600"
-              }`}
-            >
-              2. Mini Games (Meja 6)
-            </button>
-            <button
-              onClick={() => setActiveSkTab("supporter")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                activeSkTab === "supporter"
-                  ? "bg-rose-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-rose-600"
-              }`}
-            >
-              3. Pendukung
-            </button>
-            <button
-              onClick={() => setActiveSkTab("penonton")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                activeSkTab === "penonton"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-indigo-600"
-              }`}
-            >
-              4. Penonton
-            </button>
-          </div>
+        <div className="pb-4 border-b border-slate-200">
+          <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200 inline-block mb-1">
+            Petunjuk Pelaksanaan Resmi 2026
+          </span>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <ShieldAlert className="w-6 h-6 text-red-600 inline-block" />
+            PIC Penanggung Jawab &amp; Syarat Ketentuan (S&amp;K)
+          </h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Panduan ketat untuk menjamin kelancaran, sportivitas, dan ketertiban seluruh rangkaian kegiatan turnamen
+          </p>
         </div>
 
         {/* Notifikasi Penting Evaluasi Turnamen */}
@@ -342,297 +283,289 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
         {/* Grid 4 Kartu PIC & S&K */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* KARTU 1: PERTANDINGAN */}
-          {(activeSkTab === "all" || activeSkTab === "pertandingan") && (
-            <div className="p-5 rounded-2xl bg-white border-2 border-red-200 shadow-sm space-y-4 hover:border-red-400 transition-colors">
-              <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-red-600 text-white text-xs font-black flex items-center justify-center">
-                      1
-                    </span>
-                    <h4 className="font-black text-slate-900 text-base">
-                      S&amp;K &amp; Regulasi Pertandingan Resmi
-                    </h4>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium pl-8">
-                    Turnamen BOLA 8 WPA Standar Internasional
-                  </p>
+          <div className="p-5 rounded-2xl bg-white border-2 border-red-200 shadow-sm space-y-4 hover:border-red-400 transition-colors">
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-red-600 text-white text-xs font-black flex items-center justify-center">
+                    1
+                  </span>
+                  <h4 className="font-black text-slate-900 text-base">
+                    S&amp;K &amp; Regulasi Pertandingan Resmi
+                  </h4>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200 shrink-0">
-                  Wajib Atlet
+                <p className="text-[11px] text-slate-500 font-medium pl-8">
+                  Turnamen BOLA 8 WPA Standar Internasional
+                </p>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200 shrink-0">
+                Wajib Atlet
+              </span>
+            </div>
+
+            {/* PIC Card */}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-red-600" />
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Pertandingan:</span>
+                  <span className="font-black text-slate-900">Michael Sean &amp; Dewan Wasit TI</span>
+                </div>
+              </div>
+              <a
+                href="https://wa.me/6285189970998"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-bold text-red-700 bg-red-100/70 hover:bg-red-200 px-2.5 py-1 rounded-lg transition-colors font-mono"
+              >
+                0851-8997-0998
+              </a>
+            </div>
+
+            {/* Ketentuan S&K */}
+            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Integritas &amp; Identitas Atlet:</strong> Seluruh atlet wajib merupakan karyawan aktif Ganesha Operation di bidang yang didaftarkan. Dilarang keras menggunakan pemain sewaan/joki dari luar bidang. Pelanggaran mengakibatkan diskualifikasi seketika.
                 </span>
               </div>
-
-              {/* PIC Card */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-red-600" />
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Pertandingan:</span>
-                    <span className="font-black text-slate-900">Michael Sean &amp; Dewan Wasit TI</span>
-                  </div>
-                </div>
-                <a
-                  href="https://wa.me/6285189970998"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] font-bold text-red-700 bg-red-100/70 hover:bg-red-200 px-2.5 py-1 rounded-lg transition-colors font-mono"
-                >
-                  0851-8997-0998
-                </a>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Disiplin Waktu &amp; Batas Walkover (WO):</strong> Atlet wajib hadir di meja pertandingan 15 menit sebelum waktu tanding. Toleransi keterlambatan maksimal <strong>15 menit</strong> dari panggilan resmi wasit; apabila tidak hadir, kemenangan WO diberikan kepada lawan.
+                </span>
               </div>
-
-              {/* Ketentuan S&K */}
-              <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Integritas &amp; Identitas Atlet:</strong> Seluruh atlet wajib merupakan karyawan aktif Ganesha Operation di bidang yang didaftarkan. Dilarang keras menggunakan pemain sewaan/joki dari luar bidang. Pelanggaran mengakibatkan diskualifikasi seketika.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Disiplin Waktu &amp; Batas Walkover (WO):</strong> Atlet wajib hadir di meja pertandingan 15 menit sebelum waktu tanding. Toleransi keterlambatan maksimal <strong>15 menit</strong> dari panggilan resmi wasit; apabila tidak hadir, kemenangan WO diberikan kepada lawan.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Aturan Teknis Pertandingan:</strong> Menggunakan bola 8 standar WPA, Race to 4 frame, break bergantian atau diputuskan lewat lag.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Pakaian &amp; Etika:</strong> Atlet wajib memakai baju polo / berkerah / seragam bidang dan bersepatu. Dilarang bertanding menggunakan sandal jepit.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Keputusan Wasit Mutlak:</strong> Wasit meja memegang kendali penuh atas fouls dan keputusan sah bola. Keputusan wasit bersifat final dan mengikat.
-                  </span>
-                </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Aturan Teknis Pertandingan:</strong> Menggunakan bola 8 standar WPA, Race to 4 frame, break bergantian atau diputuskan lewat lag.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Pakaian &amp; Etika:</strong> Atlet wajib memakai baju polo / berkerah / seragam bidang dan bersepatu. Dilarang bertanding menggunakan sandal jepit.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Keputusan Wasit Mutlak:</strong> Wasit meja memegang kendali penuh atas fouls dan keputusan sah bola. Keputusan wasit bersifat final dan mengikat.
+                </span>
               </div>
             </div>
-          )}
+          </div>
 
           {/* KARTU 2: MINI GAMES MEJA 6 */}
-          {(activeSkTab === "all" || activeSkTab === "games") && (
-            <div className="p-5 rounded-2xl bg-white border-2 border-amber-200 shadow-sm space-y-4 hover:border-amber-400 transition-colors">
-              <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-amber-600 text-white text-xs font-black flex items-center justify-center">
-                      2
-                    </span>
-                    <h4 className="font-black text-slate-900 text-base">
-                      S&amp;K Mini Games &amp; Doorprize Meja 6
-                    </h4>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium pl-8">
-                    Tantangan Trickshot &amp; Doorprize Merchandise Eksklusif
-                  </p>
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0">
-                  Untuk Semua
-                </span>
-              </div>
-
-              {/* PIC Card */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+          <div className="p-5 rounded-2xl bg-white border-2 border-amber-200 shadow-sm space-y-4 hover:border-amber-400 transition-colors">
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Meja 6 &amp; Games:</span>
-                    <span className="font-black text-slate-900">Dzakiy Harissalam &amp; Ahmad Yoga Witdodo</span>
-                  </div>
+                  <span className="w-6 h-6 rounded-lg bg-amber-600 text-white text-xs font-black flex items-center justify-center">
+                    2
+                  </span>
+                  <h4 className="font-black text-slate-900 text-base">
+                    S&amp;K Mini Games &amp; Doorprize Meja 6
+                  </h4>
                 </div>
-                <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-lg">
-                  Stand Meja 6
+                <p className="text-[11px] text-slate-500 font-medium pl-8">
+                  Tantangan Trickshot &amp; Doorprize Merchandise Eksklusif
+                </p>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0">
+                Untuk Semua
+              </span>
+            </div>
+
+            {/* PIC Card */}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Meja 6 &amp; Games:</span>
+                  <span className="font-black text-slate-900">Dzakiy Harissalam &amp; Ahmad Yoga Witdodo</span>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-lg">
+                Stand Meja 6
+              </span>
+            </div>
+
+            {/* Ketentuan S&K */}
+            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Peserta yang Berhak Ikut:</strong> Terbuka untuk seluruh karyawan Ganesha Operation yang hadir di lokasi (baik atlet, official, maupun penonton/suporter).
                 </span>
               </div>
-
-              {/* Ketentuan S&K */}
-              <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Peserta yang Berhak Ikut:</strong> Terbuka untuk seluruh karyawan Ganesha Operation yang hadir di lokasi (baik atlet, official, maupun penonton/suporter).
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Antrean &amp; Kuota Percobaan:</strong> Demi keadilan bersama, setiap peserta mendapatkan kesempatan <strong>1 kali percobaan per sesi</strong> tantangan. Dilarang memonopoli atau menyerobot antrean.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Pilihan Tingkat Tantangan:</strong> Peserta dapat memilih <strong>Kategori Sulit</strong> (Kaos official, Topi, Tumbler, Mug/Gelas label, Voucher Rp 100k &amp; Rp 50k, Kipas tangan, Paket Snack/Indomie) atau <strong>Kategori Gampang</strong> (Gantungan Kunci Akrilik Resmi).
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Klaim Hadiah Langsung:</strong> Keberhasilan tantangan dinilai langsung oleh PIC Meja 6 dan hadiah langsung diserahkan di tempat selama persediaan masih ada.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Pemeliharaan Meja:</strong> Dilarang meletakkan gelas minuman, rokok, atau makanan di atas pinggiran Meja 6.
-                  </span>
-                </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Antrean &amp; Kuota Percobaan:</strong> Demi keadilan bersama, setiap peserta mendapatkan kesempatan <strong>1 kali percobaan per sesi</strong> tantangan. Dilarang memonopoli atau menyerobot antrean.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Pilihan Tingkat Tantangan:</strong> Peserta dapat memilih <strong>Kategori Sulit</strong> (Kaos official, Topi, Tumbler, Mug/Gelas label, Voucher Rp 100k &amp; Rp 50k, Kipas tangan, Paket Snack/Indomie) atau <strong>Kategori Gampang</strong> (Gantungan Kunci Akrilik Resmi).
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Klaim Hadiah Langsung:</strong> Keberhasilan tantangan dinilai langsung oleh PIC Meja 6 dan hadiah langsung diserahkan di tempat selama persediaan masih ada.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Pemeliharaan Meja:</strong> Dilarang meletakkan gelas minuman, rokok, atau makanan di atas pinggiran Meja 6.
+                </span>
               </div>
             </div>
-          )}
+          </div>
 
           {/* KARTU 3: PENDUKUNG TERHEBOH */}
-          {(activeSkTab === "all" || activeSkTab === "supporter") && (
-            <div className="p-5 rounded-2xl bg-white border-2 border-rose-200 shadow-sm space-y-4 hover:border-rose-400 transition-colors">
-              <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-rose-600 text-white text-xs font-black flex items-center justify-center">
-                      3
-                    </span>
-                    <h4 className="font-black text-slate-900 text-base">
-                      S&amp;K Pendukung Terheboh (Best Supporter)
-                    </h4>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium pl-8">
-                    Penghargaan Khusus Solidaritas &amp; Semangat Kontingen Bidang
-                  </p>
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 shrink-0">
-                  Award Spesial
-                </span>
-              </div>
-
-              {/* PIC Card */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+          <div className="p-5 rounded-2xl bg-white border-2 border-rose-200 shadow-sm space-y-4 hover:border-rose-400 transition-colors">
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Megaphone className="w-4 h-4 text-rose-600" />
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Pendukung Terheboh:</span>
-                    <span className="font-black text-slate-900">Tim Supporter &amp; Dokumentasi Kreatif TI</span>
-                  </div>
+                  <span className="w-6 h-6 rounded-lg bg-rose-600 text-white text-xs font-black flex items-center justify-center">
+                    3
+                  </span>
+                  <h4 className="font-black text-slate-900 text-base">
+                    S&amp;K Pendukung Terheboh (Best Supporter)
+                  </h4>
                 </div>
-                <span className="text-[11px] font-bold text-rose-800 bg-rose-100/70 px-2.5 py-1 rounded-lg">
-                  Plakat + Hadiah
+                <p className="text-[11px] text-slate-500 font-medium pl-8">
+                  Penghargaan Khusus Solidaritas &amp; Semangat Kontingen Bidang
+                </p>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 shrink-0">
+                Award Spesial
+              </span>
+            </div>
+
+            {/* PIC Card */}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Megaphone className="w-4 h-4 text-rose-600" />
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Pendukung Terheboh:</span>
+                  <span className="font-black text-slate-900">Tim Supporter &amp; Dokumentasi Kreatif TI</span>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-rose-800 bg-rose-100/70 px-2.5 py-1 rounded-lg">
+                Plakat + Hadiah
+              </span>
+            </div>
+
+            {/* Ketentuan S&K */}
+            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Kriteria Penilaian Juri Resmi:</strong>
+                  <span className="block mt-1 space-y-0.5 text-slate-500 pl-2">
+                    • Kekompakan &amp; Jumlah Kehadiran Anggota Bidang: <strong>35%</strong><br />
+                    • Kreativitas Atribut, Yel-Yel, Kostum, &amp; Banner: <strong>30%</strong><br />
+                    • Sportivitas &amp; Rasa Hormat kepada Lawan: <strong>25%</strong><br />
+                    • Kerapian &amp; Kebersihan Area Tribun: <strong>10%</strong>
+                  </span>
                 </span>
               </div>
-
-              {/* Ketentuan S&K */}
-              <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Kriteria Penilaian Juri Resmi:</strong>
-                    <span className="block mt-1 space-y-0.5 text-slate-500 pl-2">
-                      • Kekompakan &amp; Jumlah Kehadiran Anggota Bidang: <strong>35%</strong><br />
-                      • Kreativitas Atribut, Yel-Yel, Kostum, &amp; Banner: <strong>30%</strong><br />
-                      • Sportivitas &amp; Rasa Hormat kepada Lawan: <strong>25%</strong><br />
-                      • Kerapian &amp; Kebersihan Area Tribun: <strong>10%</strong>
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Momen Bersorak yang Diizinkan:</strong> Pendukung sangat diperbolehkan bernyanyi, menyuarakan yel-yel, dan mengibarkan atribut <strong>sebelum</strong> dan <strong>setelah</strong> atlet melakukan tembakan (shot).
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Larangan Alat Bising Tajam:</strong> Dilarang keras membawa atau membunyikan klakson gas/airhorn darurat, peluit wasit tajam, atau instrumen yang dapat mengacaukan aba-aba wasit meja tanding.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Bebas Provokasi &amp; SARA:</strong> Yel-yel wajib berisi semangat positif bagi bidang sendiri, bukan hinaan, ejekan pribadi, atau muatan SARA terhadap bidang lawan.
-                  </span>
-                </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Momen Bersorak yang Diizinkan:</strong> Pendukung sangat diperbolehkan bernyanyi, menyuarakan yel-yel, dan mengibarkan atribut <strong>sebelum</strong> dan <strong>setelah</strong> atlet melakukan tembakan (shot).
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Larangan Alat Bising Tajam:</strong> Dilarang keras membawa atau membunyikan klakson gas/airhorn darurat, peluit wasit tajam, atau instrumen yang dapat mengacaukan aba-aba wasit meja tanding.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Bebas Provokasi &amp; SARA:</strong> Yel-yel wajib berisi semangat positif bagi bidang sendiri, bukan hinaan, ejekan pribadi, atau muatan SARA terhadap bidang lawan.
+                </span>
               </div>
             </div>
-          )}
+          </div>
 
           {/* KARTU 4: PENONTON SELAMA PERTANDINGAN */}
-          {(activeSkTab === "all" || activeSkTab === "penonton") && (
-            <div className="p-5 rounded-2xl bg-white border-2 border-indigo-200 shadow-sm space-y-4 hover:border-indigo-400 transition-colors">
-              <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white text-xs font-black flex items-center justify-center">
-                      4
-                    </span>
-                    <h4 className="font-black text-slate-900 text-base">
-                      Tata Tertib Penonton Selama Pertandingan
-                    </h4>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium pl-8">
-                    Protokol Ketertiban &amp; Kenyamanan di Area Arena Pertandingan
-                  </p>
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 shrink-0">
-                  Etika Venue
-                </span>
-              </div>
-
-              {/* PIC Card */}
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+          <div className="p-5 rounded-2xl bg-white border-2 border-indigo-200 shadow-sm space-y-4 hover:border-indigo-400 transition-colors">
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-600" />
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Penonton &amp; Venue:</span>
-                    <span className="font-black text-slate-900">Tim Ketertiban, Keamanan, &amp; Venue TI</span>
-                  </div>
+                  <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white text-xs font-black flex items-center justify-center">
+                    4
+                  </span>
+                  <h4 className="font-black text-slate-900 text-base">
+                    Tata Tertib Penonton Selama Pertandingan
+                  </h4>
                 </div>
-                <span className="text-[11px] font-bold text-indigo-800 bg-indigo-100/70 px-2.5 py-1 rounded-lg">
-                  Area Meja 1 - 5 &amp; Meja 6
+                <p className="text-[11px] text-slate-500 font-medium pl-8">
+                  Protokol Ketertiban &amp; Kenyamanan di Area Arena Pertandingan
+                </p>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 shrink-0">
+                Etika Venue
+              </span>
+            </div>
+
+            {/* PIC Card */}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-indigo-600" />
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Penonton &amp; Venue:</span>
+                  <span className="font-black text-slate-900">Tim Ketertiban, Keamanan, &amp; Venue TI</span>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-indigo-800 bg-indigo-100/70 px-2.5 py-1 rounded-lg">
+                Area Meja 1 - 5 &amp; Meja 6
+              </span>
+            </div>
+
+            {/* Ketentuan S&K */}
+            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Batas Steril Area Pertandingan:</strong> Penonton wajib berada di luar garis pembatas / berjarak minimal <strong>1,5 meter</strong> dari meja agar tidak menyenggol atlet saat mengayunkan stik biliar (*cue swing zone*).
                 </span>
               </div>
-
-              {/* Ketentuan S&K */}
-              <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed font-medium">
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Batas Steril Area Pertandingan:</strong> Penonton wajib berada di luar garis pembatas / berjarak minimal <strong>1,5 meter</strong> dari meja agar tidak menyenggol atlet saat mengayunkan stik biliar (*cue swing zone*).
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Dilarang Memberikan Coaching / Instruksi:</strong> Penonton dan rekan satu bidang dilarang keras berteriak memberikan saran arah tembakan, strategi bola, atau mengintervensi saat atlet sedang giliran menembak.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">DILARANG Flash Kamera:</strong> Pengambilan foto dan video sangat disarankan untuk dokumentasi medsos, namun <strong>lampu kilat (flash) WAJIB dimatikan</strong> karena membahayakan fokus penglihatan atlet.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Ketenangan Saat Aiming:</strong> Saat atlet memasuki posisi siap tembak (*stance*), mohon penonton menahan suara agar atlet dapat berkonsentrasi penuh.
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-slate-900">Kebersihan &amp; Ketertiban Ruangan:</strong> Dilarang merokok/vape di dalam ruangan pertandingan. Dilarang meletakkan minuman basah di atas meja biliar manapun. Buang sampah pada tempat yang disediakan.
-                  </span>
-                </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Dilarang Memberikan Coaching / Instruksi:</strong> Penonton dan rekan satu bidang dilarang keras berteriak memberikan saran arah tembakan, strategi bola, atau mengintervensi saat atlet sedang giliran menembak.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">DILARANG Flash Kamera:</strong> Pengambilan foto dan video sangat disarankan untuk dokumentasi medsos, namun <strong>lampu kilat (flash) WAJIB dimatikan</strong> karena membahayakan fokus penglihatan atlet.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Ketenangan Saat Aiming:</strong> Saat atlet memasuki posisi siap tembak (*stance*), mohon penonton menahan suara agar atlet dapat berkonsentrasi penuh.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-slate-900">Kebersihan &amp; Ketertiban Ruangan:</strong> Dilarang merokok/vape di dalam ruangan pertandingan. Dilarang meletakkan minuman basah di atas meja biliar manapun. Buang sampah pada tempat yang disediakan.
+                </span>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* SUBSECTION: PENUGASAN RESMI PIC & PJ PER MEJA (MEJA 1 s/d MEJA 6) */}
