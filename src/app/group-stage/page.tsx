@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Group Stage (Babak Penyisihan) — TI BILLIARD CUP 2026",
-  description: "Klasemen Babak Penyisihan 4 Grup (A, B, C, D) 20 bidang di lingkungan Ganesha Operation untuk kategori Ganda Putra, Single Putra, dan Single Putri.",
+  description: "Klasemen Babak Penyisihan 4 Grup (A, B, C, D) 20 bidang di lingkungan Ganesha Operation untuk kategori Ganda (Campuran / Bebas), Single Putra, dan Single Putri.",
 };
 
 export default function GroupStagePage() {

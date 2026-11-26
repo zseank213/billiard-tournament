@@ -112,7 +112,7 @@ export const TOURNAMENT_PRIZES: PrizeItem[] = [
   },
   {
     place: "JUARA 1",
-    title: "Ganda Putra • Single Putra • Single Putri",
+    title: "Ganda (Campuran / Bebas) • Single Putra • Single Putri",
     trophy: "Trophy Tetap Juara 1 untuk Masing-Masing Kategori",
     voucher: "Voucher Belanja Juara 1 + Uang Pembinaan Turnamen",
     merchandise: "Set Lengkap Merchandise Official TI Billiard Cup 2026",
@@ -269,7 +269,7 @@ export const TOURNAMENT_RULES = [
   },
   {
     title: "Kategori Resmi & Kuota Partisipasi",
-    desc: "Setiap bidang dapat mendaftarkan peserta secara GRATIS dengan ketentuan: Max 2 Tim Ganda Putra (2 orang/tim), 1 Tim Single Putra (1 orang), dan 1 Tim Single Putri (1 orang).",
+    desc: "Setiap bidang dapat mendaftarkan peserta secara GRATIS dengan ketentuan: Max 2 Tim Ganda (Bebas / Campuran: 2 orang/tim, boleh putra-putri), 1 Tim Single Putra (1 orang), dan 1 Tim Single Putri (1 orang).",
   },
   {
     title: "Piala Bergilir Direktur Perencanaan",
@@ -433,14 +433,14 @@ export const LIQUIPEDIA_PARTICIPANTS: ParticipantTeam[] = INVITED_BIDANG_LIST.ma
 // Official Grand Prizes Breakdown (Lampiran Rincian Hadiah Resmi TI Billiard Cup 2026)
 export const OFFICIAL_GRAND_PRIZES = {
   pialaBergilir: [
-    { id: "pb-1", title: "Piala Bergilir DirRen Ganda Putra", category: "Ganda Putra" },
+    { id: "pb-1", title: "Piala Bergilir DirRen Ganda (Campuran / Bebas)", category: "Ganda Campuran" },
     { id: "pb-2", title: "Piala Bergilir DirRen Single Putra", category: "Single Putra" },
     { id: "pb-3", title: "Piala Bergilir DirRen Single Putri", category: "Single Putri" },
   ],
   categories: [
     {
-      category: "Ganda Putra",
-      trophy: "Piala Bergilir DirRen Ganda Putra",
+      category: "Ganda (Campuran / Bebas)",
+      trophy: "Piala Bergilir DirRen Ganda (Campuran / Bebas)",
       prizes: [
         { rank: "Juara 1", reward: "Uang Tunai + Piala Tetap + Piala Bergilir DirRen", badge: "Gold Champion" },
         { rank: "Juara 2", reward: "Uang Tunai + Piala Tetap", badge: "Runner-Up" },

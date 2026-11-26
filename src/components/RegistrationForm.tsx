@@ -51,13 +51,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [categoryStatus, setCategoryStatus] = useState<BidangCategoryStatus | null>(null);
 
-  // Kategori Ganda Putra - Tim 1 (Opsional jika belum terdaftar)
+  // Kategori Ganda (Campuran / Bebas) - Tim 1 (Opsional jika belum terdaftar)
   const [gandaTim1P1, setGandaTim1P1] = useState("");
   const [gandaTim1P1Phone, setGandaTim1P1Phone] = useState("");
   const [gandaTim1P2, setGandaTim1P2] = useState("");
   const [gandaTim1P2Phone, setGandaTim1P2Phone] = useState("");
 
-  // Kategori Ganda Putra - Tim 2 (Opsional jika belum terdaftar)
+  // Kategori Ganda (Campuran / Bebas) - Tim 2 (Opsional jika belum terdaftar)
   const [hasGandaTim2, setHasGandaTim2] = useState(false);
   const [gandaTim2P1, setGandaTim2P1] = useState("");
   const [gandaTim2P1Phone, setGandaTim2P1Phone] = useState("");
@@ -343,7 +343,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
       if (hasGandaTim1P1) {
         if (!cleanG1P1Phone) {
-          showError("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 1) harus diisi.", "gandaTim1P1Phone");
+          showError("Nomor WhatsApp Pemain 1 (Ganda Tim 1) harus diisi.", "gandaTim1P1Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG1P1Phone);
@@ -354,7 +354,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       }
       if (hasGandaTim1P2) {
         if (!cleanG1P2Phone) {
-          showError("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 1) harus diisi.", "gandaTim1P2Phone");
+          showError("Nomor WhatsApp Pemain 2 (Ganda Tim 1) harus diisi.", "gandaTim1P2Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG1P2Phone);
@@ -364,7 +364,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         }
       }
       if ((hasGandaTim1P1 && !hasGandaTim1P2) || (!hasGandaTim1P1 && hasGandaTim1P2)) {
-        showError("Untuk Kategori Ganda Putra Tim 1, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau kosongkan jika tidak mendaftar.", !hasGandaTim1P1 ? "gandaTim1P1" : "gandaTim1P2");
+        showError("Untuk Kategori Ganda Tim 1, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau kosongkan jika tidak mendaftar.", !hasGandaTim1P1 ? "gandaTim1P1" : "gandaTim1P2");
         return;
       }
     }
@@ -376,7 +376,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
       if (hasGandaTim2P1) {
         if (!cleanG2P1Phone) {
-          showError("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 2) harus diisi.", "gandaTim2P1Phone");
+          showError("Nomor WhatsApp Pemain 1 (Ganda Tim 2) harus diisi.", "gandaTim2P1Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG2P1Phone);
@@ -387,7 +387,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       }
       if (hasGandaTim2P2) {
         if (!cleanG2P2Phone) {
-          showError("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 2) harus diisi.", "gandaTim2P2Phone");
+          showError("Nomor WhatsApp Pemain 2 (Ganda Tim 2) harus diisi.", "gandaTim2P2Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG2P2Phone);
@@ -397,7 +397,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         }
       }
       if ((hasGandaTim2P1 && !hasGandaTim2P2) || (!hasGandaTim2P1 && hasGandaTim2P2)) {
-        showError("Untuk Kategori Ganda Putra Tim 2, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau hapus Tim 2 jika tidak mendaftar.", !hasGandaTim2P1 ? "gandaTim2P1" : "gandaTim2P2");
+        showError("Untuk Kategori Ganda Tim 2, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau hapus Tim 2 jika tidak mendaftar.", !hasGandaTim2P1 ? "gandaTim2P1" : "gandaTim2P2");
         return;
       }
     }
@@ -436,7 +436,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           const hasP2 = !!t.p2.trim();
           if (hasP1 || hasP2) {
             if (!hasP1 || !hasP2) {
-              showError(`Harap lengkapi kedua pemain untuk Tim ${t.teamNumber} Ganda Putra atau hapus tim jika tidak jadi mendaftar.`);
+              showError(`Harap lengkapi kedua pemain untuk Tim ${t.teamNumber} Ganda atau hapus tim jika tidak jadi mendaftar.`);
               return;
             }
             if (!t.p1Phone) {
@@ -713,13 +713,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             </div>
 
             <div className="space-y-3">
-              {/* 1. Ganda Putra Tim 1 */}
+              {/* 1. Ganda (Campuran / Bebas) Tim 1 */}
               {hasGanda1 && (
                 <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[10px] font-black text-red-700 bg-red-50 border border-red-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
                       <Users2 className="w-3 h-3 text-red-600" />
-                      Ganda Putra (Tim 1)
+                      Ganda (Tim 1)
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" /> Siap Tanding
@@ -766,13 +766,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               )}
 
-              {/* 2. Ganda Putra Tim 2 (jika ada) */}
+              {/* 2. Ganda (Campuran / Bebas) Tim 2 (jika ada) */}
               {hasGanda2 && (
                 <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
                       <Users2 className="w-3 h-3 text-amber-600" />
-                      Ganda Putra (Tim 2)
+                      Ganda (Tim 2)
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" /> Siap Tanding
@@ -825,7 +825,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
                       <Users2 className="w-3 h-3 text-amber-600" />
-                      Ganda Putra (Tim {eg.teamNumber})
+                      Ganda (Tim {eg.teamNumber})
                     </span>
                     <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" /> Siap Tanding
@@ -1157,7 +1157,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </h4>
                 </div>
                 <p className="text-xs text-amber-800 leading-relaxed">
-                  Sebagai panitia &amp; tuan rumah turnamen, <strong>Bidang Teknologi Informasi tidak memiliki batasan kuota pendaftaran</strong>. Anda bebas mendaftarkan tim Ganda Putra, atlet Single Putra, dan atlet Single Putri sebanyak-banyaknya tanpa batasan maksimal.
+                  Sebagai panitia &amp; tuan rumah turnamen, <strong>Bidang Teknologi Informasi tidak memiliki batasan kuota pendaftaran</strong>. Anda bebas mendaftarkan tim Ganda (Campuran/Bebas), atlet Single Putra, dan atlet Single Putri sebanyak-banyaknya tanpa batasan maksimal.
                 </p>
               </div>
             )}
@@ -1174,7 +1174,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       SELURUH KATEGORI TELAH TERDAFTAR RESMI &amp; TERKUNCI
                     </h4>
                     <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                      Bidang <strong>{selectedBidang}</strong> telah mendaftarkan seluruh kategori kontingen (Ganda Putra, Single Putra, dan Single Putri). Demi integritas pengundian bagan, data <strong>tidak dapat diubah secara mandiri</strong>.
+                      Bidang <strong>{selectedBidang}</strong> telah mendaftarkan seluruh kategori kontingen (Ganda Campuran/Bebas, Single Putra, dan Single Putri). Demi integritas pengundian bagan, data <strong>tidak dapat diubah secara mandiri</strong>.
                     </p>
                   </div>
                 </div>
@@ -1228,14 +1228,19 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             )}
           </div>
 
-          {/* SECTION 2: KATEGORI GANDA PUTRA */}
+          {/* SECTION 2: KATEGORI GANDA (CAMPURAN / BEBAS) */}
           <div className="rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-xs space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Users2 className="w-4 h-4 text-red-600" />
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                  2. Kategori Ganda Putra
-                </h3>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Users2 className="w-4 h-4 text-red-600" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                    2. Kategori Ganda (Campuran / Bebas)
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Bebas mendaftarkan pasangan Ganda Campuran (Putra &amp; Putri), Putra &amp; Putra, maupun Putri &amp; Putri.
+                </p>
               </div>
               <span
                 className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
@@ -1248,13 +1253,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               </span>
             </div>
 
-            {/* Tim 1 Ganda Putra */}
+            {/* Tim 1 Ganda */}
             {isGanda1Locked ? (
               <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
                     <Lock className="w-3.5 h-3.5 text-amber-600" />
-                    Tim 1 Ganda Putra: Terdaftar Resmi
+                    Tim 1 Ganda: Terdaftar Resmi
                   </span>
                   <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
                     Terkunci
@@ -1287,7 +1292,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </div>
                 </div>
                 <p className="text-[11px] text-amber-800 font-medium">
-                  Kategori Ganda Putra Tim 1 sudah terdaftar. Hubungi panitia jika membutuhkan revisi pemain.
+                  Kategori Ganda Tim 1 sudah terdaftar. Hubungi panitia jika membutuhkan revisi pemain.
                 </p>
               </div>
             ) : (
@@ -1295,7 +1300,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
-                    Tim 1 Ganda Putra
+                    Tim 1 Ganda (Campuran / Bebas)
                   </span>
                   <span className="text-[10px] font-bold text-slate-400">2 Atlet</span>
                 </div>
@@ -1388,13 +1393,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               </div>
             )}
 
-            {/* Tim 2 Ganda Putra */}
+            {/* Tim 2 Ganda (Campuran / Bebas) */}
             {isGanda2Locked ? (
               <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
                     <Lock className="w-3.5 h-3.5 text-amber-600" />
-                    Tim 2 Ganda Putra: Terdaftar Resmi
+                    Tim 2 Ganda: Terdaftar Resmi
                   </span>
                   <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
                     Terkunci
@@ -1437,14 +1442,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     className="w-full py-2.5 px-4 rounded-xl border border-dashed border-red-300 bg-red-50/50 hover:bg-red-50 text-red-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <PlusCircle className="w-4 h-4 text-red-600" />
-                    <span>+ Tambah Tim 2 Ganda Putra</span>
+                    <span>+ Tambah Tim 2 Ganda (Campuran / Bebas)</span>
                   </button>
                 ) : (
                   <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
-                        Tim 2 Ganda Putra
+                        Tim 2 Ganda (Campuran / Bebas)
                       </span>
                       <button
                         type="button"
@@ -1552,7 +1557,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
                     <Lock className="w-3.5 h-3.5 text-amber-600" />
-                    Tim {eg.teamNumber} Ganda Putra: Terdaftar Resmi
+                    Tim {eg.teamNumber} Ganda (Campuran / Bebas): Terdaftar Resmi
                   </span>
                   <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
                     Terkunci
@@ -1589,7 +1594,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
-                    Tim {team.teamNumber} Ganda Putra
+                    Tim {team.teamNumber} Ganda (Campuran / Bebas)
                   </span>
                   <button
                     type="button"
@@ -1665,7 +1670,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 className="w-full py-2.5 px-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 hover:bg-amber-50 text-amber-800 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
               >
                 <PlusCircle className="w-4 h-4 text-amber-600" />
-                <span>+ Tambah Tim Ganda Putra Lagi (Tanpa Batas)</span>
+                <span>+ Tambah Tim Ganda Lagi (Tanpa Batas)</span>
               </button>
             )}
           </div>

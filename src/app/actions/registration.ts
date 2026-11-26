@@ -589,7 +589,7 @@ export async function submitBidangFullRegistration(
             // Non-TI fields have a strict max of 2 Ganda teams
             return {
               success: false,
-              message: `Pendaftaran Ganda Putra untuk bidang ${cleanName} sudah terisi penuh (Tim 1: ${slotOccupant.player1} & ${slotOccupant.player2}). Tidak dapat mendaftarkan tim tambahan.`,
+              message: `Pendaftaran Ganda untuk bidang ${cleanName} sudah terisi penuh (Tim 1: ${slotOccupant.player1} & ${slotOccupant.player2}). Tidak dapat mendaftarkan tim tambahan.`,
             };
           }
 
@@ -603,7 +603,7 @@ export async function submitBidangFullRegistration(
           });
 
           shiftNotices.push(
-            `Tim ${inTeam.player1} & ${inTeam.player2} otomatis dialokasikan ke Ganda Putra Tim ${nextTeamNumber} (karena Tim ${inTeam.preferredTeamNumber} sudah didaftarkan sebelumnya oleh ${slotOccupant.player1} & ${slotOccupant.player2}).`
+            `Tim ${inTeam.player1} & ${inTeam.player2} otomatis dialokasikan ke Ganda Tim ${nextTeamNumber} (karena Tim ${inTeam.preferredTeamNumber} sudah didaftarkan sebelumnya oleh ${slotOccupant.player1} & ${slotOccupant.player2}).`
           );
         }
       }

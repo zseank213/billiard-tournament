@@ -184,7 +184,7 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
             <p className="font-black text-amber-950 text-xs leading-snug">
               3 Piala Bergilir DirRen
             </p>
-            <p className="text-[11px] text-amber-800 font-bold">Ganda, Single Putra &amp; Putri</p>
+            <p className="text-[11px] text-amber-800 font-bold">Ganda Campuran/Bebas, Single Pa &amp; Pi</p>
           </div>
         </div>
 
@@ -203,9 +203,9 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             <div className="p-3.5 rounded-xl bg-white border border-red-100 shadow-2xs">
               <span className="text-[10px] font-bold uppercase text-slate-400 block">Kategori 1</span>
-              <p className="text-sm font-black text-slate-900">Ganda Putra</p>
+              <p className="text-sm font-black text-slate-900">Ganda (Campuran / Bebas)</p>
               <p className="text-xs text-red-700 font-bold mt-0.5">Maksimal 2 TIM / Bidang</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">2 orang per tim</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">2 orang/tim (Bebas: Campuran Pa-Pi, Pa-Pa, Pi-Pi)</p>
             </div>
 
             <div className="p-3.5 rounded-xl bg-white border border-red-100 shadow-2xs">

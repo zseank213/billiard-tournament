@@ -35,7 +35,7 @@ export default function HomePage() {
     },
     {
       title: "Babak Grup (Penyisihan)",
-      description: "Klasemen babak penyisihan 4 grup (A, B, C, D) untuk kategori Ganda Putra, Single Putra, dan Single Putri.",
+      description: "Klasemen babak penyisihan 4 grup (A, B, C, D) untuk kategori Ganda (Campuran / Bebas), Single Putra, dan Single Putri.",
       href: "/group-stage",
       icon: TableProperties,
       badge: "4 Grup (20 Tim)",

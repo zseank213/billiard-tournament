@@ -134,7 +134,7 @@ export const BracketView: React.FC = () => {
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            Ganda Putra
+            Ganda (Campuran)
           </button>
           <button
             onClick={() => setSelectedCategory("single-putra")}
@@ -210,7 +210,7 @@ export const BracketView: React.FC = () => {
               <div className="w-full max-w-[340px] space-y-2">
                 <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-900 bg-amber-100/80 px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs text-center">
                   <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>Piala Bergilir DirRen {selectedCategory === "ganda-putra" ? "Ganda Putra" : selectedCategory === "single-putra" ? "Single Putra" : "Single Putri"}</span>
+                  <span>Piala Bergilir DirRen {selectedCategory === "ganda-putra" ? "Ganda (Campuran)" : selectedCategory === "single-putra" ? "Single Putra" : "Single Putri"}</span>
                 </div>
                 {renderCleanMatchCard(data.grandFinal, true)}
               </div>

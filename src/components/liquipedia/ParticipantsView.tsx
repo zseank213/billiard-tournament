@@ -158,7 +158,7 @@ export const ParticipantsView: React.FC = () => {
           let filledAthletesCount = 0;
           team.slots.forEach((s) => {
             if (!s.playerName || s.playerName.includes("Belum Didaftarkan")) return;
-            if (s.category === "Ganda Putra") {
+            if (s.category === "Ganda Putra" || s.category.includes("Ganda")) {
               const parts = s.playerName.split("&").map((p) => p.trim());
               parts.forEach((p) => {
                 if (p && !p.includes("TBD") && !p.includes("Belum Didaftarkan")) {
@@ -237,7 +237,7 @@ export const ParticipantsView: React.FC = () => {
 
                       // Clean formatted role label
                       const formatRole = () => {
-                        if (slot.category === "Ganda Putra") {
+                        if (slot.category === "Ganda Putra" || slot.category.includes("Ganda")) {
                           const matchTim = slot.role.match(/(\d+)/);
                           const timNum = matchTim ? matchTim[1] : "1";
                           return `Ganda ${timNum}`;
