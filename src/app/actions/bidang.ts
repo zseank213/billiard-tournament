@@ -177,56 +177,65 @@ export async function getParticipantsWithRosters(): Promise<{
     const slots: ParticipantMemberSlot[] = [];
     let slotIdx = 1;
 
-    // 1. Team Ganda 1
-    slots.push(
-      {
-        slotNumber: slotIdx++,
-        category: "Ganda Putra",
-        role: "Ganda Putra (Tim 1 - Pemain 1)",
-        playerName: gandaP1.trim() || "Belum Didaftarkan (TBD)",
-      },
-      {
-        slotNumber: slotIdx++,
-        category: "Ganda Putra",
-        role: "Ganda Putra (Tim 1 - Pemain 2)",
-        playerName: gandaP2.trim() || "Belum Didaftarkan (TBD)",
-      }
-    );
+    // 1. Team Ganda 1 (1 baris: Format "Pemain 1 & Pemain 2")
+    const g1P1 = gandaP1.trim();
+    const g1P2 = gandaP2.trim();
+    const ganda1Name =
+      g1P1 && g1P2
+        ? `${g1P1} & ${g1P2}`
+        : g1P1
+        ? `${g1P1} & TBD`
+        : g1P2
+        ? `TBD & ${g1P2}`
+        : "Belum Didaftarkan (TBD)";
+
+    slots.push({
+      slotNumber: slotIdx++,
+      category: "Ganda Putra",
+      role: "Ganda 1",
+      playerName: ganda1Name,
+    });
 
     // 2. Team Ganda 2 (if exists)
     if (hasGandaTim2) {
-      slots.push(
-        {
-          slotNumber: slotIdx++,
-          category: "Ganda Putra",
-          role: "Ganda Putra (Tim 2 - Pemain 1)",
-          playerName: ganda2P1.trim() || "Belum Didaftarkan (TBD)",
-        },
-        {
-          slotNumber: slotIdx++,
-          category: "Ganda Putra",
-          role: "Ganda Putra (Tim 2 - Pemain 2)",
-          playerName: ganda2P2.trim() || "Belum Didaftarkan (TBD)",
-        }
-      );
+      const g2P1 = ganda2P1.trim();
+      const g2P2 = ganda2P2.trim();
+      const ganda2Name =
+        g2P1 && g2P2
+          ? `${g2P1} & ${g2P2}`
+          : g2P1
+          ? `${g2P1} & TBD`
+          : g2P2
+          ? `TBD & ${g2P2}`
+          : "Belum Didaftarkan (TBD)";
+
+      slots.push({
+        slotNumber: slotIdx++,
+        category: "Ganda Putra",
+        role: "Ganda 2",
+        playerName: ganda2Name,
+      });
     }
 
     // 3. Extra Ganda Teams (Host privilege)
     extraGanda.forEach((eg) => {
-      slots.push(
-        {
-          slotNumber: slotIdx++,
-          category: "Ganda Putra",
-          role: `Ganda Putra (Tim ${eg.teamNumber} - Pemain 1)`,
-          playerName: eg.player1.trim() || "Belum Didaftarkan (TBD)",
-        },
-        {
-          slotNumber: slotIdx++,
-          category: "Ganda Putra",
-          role: `Ganda Putra (Tim ${eg.teamNumber} - Pemain 2)`,
-          playerName: eg.player2.trim() || "Belum Didaftarkan (TBD)",
-        }
-      );
+      const p1 = eg.player1.trim();
+      const p2 = eg.player2.trim();
+      const name =
+        p1 && p2
+          ? `${p1} & ${p2}`
+          : p1
+          ? `${p1} & TBD`
+          : p2
+          ? `TBD & ${p2}`
+          : "Belum Didaftarkan (TBD)";
+
+      slots.push({
+        slotNumber: slotIdx++,
+        category: "Ganda Putra",
+        role: `Ganda ${eg.teamNumber}`,
+        playerName: name,
+      });
     });
 
     // 4. Single Putra (Primary + Extra)

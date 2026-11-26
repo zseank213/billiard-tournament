@@ -411,23 +411,17 @@ export const LIQUIPEDIA_PARTICIPANTS: ParticipantTeam[] = INVITED_BIDANG_LIST.ma
       {
         slotNumber: 1,
         category: "Ganda Putra",
-        role: "Ganda Putra (Pemain 1)",
+        role: "Ganda 1",
         playerName: "Belum Didaftarkan (TBD)",
       },
       {
         slotNumber: 2,
-        category: "Ganda Putra",
-        role: "Ganda Putra (Pemain 2)",
-        playerName: "Belum Didaftarkan (TBD)",
-      },
-      {
-        slotNumber: 3,
         category: "Single Putra",
         role: "Single Putra",
         playerName: "Belum Didaftarkan (TBD)",
       },
       {
-        slotNumber: 4,
+        slotNumber: 3,
         category: "Single Putri",
         role: "Single Putri",
         playerName: "Belum Didaftarkan (TBD)",

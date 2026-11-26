@@ -153,7 +153,24 @@ export const ParticipantsView: React.FC = () => {
           {filteredTeams.map((team) => {
           const isExpanded = !!expandedTeams[team.id];
           const isHost = team.status === "host";
-          const filledSlotsCount = team.slots.filter((s) => s.playerName && !s.playerName.includes("TBD") && !s.playerName.includes("Belum Didaftarkan")).length;
+
+          // Calculate exact number of registered athletes (Ganda counts as 2 if both present, 1 if single present)
+          let filledAthletesCount = 0;
+          team.slots.forEach((s) => {
+            if (!s.playerName || s.playerName.includes("Belum Didaftarkan")) return;
+            if (s.category === "Ganda Putra") {
+              const parts = s.playerName.split("&").map((p) => p.trim());
+              parts.forEach((p) => {
+                if (p && !p.includes("TBD") && !p.includes("Belum Didaftarkan")) {
+                  filledAthletesCount++;
+                }
+              });
+            } else {
+              if (!s.playerName.includes("TBD")) {
+                filledAthletesCount++;
+              }
+            }
+          });
 
           return (
             <div
@@ -186,9 +203,9 @@ export const ParticipantsView: React.FC = () => {
                     }`}
                   >
                     {isHost
-                      ? (filledSlotsCount > 0 ? `Tuan Rumah • ${filledSlotsCount} Atlet` : "Tuan Rumah")
+                      ? (filledAthletesCount > 0 ? `Tuan Rumah • ${filledAthletesCount} Atlet` : "Tuan Rumah")
                       : team.status === "registered"
-                      ? (filledSlotsCount > 0 ? `Terdaftar • ${filledSlotsCount} Atlet` : "Terdaftar")
+                      ? (filledAthletesCount > 0 ? `Terdaftar • ${filledAthletesCount} Atlet` : "Terdaftar")
                       : "Belum Daftar"}
                   </span>
                   <div className="text-slate-400 hover:text-slate-700 transition-colors">
@@ -207,7 +224,7 @@ export const ParticipantsView: React.FC = () => {
                   <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-200/60">
                     <span>Daftar Pemain:</span>
                     <span className="font-mono text-slate-500 font-bold">
-                      {filledSlotsCount} / {team.slots.length} Pemain
+                      {filledAthletesCount} Atlet Terdaftar
                     </span>
                   </div>
 
@@ -221,10 +238,9 @@ export const ParticipantsView: React.FC = () => {
                       // Clean formatted role label
                       const formatRole = () => {
                         if (slot.category === "Ganda Putra") {
-                          const matchTim = slot.role.match(/Tim (\d+)/);
+                          const matchTim = slot.role.match(/(\d+)/);
                           const timNum = matchTim ? matchTim[1] : "1";
-                          const isP2 = slot.role.includes("Pemain 2");
-                          return `Ganda ${timNum} • Pemain ${isP2 ? "2" : "1"}`;
+                          return `Ganda ${timNum}`;
                         }
                         if (slot.category === "Single Putra") {
                           const matchPa = slot.role.match(/Atlet (\d+)/);
