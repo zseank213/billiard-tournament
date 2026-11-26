@@ -34,6 +34,7 @@ import {
   MessageCircle,
   ExternalLink,
   Info,
+  ChevronDown,
 } from "lucide-react";
 
 interface RegistrationFormProps {
@@ -44,8 +45,8 @@ interface RegistrationFormProps {
 export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   onSuccess,
 }) => {
-  const [bidangOptions, setBidangOptions] = useState<string[]>([]);
-  const [isLoadingBidang, setIsLoadingBidang] = useState(true);
+  const [bidangOptions, setBidangOptions] = useState<string[]>(INVITED_BIDANG_LIST);
+  const [isLoadingBidang, setIsLoadingBidang] = useState(false);
   const [selectedBidang, setSelectedBidang] = useState<string>("");
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [categoryStatus, setCategoryStatus] = useState<BidangCategoryStatus | null>(null);
@@ -1098,19 +1099,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
                 Pilih Bidang *
               </label>
-              {isLoadingBidang ? (
-                <div className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 animate-pulse flex items-center px-4 gap-2.5">
-                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span className="text-xs font-medium text-slate-500">
-                    Memuat daftar bidang resmi...
-                  </span>
-                </div>
-              ) : (
+              <div className="relative w-full">
                 <select
                   id="bidangSelect"
                   value={selectedBidang}
                   onChange={(e) => handleBidangChange(e.target.value)}
-                  className="w-full px-4 py-3 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 font-bold text-slate-900 transition-colors"
+                  className="w-full appearance-none px-4 pr-10 py-3 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 font-bold text-slate-900 cursor-pointer shadow-2xs"
                 >
                   <option value="">
                     -- Pilih Asal Bidang di Ganesha Operation --
@@ -1121,7 +1115,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     </option>
                   ))}
                 </select>
-              )}
+                <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  {isCheckingStatus ? (
+                    <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                  )}
+                </div>
+              </div>
               <span className="text-[11px] text-slate-400 mt-1.5 block">
                 * Pilihan 20 bidang terdaftar resmi di lingkungan kerja Ganesha Operation
               </span>
