@@ -478,11 +478,10 @@ export const OFFICIAL_GRAND_PRIZES = {
       { name: "Gelas / Mug Label BTI Cup", type: "Drinkware" },
       { name: "Voucher Indomaret Rp 100.000", type: "Shopping Voucher" },
       { name: "Voucher Indomaret Rp 50.000", type: "Shopping Voucher" },
-      { name: "Kipas Tangan BTI Cup", type: "Accessories" },
-      { name: "Paket Snack & Indomie", type: "Snack Pack" },
     ],
     gampang: [
       { name: "Gantungan Kunci BTI Cup", type: "Merchandise" },
+      { name: "Paket Snack & Indomie", type: "Snack Pack" },
     ],
   },
 };

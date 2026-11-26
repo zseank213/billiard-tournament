@@ -219,29 +219,45 @@ export const PrizePoolView: React.FC<PrizePoolViewProps> = ({ onViewMerchandise 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
             {/* Sulit */}
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div className="font-black text-red-700 text-xs flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-red-600" />
-                <span>Kategori Sulit:</span>
+            <div className="p-3.5 rounded-2xl bg-red-50/50 border border-red-200/80 space-y-2">
+              <div className="flex items-center justify-between gap-1 flex-wrap">
+                <div className="font-black text-red-700 text-xs flex items-center gap-1">
+                  <Flame className="w-3.5 h-3.5 text-red-600" />
+                  <span>Kategori Sulit:</span>
+                </div>
+                <span className="text-[9px] font-bold text-red-800 bg-white px-2 py-0.5 rounded-full border border-red-200">
+                  Diambil saat Final Day (Wajib Hadir)
+                </span>
               </div>
-              <ul className="text-[11px] text-slate-600 space-y-1 font-medium list-disc list-inside">
+              <ul className="text-[11px] text-slate-700 space-y-1 font-medium list-disc list-inside">
                 {OFFICIAL_GRAND_PRIZES.gamesMini.sulit.map((item, idx) => (
                   <li key={idx}>{item.name}</li>
                 ))}
               </ul>
+              <p className="text-[10px] text-red-700/90 font-medium pt-1 border-t border-red-200/60 leading-tight">
+                * Hadiah diserahkan saat Final Day di akhir acara, pemenang wajib hadir langsung.
+              </p>
             </div>
 
             {/* Gampang */}
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div className="font-black text-amber-700 text-xs flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>Kategori Gampang:</span>
+            <div className="p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-2">
+              <div className="flex items-center justify-between gap-1 flex-wrap">
+                <div className="font-black text-amber-700 text-xs flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Kategori Mudah / Gampang:</span>
+                </div>
+                <span className="text-[9px] font-bold text-amber-800 bg-white px-2 py-0.5 rounded-full border border-amber-200">
+                  Klaim Langsung di Meja 6
+                </span>
               </div>
-              <ul className="text-[11px] text-slate-600 space-y-1 font-medium list-disc list-inside">
+              <ul className="text-[11px] text-slate-700 space-y-1 font-medium list-disc list-inside">
                 {OFFICIAL_GRAND_PRIZES.gamesMini.gampang.map((item, idx) => (
                   <li key={idx}>{item.name}</li>
                 ))}
               </ul>
+              <p className="text-[10px] text-amber-800/90 font-medium pt-1 border-t border-amber-200/60 leading-tight">
+                * Hadiah langsung diserahkan di tempat (Meja 6) setelah tantangan berhasil.
+              </p>
             </div>
           </div>
         </div>

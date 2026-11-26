@@ -409,13 +409,17 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-slate-900">Pilihan Tingkat Tantangan:</strong> Peserta dapat memilih <strong>Kategori Sulit</strong> (Kaos official, Topi, Tumbler, Mug/Gelas label, Voucher Rp 100k &amp; Rp 50k, Kipas tangan, Paket Snack/Indomie) atau <strong>Kategori Gampang</strong> (Gantungan Kunci Akrilik Resmi).
+                  <strong className="text-slate-900">Pilihan Tingkat Tantangan:</strong> Peserta dapat memilih <strong>Kategori Sulit</strong> (Kaos official, Topi, Tumbler, Mug/Gelas label, Voucher Rp 100k &amp; Rp 50k) atau <strong>Kategori Mudah / Gampang</strong> (Gantungan Kunci Akrilik Resmi &amp; Paket Snack/Indomie).
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-slate-900">Klaim Hadiah Langsung:</strong> Keberhasilan tantangan dinilai langsung oleh PIC Meja 6 dan hadiah langsung diserahkan di tempat selama persediaan masih ada.
+                  <strong className="text-slate-900">Mekanisme Pengambilan &amp; Klaim Hadiah:</strong>
+                  <span className="block mt-1 space-y-1 text-slate-600 pl-2">
+                    • <strong>Tingkat Mudah:</strong> Hadiah (Gantungan Kunci &amp; Paket Snack/Indomie) langsung diserahkan di tempat (Meja 6) setelah tantangan berhasil.<br />
+                    • <strong>Tingkat Sulit:</strong> Hadiah diambil pada saat <strong>Final Day di akhir acara penutupan</strong>. Peserta/pemenang <strong>diwajibkan datang langsung</strong> untuk pengambilan hadiah.
+                  </span>
                 </span>
               </div>
               <div className="flex items-start gap-2">
@@ -709,9 +713,14 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
         {/* Rincian Kategori Sulit & Gampang */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <div className="p-4 rounded-2xl bg-red-50/60 border border-red-200 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-red-900">
-              <Flame className="w-4 h-4 text-red-600" />
-              <span>Hadiah Tantangan Kategori Sulit:</span>
+            <div className="flex items-center justify-between gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-red-900">
+                <Flame className="w-4 h-4 text-red-600" />
+                <span>Hadiah Tantangan Kategori Sulit:</span>
+              </div>
+              <span className="text-[10px] font-bold text-red-800 bg-white px-2 py-0.5 rounded-full border border-red-200">
+                Final Day (Wajib Hadir)
+              </span>
             </div>
             <ul className="text-xs text-slate-700 space-y-1.5 font-medium">
               <li className="flex items-center gap-2">
@@ -738,28 +747,35 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
                 <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
                 <span>Voucher Belanja Indomaret Rp 50.000</span>
               </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                <span>Kipas Tangan Eksklusif TI Billiard Cup</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                <span>Paket Snack &amp; Indomie Cup Spesial</span>
-              </li>
             </ul>
+            <p className="text-[11px] text-red-700 font-semibold pt-1 border-t border-red-200/60 leading-tight">
+              * Hadiah tingkat sulit diambil saat Final Day di akhir acara penutupan, peserta diwajibkan datang untuk serah terima hadiah.
+            </p>
           </div>
 
           <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-900">
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>Hadiah Tantangan Kategori Gampang:</span>
+            <div className="flex items-center justify-between gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-900">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                <span>Hadiah Tantangan Kategori Mudah / Gampang:</span>
+              </div>
+              <span className="text-[10px] font-bold text-amber-800 bg-white px-2 py-0.5 rounded-full border border-amber-200">
+                Klaim Langsung di Meja 6
+              </span>
             </div>
             <ul className="text-xs text-slate-700 space-y-1.5 font-medium">
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span>Gantungan Kunci Akrilik Resmi TI Billiard Cup 2026</span>
               </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>Paket Snack &amp; Indomie Cup Spesial</span>
+              </li>
             </ul>
+            <p className="text-[11px] text-amber-800 font-semibold pt-1 border-t border-amber-200/60 leading-tight">
+              * Hadiah tingkat mudah langsung diserahkan di Meja 6 setelah tantangan berhasil.
+            </p>
           </div>
         </div>
       </div>
