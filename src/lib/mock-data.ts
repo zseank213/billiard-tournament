@@ -18,6 +18,7 @@ export const TOURNAMENT_CONFIG: TournamentInfo = {
   contact_wa: "6285189970998",
   contact_sean: "6285189970998",
   contact_novi: "6285624055869",
+  whatsapp_group_link: "https://chat.whatsapp.com/GTBsTJSt1mw4AaT1DiPUzf?mode=gi_t",
   chairman: "Michael Sean Pasquale Thomas",
   chairman_title: "Staf Pusat Mobile Platform",
   manager: "Andy Yusuf Martua, S.T., M.M.",

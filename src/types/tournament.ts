@@ -190,6 +190,7 @@ export interface TournamentInfo {
   contact_wa: string;
   contact_sean: string;
   contact_novi: string;
+  whatsapp_group_link?: string;
   chairman: string;
   chairman_title: string;
   manager: string;

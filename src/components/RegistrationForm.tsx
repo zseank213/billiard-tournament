@@ -31,6 +31,8 @@ import {
   Users,
   MapPin,
   ShieldCheck,
+  MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 
 interface RegistrationFormProps {
@@ -363,6 +365,44 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             Simpan atau screenshot tiket kartu pass delegasi ini sebagai bukti keikutsertaan resmi turnamen BOLA 8 antar bidang.
           </p>
 
+          {/* BANNER / KARTU WAJIB GABUNG GRUP WHATSAPP PESERTA */}
+          <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/70 border-2 border-emerald-500/40 text-left shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/25">
+                  <MessageCircle className="w-5 h-5 fill-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-md">
+                      Wajib untuk Peserta
+                    </span>
+                    <span className="text-xs font-bold text-emerald-900">
+                      Grup WhatsApp Resmi Peserta
+                    </span>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 mt-1">
+                    Silakan Gabung ke WhatsApp Group Peserta
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                    Semua peserta &amp; perwakilan bidang diharapkan bergabung untuk koordinasi jadwal tanding, pengundian bagan, dan pengumuman Technical Meeting.
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href={TOURNAMENT_CONFIG.whatsapp_group_link || "https://chat.whatsapp.com/GTBsTJSt1mw4AaT1DiPUzf?mode=gi_t"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98] shrink-0 text-center"
+              >
+                <MessageCircle className="w-4 h-4 fill-white" />
+                <span>Gabung Grup WhatsApp</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+              </a>
+            </div>
+          </div>
+
           {/* PASS CARD PREVIEW */}
           <div className="mt-7 rounded-2xl bg-white border border-slate-200/90 text-left overflow-hidden shadow-xs">
             {/* Card Top Brand Ribbon (Light Championship Red Gradient) */}
@@ -554,14 +594,29 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             </div>
 
             {/* Card Footer Note */}
-            <div className="px-5 py-3 bg-slate-50 border-t border-slate-200/80 text-[11px] text-slate-500 font-medium text-center">
-              Data delegasi bidang ini telah resmi tercatat untuk pengundian bagan &amp; jadwal pertandingan.
+            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200/80 text-[11px] text-slate-600 font-medium text-center space-y-1">
+              <p>Data delegasi bidang ini telah resmi tercatat untuk pengundian bagan &amp; jadwal pertandingan.</p>
+              <p className="text-emerald-700 font-bold">
+                Harap pastikan seluruh atlet bergabung ke WhatsApp Group turnamen untuk pengumuman jadwal resmi.
+              </p>
             </div>
           </div>
 
-          {/* TWO PRIMARY ACTION BUTTONS */}
+          {/* ACTION BUTTONS */}
           <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5">
-            {/* BUTTON 1: Partisipasi Langsung */}
+            {/* BUTTON 1: Gabung Grup WhatsApp */}
+            <a
+              href={TOURNAMENT_CONFIG.whatsapp_group_link || "https://chat.whatsapp.com/GTBsTJSt1mw4AaT1DiPUzf?mode=gi_t"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/25 text-center transition-colors"
+            >
+              <MessageCircle className="w-4 h-4 fill-white" />
+              <span>Grup WhatsApp Peserta</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+            </a>
+
+            {/* BUTTON 2: Partisipasi Langsung */}
             <Link
               href="/participants"
               className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-championship-red flex items-center justify-center gap-2 shadow-sm shadow-red-500/20 text-center"
@@ -570,7 +625,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               <span>Lihat Peserta</span>
             </Link>
 
-            {/* BUTTON 2: Kembali ke pendaftaran dengan data kosong semua */}
+            {/* BUTTON 3: Kembali ke pendaftaran dengan data kosong semua */}
             <button
               onClick={handleReturnToEmptyForm}
               className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-luxury-pearl flex items-center justify-center gap-2"

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { checkRegistration } from "@/app/actions/registration";
 import { Registration } from "@/types/tournament";
+import { TOURNAMENT_CONFIG } from "@/lib/mock-data";
 import {
   Search,
   CheckCircle2,
@@ -16,6 +17,8 @@ import {
   Shirt,
   Calendar,
   ChevronRight,
+  MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 
 export const CheckRegistrationModal: React.FC = () => {
@@ -92,6 +95,25 @@ export const CheckRegistrationModal: React.FC = () => {
         {/* Results List */}
         {results && results.length > 0 && (
           <div className="mt-6 space-y-4">
+            {/* WhatsApp Group Banner */}
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-xs font-bold text-emerald-900">
+                  Sudah terdaftar? Silakan gabung ke WhatsApp Group Peserta Turnamen:
+                </span>
+              </div>
+              <a
+                href={TOURNAMENT_CONFIG.whatsapp_group_link || "https://chat.whatsapp.com/GTBsTJSt1mw4AaT1DiPUzf?mode=gi_t"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors inline-flex items-center gap-1 shrink-0"
+              >
+                <span>Gabung Grup WA</span>
+                <ExternalLink className="w-3 h-3 opacity-80" />
+              </a>
+            </div>
+
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Hasil Ditemukan ({results.length} Atlet):
             </h3>
