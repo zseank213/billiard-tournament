@@ -15,7 +15,6 @@ import {
   Gift,
   Flame,
   Sparkles,
-  Phone,
   TableProperties,
   FileText,
   ShieldCheck,
@@ -252,32 +251,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 <p className="text-[10px] text-amber-700 font-bold">
                   Undian: 02 Des 2026
                 </p>
-              </div>
-            </div>
-
-            {/* Contact Person Panitia (Clean WhatsApp Actions) */}
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-              <span className="text-xs font-bold text-slate-700 flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Kontak Panitia (WhatsApp):</span>
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <a
-                  href={`https://wa.me/${TOURNAMENT_CONFIG.contact_sean}?text=Halo%20Sean%20(Panitia%20TI%20Billiard%20Cup%202026)`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors text-center"
-                >
-                  <span>Sean - TI</span>
-                </a>
-                <a
-                  href={`https://wa.me/${TOURNAMENT_CONFIG.contact_novi}?text=Halo%20Novi%20(Panitia%20TI%20Billiard%20Cup%202026)`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors text-center"
-                >
-                  <span>Novi - TI</span>
-                </a>
               </div>
             </div>
 
