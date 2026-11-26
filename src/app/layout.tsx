@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://open-tournament.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://open-tournament.ganeshaoperationexpert.com"
   ),
   title: "TI BILLIARD CUP 2026 — Turnamen Bola 8 Antar Bidang Ganesha Operation",
   description:
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "TI BILLIARD CUP 2026 — Turnamen Bola 8 Antar Bidang",
     description:
       "Portal Resmi Turnamen TI BILLIARD CUP 2026. Perebutan Piala Bergilir Direktur Perencanaan. Mulai Kamis, 03 Desember 2026 di Greenlight Cafe & Billiard.",
-    url: "https://open-tournament.vercel.app",
+    url: "https://open-tournament.ganeshaoperationexpert.com",
     siteName: "TI BILLIARD CUP 2026",
     images: [
       {
