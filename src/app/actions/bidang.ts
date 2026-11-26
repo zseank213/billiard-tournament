@@ -112,6 +112,9 @@ export async function getParticipantsWithRosters(): Promise<{
     let ganda2P2 = "";
     let singlePa = "";
     let singlePi = "";
+    const extraGanda: { teamNumber: number; player1: string; player2: string }[] = [];
+    const extraSinglePa: { playerNumber: number; player: string }[] = [];
+    const extraSinglePi: { playerNumber: number; player: string }[] = [];
 
     for (const r of regs) {
       if (!gandaP1 && r.ganda_tim1_player1) gandaP1 = r.ganda_tim1_player1;
@@ -124,12 +127,53 @@ export async function getParticipantsWithRosters(): Promise<{
       if (!singlePi && (r.single_putri_player || (r.category === "single-putri" && (r.player1_name || r.full_name)))) {
         singlePi = r.single_putri_player || r.player1_name || r.full_name || "";
       }
+
+      if (r.notes) {
+        try {
+          if (r.notes.includes("extraGandaTeams") || r.notes.startsWith("{")) {
+            const parsed = JSON.parse(r.notes);
+            if (Array.isArray(parsed.extraGandaTeams)) {
+              parsed.extraGandaTeams.forEach((eg: any) => {
+                if (eg.player1 && eg.player2 && !extraGanda.some((x) => x.teamNumber === eg.teamNumber)) {
+                  extraGanda.push({
+                    teamNumber: eg.teamNumber,
+                    player1: eg.player1,
+                    player2: eg.player2,
+                  });
+                }
+              });
+            }
+            if (Array.isArray(parsed.extraSinglePutra)) {
+              parsed.extraSinglePutra.forEach((esp: any) => {
+                if (esp.player && !extraSinglePa.some((x) => x.playerNumber === esp.playerNumber)) {
+                  extraSinglePa.push({
+                    playerNumber: esp.playerNumber,
+                    player: esp.player,
+                  });
+                }
+              });
+            }
+            if (Array.isArray(parsed.extraSinglePutri)) {
+              parsed.extraSinglePutri.forEach((espi: any) => {
+                if (espi.player && !extraSinglePi.some((x) => x.playerNumber === espi.playerNumber)) {
+                  extraSinglePi.push({
+                    playerNumber: espi.playerNumber,
+                    player: espi.player,
+                  });
+                }
+              });
+            }
+          }
+        } catch {
+          // ignore non-json notes
+        }
+      }
     }
 
     const hasGandaTim2 = !!(ganda2P1 || ganda2P2);
-    const isRegistered = regs.length > 0 && !!(gandaP1 || singlePa || singlePi);
+    const isRegistered = regs.length > 0 && !!(gandaP1 || singlePa || singlePi || extraGanda.length > 0);
 
-    // Order: 1. Team Ganda 1 -> 2. Team Ganda 2 (if exists) -> 3. Single Putra -> 4. Single Putri
+    // Order: 1. Team Ganda 1 -> 2. Team Ganda 2 (if exists) -> 3. Extra Ganda Teams -> 4. Single Putra -> 5. Single Putri
     const slots: ParticipantMemberSlot[] = [];
     let slotIdx = 1;
 
@@ -167,20 +211,56 @@ export async function getParticipantsWithRosters(): Promise<{
       );
     }
 
-    // 3. Single Putra
+    // 3. Extra Ganda Teams (Host privilege)
+    extraGanda.forEach((eg) => {
+      slots.push(
+        {
+          slotNumber: slotIdx++,
+          category: "Ganda Putra",
+          role: `Ganda Putra (Tim ${eg.teamNumber} - Pemain 1)`,
+          playerName: eg.player1.trim() || "Belum Didaftarkan (TBD)",
+        },
+        {
+          slotNumber: slotIdx++,
+          category: "Ganda Putra",
+          role: `Ganda Putra (Tim ${eg.teamNumber} - Pemain 2)`,
+          playerName: eg.player2.trim() || "Belum Didaftarkan (TBD)",
+        }
+      );
+    });
+
+    // 4. Single Putra (Primary + Extra)
     slots.push({
       slotNumber: slotIdx++,
       category: "Single Putra",
-      role: "Single Putra",
+      role: extraSinglePa.length > 0 ? "Single Putra (Atlet 1)" : "Single Putra",
       playerName: singlePa.trim() || "Belum Didaftarkan (TBD)",
     });
 
-    // 4. Single Putri
+    extraSinglePa.forEach((esp) => {
+      slots.push({
+        slotNumber: slotIdx++,
+        category: "Single Putra",
+        role: `Single Putra (Atlet ${esp.playerNumber})`,
+        playerName: esp.player.trim() || "Belum Didaftarkan (TBD)",
+      });
+    });
+
+    // 5. Single Putri (Primary + Extra)
     slots.push({
       slotNumber: slotIdx++,
       category: "Single Putri",
-      role: "Single Putri",
+      role: extraSinglePi.length > 0 ? "Single Putri (Atlet 1)" : "Single Putri",
       playerName: singlePi.trim() || "Belum Didaftarkan (TBD)",
+    });
+
+    extraSinglePi.forEach((espi) => {
+      slots.push({
+        slotNumber: slotIdx++,
+        category: "Single Putri",
+        role: `Single Putri (Atlet ${espi.playerNumber})`,
+        playerName: espi.player.trim() || "Belum Didaftarkan (TBD)",
+      });
     });
 
     return {

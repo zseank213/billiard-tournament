@@ -70,6 +70,17 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [singlePutri, setSinglePutri] = useState("");
   const [singlePutriPhone, setSinglePutriPhone] = useState("");
 
+  // Khusus Tuan Rumah (Bidang Teknologi Informasi): Kuota Tanpa Batas
+  const [extraGandaTeams, setExtraGandaTeams] = useState<
+    { id: string; teamNumber: number; p1: string; p1Phone: string; p2: string; p2Phone: string }[]
+  >([]);
+  const [extraSinglePutra, setExtraSinglePutra] = useState<
+    { id: string; playerNumber: number; player: string; phone: string }[]
+  >([]);
+  const [extraSinglePutri, setExtraSinglePutri] = useState<
+    { id: string; playerNumber: number; player: string; phone: string }[]
+  >([]);
+
   const [notes, setNotes] = useState("");
   const [agreedToRules, setAgreedToRules] = useState(false);
 
@@ -124,8 +135,115 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     setSinglePutraPhone("");
     setSinglePutri("");
     setSinglePutriPhone("");
+    setExtraGandaTeams([]);
+    setExtraSinglePutra([]);
+    setExtraSinglePutri([]);
     setNotes("");
     setAgreedToRules(false);
+  };
+
+  const isHost = selectedBidang === "Teknologi Informasi";
+
+  const addExtraGandaTeam = () => {
+    const lockedCount = categoryStatus?.extraGandaTeams?.length || 0;
+    const nextNumber = 3 + lockedCount + extraGandaTeams.length;
+    setExtraGandaTeams((prev) => [
+      ...prev,
+      {
+        id: `ganda-team-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        teamNumber: nextNumber,
+        p1: "",
+        p1Phone: "",
+        p2: "",
+        p2Phone: "",
+      },
+    ]);
+  };
+
+  const removeExtraGandaTeam = (id: string) => {
+    setExtraGandaTeams((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const updateExtraGandaTeam = (
+    id: string,
+    field: "p1" | "p1Phone" | "p2" | "p2Phone",
+    value: string
+  ) => {
+    setExtraGandaTeams((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [field]: field.includes("Phone") ? cleanPhoneNumber(value) : value,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  const addExtraSinglePutra = () => {
+    const lockedCount = categoryStatus?.extraSinglePutra?.length || 0;
+    const nextNumber = 2 + lockedCount + extraSinglePutra.length;
+    setExtraSinglePutra((prev) => [
+      ...prev,
+      {
+        id: `sp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        playerNumber: nextNumber,
+        player: "",
+        phone: "",
+      },
+    ]);
+  };
+
+  const removeExtraSinglePutra = (id: string) => {
+    setExtraSinglePutra((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const updateExtraSinglePutra = (id: string, field: "player" | "phone", value: string) => {
+    setExtraSinglePutra((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [field]: field === "phone" ? cleanPhoneNumber(value) : value,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  const addExtraSinglePutri = () => {
+    const lockedCount = categoryStatus?.extraSinglePutri?.length || 0;
+    const nextNumber = 2 + lockedCount + extraSinglePutri.length;
+    setExtraSinglePutri((prev) => [
+      ...prev,
+      {
+        id: `spi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        playerNumber: nextNumber,
+        player: "",
+        phone: "",
+      },
+    ]);
+  };
+
+  const removeExtraSinglePutri = (id: string) => {
+    setExtraSinglePutri((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const updateExtraSinglePutri = (id: string, field: "player" | "phone", value: string) => {
+    setExtraSinglePutri((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [field]: field === "phone" ? cleanPhoneNumber(value) : value,
+          };
+        }
+        return item;
+      })
+    );
   };
 
   // Completely reset everything to a clean empty state for a new registration
@@ -190,7 +308,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const isGanda2Locked = !!categoryStatus?.gandaTim2?.isRegistered;
   const isSinglePaLocked = !!categoryStatus?.singlePutra?.isRegistered;
   const isSinglePiLocked = !!categoryStatus?.singlePutri?.isRegistered;
-  const isAllLocked = !!categoryStatus?.isFullyRegistered;
+  const isAllLocked = isHost ? false : !!categoryStatus?.isFullyRegistered;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -305,13 +423,90 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       }
     }
 
+    // 4b. Validasi Khusus Tuan Rumah (Extra Ganda, Extra Single Putra, Extra Single Putri)
+    if (isHost) {
+      if (extraGandaTeams.length > 0) {
+        for (const t of extraGandaTeams) {
+          const hasP1 = !!t.p1.trim();
+          const hasP2 = !!t.p2.trim();
+          if (hasP1 || hasP2) {
+            if (!hasP1 || !hasP2) {
+              showError(`Harap lengkapi kedua pemain untuk Tim ${t.teamNumber} Ganda Putra atau hapus tim jika tidak jadi mendaftar.`);
+              return;
+            }
+            if (!t.p1Phone) {
+              showError(`Nomor WhatsApp Pemain 1 (Ganda Tim ${t.teamNumber}) harus diisi.`);
+              return;
+            }
+            const v1 = validateIndonesianPhone(t.p1Phone);
+            if (!v1.isValid) {
+              showError(`Pemain 1 Ganda Tim ${t.teamNumber}: ${v1.message}`);
+              return;
+            }
+            if (!t.p2Phone) {
+              showError(`Nomor WhatsApp Pemain 2 (Ganda Tim ${t.teamNumber}) harus diisi.`);
+              return;
+            }
+            const v2 = validateIndonesianPhone(t.p2Phone);
+            if (!v2.isValid) {
+              showError(`Pemain 2 Ganda Tim ${t.teamNumber}: ${v2.message}`);
+              return;
+            }
+          }
+        }
+      }
+
+      if (extraSinglePutra.length > 0) {
+        for (const sp of extraSinglePutra) {
+          if (sp.player.trim()) {
+            if (!sp.phone) {
+              showError(`Nomor WhatsApp Atlet Single Putra ${sp.playerNumber} harus diisi.`);
+              return;
+            }
+            const v = validateIndonesianPhone(sp.phone);
+            if (!v.isValid) {
+              showError(`Single Putra ${sp.playerNumber}: ${v.message}`);
+              return;
+            }
+          }
+        }
+      }
+
+      if (extraSinglePutri.length > 0) {
+        for (const spi of extraSinglePutri) {
+          if (spi.player.trim()) {
+            if (!spi.phone) {
+              showError(`Nomor WhatsApp Atlet Single Putri ${spi.playerNumber} harus diisi.`);
+              return;
+            }
+            const v = validateIndonesianPhone(spi.phone);
+            if (!v.isValid) {
+              showError(`Single Putri ${spi.playerNumber}: ${v.message}`);
+              return;
+            }
+          }
+        }
+      }
+    }
+
     // 5. Harus ada minimal 1 kategori baru yang didaftarkan pada pengiriman ini
     const hasNewGanda1 = !isGanda1Locked && !!(gandaTim1P1.trim() && gandaTim1P2.trim());
     const hasNewGanda2 = !isGanda2Locked && hasGandaTim2 && !!(gandaTim2P1.trim() && gandaTim2P2.trim());
     const hasNewSinglePa = !isSinglePaLocked && !!singlePutra.trim();
     const hasNewSinglePi = !isSinglePiLocked && !!singlePutri.trim();
+    const hasValidExtraGanda = isHost && extraGandaTeams.some((t) => t.p1.trim() && t.p2.trim());
+    const hasValidExtraSinglePa = isHost && extraSinglePutra.some((sp) => sp.player.trim());
+    const hasValidExtraSinglePi = isHost && extraSinglePutri.some((spi) => spi.player.trim());
 
-    if (!hasNewGanda1 && !hasNewGanda2 && !hasNewSinglePa && !hasNewSinglePi) {
+    if (
+      !hasNewGanda1 &&
+      !hasNewGanda2 &&
+      !hasNewSinglePa &&
+      !hasNewSinglePi &&
+      !hasValidExtraGanda &&
+      !hasValidExtraSinglePa &&
+      !hasValidExtraSinglePi
+    ) {
       showError("Silakan isi data minimal 1 kategori atlet yang belum didaftarkan.");
       return;
     }
@@ -340,6 +535,35 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         singlePutraPhone: hasNewSinglePa ? cleanSinglePaPhone : undefined,
         singlePutriPlayer: hasNewSinglePi ? singlePutri.trim() : undefined,
         singlePutriPhone: hasNewSinglePi ? cleanSinglePiPhone : undefined,
+        extraGandaTeams: isHost && extraGandaTeams.length > 0
+          ? extraGandaTeams
+              .filter((t) => t.p1.trim() && t.p2.trim())
+              .map((t) => ({
+                teamNumber: t.teamNumber,
+                player1: t.p1.trim(),
+                phone1: cleanPhoneNumber(t.p1Phone),
+                player2: t.p2.trim(),
+                phone2: cleanPhoneNumber(t.p2Phone),
+              }))
+          : undefined,
+        extraSinglePutra: isHost && extraSinglePutra.length > 0
+          ? extraSinglePutra
+              .filter((sp) => sp.player.trim())
+              .map((sp) => ({
+                playerNumber: sp.playerNumber,
+                player: sp.player.trim(),
+                phone: cleanPhoneNumber(sp.phone),
+              }))
+          : undefined,
+        extraSinglePutri: isHost && extraSinglePutri.length > 0
+          ? extraSinglePutri
+              .filter((spi) => spi.player.trim())
+              .map((spi) => ({
+                playerNumber: spi.playerNumber,
+                player: spi.player.trim(),
+                phone: cleanPhoneNumber(spi.phone),
+              }))
+          : undefined,
         notes,
       };
 
@@ -365,6 +589,23 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const hasGanda2 = !!(registeredData.ganda_tim2_player1 && registeredData.ganda_tim2_player2);
     const hasSinglePa = !!registeredData.single_putra_player;
     const hasSinglePi = !!registeredData.single_putri_player;
+
+    let extraGandaPass: { teamNumber: number; player1: string; phone1?: string; player2: string; phone2?: string }[] = [];
+    let extraSinglePaPass: { playerNumber: number; player: string; phone?: string }[] = [];
+    let extraSinglePiPass: { playerNumber: number; player: string; phone?: string }[] = [];
+
+    if (registeredData.notes) {
+      try {
+        if (registeredData.notes.includes("extraGandaTeams") || registeredData.notes.startsWith("{")) {
+          const parsed = JSON.parse(registeredData.notes);
+          if (Array.isArray(parsed.extraGandaTeams)) extraGandaPass = parsed.extraGandaTeams;
+          if (Array.isArray(parsed.extraSinglePutra)) extraSinglePaPass = parsed.extraSinglePutra;
+          if (Array.isArray(parsed.extraSinglePutri)) extraSinglePiPass = parsed.extraSinglePutri;
+        }
+      } catch {
+        // ignore
+      }
+    }
 
     return (
       <div className="max-w-xl mx-auto py-6 px-3 sm:px-0">
@@ -555,6 +796,55 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               )}
 
+              {/* Extra Ganda Teams Pass */}
+              {extraGandaPass.map((eg) => (
+                <div key={eg.teamNumber} className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
+                      <Users2 className="w-3 h-3 text-amber-600" />
+                      Ganda Putra (Tim {eg.teamNumber})
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Siap Tanding
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pemain 1</span>
+                      <p className="text-sm font-black text-slate-900 mt-0.5 truncate">{eg.player1}</p>
+                      {eg.phone1 && (
+                        <a
+                          href={`https://wa.me/${eg.phone1.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 font-mono"
+                        >
+                          <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span className="break-all">{eg.phone1}</span>
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pemain 2</span>
+                      <p className="text-sm font-black text-slate-900 mt-0.5 truncate">{eg.player2}</p>
+                      {eg.phone2 && (
+                        <a
+                          href={`https://wa.me/${eg.phone2.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 font-mono"
+                        >
+                          <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span className="break-all">{eg.phone2}</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
               {/* 3. Single Putra */}
               {hasSinglePa && (
                 <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -581,6 +871,32 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               )}
 
+              {/* Extra Single Putra Pass */}
+              {extraSinglePaPass.map((esp) => (
+                <div key={esp.playerNumber} className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-black text-blue-700 bg-blue-50 border border-blue-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider inline-flex items-center gap-1.5">
+                      <User className="w-3 h-3 text-blue-600" />
+                      Single Putra (Atlet {esp.playerNumber})
+                    </span>
+                    <p className="text-sm font-black text-slate-900 mt-1.5">
+                      {esp.player}
+                    </p>
+                  </div>
+                  {esp.phone && (
+                    <a
+                      href={`https://wa.me/${esp.phone.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-emerald-50 text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors font-mono self-start sm:self-center"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{esp.phone}</span>
+                    </a>
+                  )}
+                </div>
+              ))}
+
               {/* 4. Single Putri */}
               {hasSinglePi && (
                 <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -606,6 +922,32 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   )}
                 </div>
               )}
+
+              {/* Extra Single Putri Pass */}
+              {extraSinglePiPass.map((espi) => (
+                <div key={espi.playerNumber} className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-black text-pink-700 bg-pink-50 border border-pink-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider inline-flex items-center gap-1.5">
+                      <User className="w-3 h-3 text-pink-600" />
+                      Single Putri (Atlet {espi.playerNumber})
+                    </span>
+                    <p className="text-sm font-black text-slate-900 mt-1.5">
+                      {espi.player}
+                    </p>
+                  </div>
+                  {espi.phone && (
+                    <a
+                      href={`https://wa.me/${espi.phone.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-emerald-50 text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors font-mono self-start sm:self-center"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{espi.phone}</span>
+                    </a>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -780,6 +1122,23 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               </div>
             )}
 
+            {/* GOLDEN HOST PRIVILEGE BANNER FOR TEKNOLOGI INFORMASI */}
+            {isHost && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/40 border-2 border-amber-300/90 text-amber-950 shadow-xs space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                    ★
+                  </span>
+                  <h4 className="font-black text-xs sm:text-sm text-amber-900 uppercase tracking-tight">
+                    Hak Istimewa Tuan Rumah (Bidang Teknologi Informasi)
+                  </h4>
+                </div>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Sebagai panitia &amp; tuan rumah turnamen, <strong>Bidang Teknologi Informasi tidak memiliki batasan kuota pendaftaran</strong>. Anda bebas mendaftarkan tim Ganda Putra, atlet Single Putra, dan atlet Single Putri sebanyak-banyaknya tanpa batasan maksimal.
+                </p>
+              </div>
+            )}
+
             {/* ALL CATEGORIES FULLY REGISTERED LOCK BANNER */}
             {isAllLocked && (
               <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/90 border-2 border-amber-300 text-amber-950 shadow-xs space-y-3.5">
@@ -855,8 +1214,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   2. Kategori Ganda Putra
                 </h3>
               </div>
-              <span className="text-[11px] font-bold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
-                Maksimal 2 Tim • 2 Orang per Tim
+              <span
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  isHost
+                    ? "text-amber-800 bg-amber-50 border-amber-200"
+                    : "text-red-700 bg-red-50 border-red-200"
+                }`}
+              >
+                {isHost ? "Tuan Rumah: Kuota Bebas (Tanpa Batas)" : "Maksimal 2 Tim • 2 Orang per Tim"}
               </span>
             </div>
 
@@ -1157,6 +1522,129 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 )}
               </div>
             )}
+
+            {/* Locked Extra Ganda Teams (Host) */}
+            {categoryStatus?.extraGandaTeams && categoryStatus.extraGandaTeams.map((eg) => (
+              <div key={eg.teamNumber} className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Tim {eg.teamNumber} Ganda Putra: Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 1</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">{eg.player1}</p>
+                    {eg.phone1 && (
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+                        <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{eg.phone1}</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 shadow-2xs min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Pemain 2</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">{eg.player2}</p>
+                    {eg.phone2 && (
+                      <p className="text-slate-600 font-medium text-xs mt-1 flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+                        <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="break-all font-mono">{eg.phone2}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Active Extra Ganda Teams (Host) */}
+            {extraGandaTeams.map((team) => (
+              <div key={team.id} className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                    Tim {team.teamNumber} Ganda Putra
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeExtraGandaTeam(team.id)}
+                    className="text-slate-400 hover:text-red-600 text-xs flex items-center gap-1 font-bold"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>Hapus Tim {team.teamNumber}</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nama Pemain 1 (Tim {team.teamNumber})
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nama Pemain 1"
+                      value={team.p1}
+                      onChange={(e) => updateExtraGandaTeam(team.id, "p1", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nomor WhatsApp Pemain 1 (Tim {team.teamNumber})
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      maxLength={14}
+                      placeholder="Contoh: 08123456789"
+                      value={team.p1Phone}
+                      onChange={(e) => updateExtraGandaTeam(team.id, "p1Phone", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nama Pemain 2 (Tim {team.teamNumber})
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nama Pemain 2"
+                      value={team.p2}
+                      onChange={(e) => updateExtraGandaTeam(team.id, "p2", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Nomor WhatsApp Pemain 2 (Tim {team.teamNumber})
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      maxLength={14}
+                      placeholder="Contoh: 08123456789"
+                      value={team.p2Phone}
+                      onChange={(e) => updateExtraGandaTeam(team.id, "p2Phone", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Host Button to Add Unlimited Ganda Teams */}
+            {isHost && (
+              <button
+                type="button"
+                onClick={addExtraGandaTeam}
+                className="w-full py-2.5 px-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 hover:bg-amber-50 text-amber-800 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+              >
+                <PlusCircle className="w-4 h-4 text-amber-600" />
+                <span>+ Tambah Tim Ganda Putra Lagi (Tanpa Batas)</span>
+              </button>
+            )}
           </div>
 
           {/* SECTION 3: KATEGORI SINGLE PUTRA */}
@@ -1168,8 +1656,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   3. Kategori Single Putra
                 </h3>
               </div>
-              <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
-                1 Tim • 1 Orang
+              <span
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  isHost
+                    ? "text-blue-800 bg-blue-50 border-blue-200"
+                    : "text-slate-700 bg-slate-100 border-slate-200"
+                }`}
+              >
+                {isHost ? "Tuan Rumah: Bebas Tambah Atlet" : "1 Tim • 1 Orang"}
               </span>
             </div>
 
@@ -1248,6 +1742,93 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               </div>
             )}
+
+            {/* Locked Extra Single Putra (Host) */}
+            {categoryStatus?.extraSinglePutra && categoryStatus.extraSinglePutra.map((esp) => (
+              <div key={esp.playerNumber} className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Single Putra (Atlet {esp.playerNumber}): Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 min-w-0">
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Nama Atlet</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">{esp.player}</p>
+                  </div>
+                  {esp.phone && (
+                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs min-w-0 max-w-full overflow-hidden">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="break-all font-mono">{esp.phone}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Active Extra Single Putra Inputs (Host) */}
+            {extraSinglePutra.map((sp) => (
+              <div key={sp.id} className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                    Atlet Single Putra {sp.playerNumber}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeExtraSinglePutra(sp.id)}
+                    className="text-slate-400 hover:text-red-600 text-xs flex items-center gap-1 font-bold"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>Hapus Atlet {sp.playerNumber}</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Nama Lengkap Atlet Single Putra {sp.playerNumber}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nama Lengkap Atlet"
+                      value={sp.player}
+                      onChange={(e) => updateExtraSinglePutra(sp.id, "player", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Nomor WhatsApp Atlet
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      maxLength={14}
+                      placeholder="Contoh: 08123456789"
+                      value={sp.phone}
+                      onChange={(e) => updateExtraSinglePutra(sp.id, "phone", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Host Button to Add More Single Putra */}
+            {isHost && (
+              <button
+                type="button"
+                onClick={addExtraSinglePutra}
+                className="w-full py-2.5 px-4 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 text-blue-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+              >
+                <PlusCircle className="w-4 h-4 text-blue-600" />
+                <span>+ Tambah Atlet Single Putra Lainnya</span>
+              </button>
+            )}
           </div>
 
           {/* SECTION 4: KATEGORI SINGLE PUTRI */}
@@ -1259,8 +1840,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   4. Kategori Single Putri
                 </h3>
               </div>
-              <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
-                1 Tim • 1 Orang
+              <span
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  isHost
+                    ? "text-rose-800 bg-rose-50 border-rose-200"
+                    : "text-slate-700 bg-slate-100 border-slate-200"
+                }`}
+              >
+                {isHost ? "Tuan Rumah: Bebas Tambah Atlet" : "1 Tim • 1 Orang"}
               </span>
             </div>
 
@@ -1338,6 +1925,93 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   )}
                 </div>
               </div>
+            )}
+
+            {/* Locked Extra Single Putri (Host) */}
+            {categoryStatus?.extraSinglePutri && categoryStatus.extraSinglePutri.map((espi) => (
+              <div key={espi.playerNumber} className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    Single Putri (Atlet {espi.playerNumber}): Terdaftar Resmi
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                    Terkunci
+                  </span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-white border border-amber-200/60 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 min-w-0">
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Nama Atlet</span>
+                    <p className="font-black text-slate-900 text-sm mt-0.5 truncate">{espi.player}</p>
+                  </div>
+                  {espi.phone && (
+                    <div className="flex items-center gap-1.5 text-slate-700 font-bold text-xs min-w-0 max-w-full overflow-hidden">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="break-all font-mono">{espi.phone}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Active Extra Single Putri Inputs (Host) */}
+            {extraSinglePutri.map((spi) => (
+              <div key={spi.id} className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                    Atlet Single Putri {spi.playerNumber}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeExtraSinglePutri(spi.id)}
+                    className="text-slate-400 hover:text-red-600 text-xs flex items-center gap-1 font-bold"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>Hapus Atlet {spi.playerNumber}</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Nama Lengkap Atlet Single Putri {spi.playerNumber}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nama Lengkap Atlet"
+                      value={spi.player}
+                      onChange={(e) => updateExtraSinglePutri(spi.id, "player", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Nomor WhatsApp Atlet
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      maxLength={14}
+                      placeholder="Contoh: 08123456789"
+                      value={spi.phone}
+                      onChange={(e) => updateExtraSinglePutri(spi.id, "phone", e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Host Button to Add More Single Putri */}
+            {isHost && (
+              <button
+                type="button"
+                onClick={addExtraSinglePutri}
+                className="w-full py-2.5 px-4 rounded-xl border border-dashed border-rose-300 bg-rose-50/50 hover:bg-rose-50 text-rose-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+              >
+                <PlusCircle className="w-4 h-4 text-rose-600" />
+                <span>+ Tambah Atlet Single Putri Lainnya</span>
+              </button>
             )}
           </div>
 

@@ -169,6 +169,25 @@ export interface BidangFullRegistrationPayload {
   singlePutriPlayer?: string;
   singlePutriPhone?: string;
   notes?: string;
+
+  // Khusus Tuan Rumah (Teknologi Informasi): Tambah tim/atlet tanpa batas
+  extraGandaTeams?: {
+    teamNumber: number;
+    player1: string;
+    phone1: string;
+    player2: string;
+    phone2: string;
+  }[];
+  extraSinglePutra?: {
+    playerNumber: number;
+    player: string;
+    phone: string;
+  }[];
+  extraSinglePutri?: {
+    playerNumber: number;
+    player: string;
+    phone: string;
+  }[];
 }
 
 export interface TournamentInfo {

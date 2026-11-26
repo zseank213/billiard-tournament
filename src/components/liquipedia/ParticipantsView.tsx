@@ -153,6 +153,7 @@ export const ParticipantsView: React.FC = () => {
           {filteredTeams.map((team) => {
           const isExpanded = !!expandedTeams[team.id];
           const isHost = team.status === "host";
+          const filledSlotsCount = team.slots.filter((s) => s.playerName && !s.playerName.includes("TBD") && !s.playerName.includes("Belum Didaftarkan")).length;
 
           return (
             <div
@@ -163,7 +164,7 @@ export const ParticipantsView: React.FC = () => {
                   : "border-slate-200/90 hover:border-slate-300"
               }`}
             >
-              {/* Card Header (Sesuai Gambar ke-5: Tanpa badge shortname, nama bidang lengkap tanpa terpotong) */}
+              {/* Card Header */}
               <div
                 onClick={() => toggleTeam(team.id)}
                 className="p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-slate-50/80 transition-colors"
@@ -184,7 +185,11 @@ export const ParticipantsView: React.FC = () => {
                         : "bg-slate-100 text-slate-600 border-slate-200"
                     }`}
                   >
-                    {isHost ? "Tuan Rumah" : team.status === "registered" ? "Terdaftar" : "Belum Daftar"}
+                    {isHost
+                      ? (filledSlotsCount > 0 ? `Tuan Rumah • ${filledSlotsCount} Atlet` : "Tuan Rumah")
+                      : team.status === "registered"
+                      ? (filledSlotsCount > 0 ? `Terdaftar • ${filledSlotsCount} Atlet` : "Terdaftar")
+                      : "Belum Daftar"}
                   </span>
                   <div className="text-slate-400 hover:text-slate-700 transition-colors">
                     {isExpanded ? (
@@ -196,81 +201,91 @@ export const ParticipantsView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Expanded Player Slots (Bersih & Rapi) */}
+              {/* Expanded Player Slots (Bersih, Rapi & Scrollable jika banyak) */}
               {isExpanded && (
                 <div className="border-t border-slate-100 bg-slate-50/80 p-3 space-y-2 text-xs">
                   <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-200/60">
                     <span>Daftar Pemain:</span>
                     <span className="font-mono text-slate-500 font-bold">
-                      {team.slots.filter((s) => s.playerName && !s.playerName.includes("TBD") && !s.playerName.includes("Belum Didaftarkan")).length} / {team.slots.length} Pemain
+                      {filledSlotsCount} / {team.slots.length} Pemain
                     </span>
                   </div>
 
-                  {team.slots.map((slot) => {
-                    const isFilled =
-                      slot.playerName &&
-                      !slot.playerName.includes("TBD") &&
-                      !slot.playerName.includes("Belum Didaftarkan");
+                  <div className={team.slots.length > 6 ? "max-h-[360px] sm:max-h-[400px] overflow-y-auto pr-1 space-y-2" : "space-y-2"}>
+                    {team.slots.map((slot) => {
+                      const isFilled =
+                        slot.playerName &&
+                        !slot.playerName.includes("TBD") &&
+                        !slot.playerName.includes("Belum Didaftarkan");
 
-                    // Clean formatted role label
-                    const formatRole = () => {
-                      if (slot.category === "Ganda Putra") {
-                        if (slot.role.includes("Tim 2")) {
-                          return slot.role.includes("Pemain 2") ? "Ganda 2 • Pemain 2" : "Ganda 2 • Pemain 1";
+                      // Clean formatted role label
+                      const formatRole = () => {
+                        if (slot.category === "Ganda Putra") {
+                          const matchTim = slot.role.match(/Tim (\d+)/);
+                          const timNum = matchTim ? matchTim[1] : "1";
+                          const isP2 = slot.role.includes("Pemain 2");
+                          return `Ganda ${timNum} • Pemain ${isP2 ? "2" : "1"}`;
                         }
-                        return slot.role.includes("Pemain 2") ? "Ganda 1 • Pemain 2" : "Ganda 1 • Pemain 1";
-                      }
-                      return slot.category;
-                    };
+                        if (slot.category === "Single Putra") {
+                          const matchPa = slot.role.match(/Atlet (\d+)/);
+                          return matchPa ? `Single Putra • Atlet ${matchPa[1]}` : "Single Putra";
+                        }
+                        if (slot.category === "Single Putri") {
+                          const matchPi = slot.role.match(/Atlet (\d+)/);
+                          return matchPi ? `Single Putri • Atlet ${matchPi[1]}` : "Single Putri";
+                        }
+                        return slot.category;
+                      };
 
-                    return (
-                      <div
-                        key={slot.slotNumber}
-                        className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
-                          isFilled
-                            ? "bg-white border-slate-200 shadow-2xs"
-                            : "bg-slate-50/50 border-dashed border-slate-200"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0 pr-2 flex-1">
-                          <span
-                            className={`w-6 h-6 rounded-lg text-[10px] font-mono font-bold flex items-center justify-center shrink-0 border ${
-                              isFilled
-                                ? "bg-red-50 text-red-700 border-red-200"
-                                : "bg-slate-100 text-slate-400 border-slate-200"
-                            }`}
-                          >
-                            {slot.slotNumber}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wide leading-none mb-1">
-                              {formatRole()}
-                            </span>
+                      return (
+                        <div
+                          key={slot.slotNumber}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+                            isFilled
+                              ? "bg-white border-slate-200 shadow-2xs"
+                              : "bg-slate-50/50 border-dashed border-slate-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 pr-2 flex-1">
                             <span
-                              className={`text-xs sm:text-sm truncate block leading-snug ${
+                              className={`w-6 h-6 rounded-lg text-[10px] font-mono font-bold flex items-center justify-center shrink-0 border ${
                                 isFilled
-                                  ? "font-bold text-slate-900"
-                                  : "text-slate-400 italic font-medium"
+                                  ? "bg-red-50 text-red-700 border-red-200"
+                                  : "bg-slate-100 text-slate-400 border-slate-200"
                               }`}
                             >
-                              {slot.playerName}
+                              {slot.slotNumber}
                             </span>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wide leading-none mb-1">
+                                {formatRole()}
+                              </span>
+                              <span
+                                className={`text-xs sm:text-sm truncate block leading-snug ${
+                                  isFilled
+                                    ? "font-bold text-slate-900"
+                                    : "text-slate-400 italic font-medium"
+                                }`}
+                              >
+                                {slot.playerName}
+                              </span>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Status Icon Saja (Tanpa Tulisan 'Siap Tanding') */}
-                        {isFilled ? (
-                          <div className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          </div>
-                        ) : (
-                          <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-mono font-bold shrink-0 border border-slate-200">
-                            TBD
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {/* Status Icon Saja (Tanpa Tulisan 'Siap Tanding') */}
+                          {isFilled ? (
+                            <div className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-mono font-bold shrink-0 border border-slate-200">
+                              TBD
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>

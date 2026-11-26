@@ -21,18 +21,32 @@ export interface CategoryLockStatus {
 export interface BidangCategoryStatus {
   isRegistered: boolean;
   isFullyRegistered: boolean;
+  isHost?: boolean;
   gandaTim1: CategoryLockStatus;
   gandaTim2: CategoryLockStatus;
+  extraGandaTeams?: (CategoryLockStatus & { teamNumber: number })[];
   singlePutra: {
     isRegistered: boolean;
     player?: string;
     phone?: string;
   };
+  extraSinglePutra?: {
+    isRegistered: boolean;
+    player?: string;
+    phone?: string;
+    playerNumber: number;
+  }[];
   singlePutri: {
     isRegistered: boolean;
     player?: string;
     phone?: string;
   };
+  extraSinglePutri?: {
+    isRegistered: boolean;
+    player?: string;
+    phone?: string;
+    playerNumber: number;
+  }[];
   registration?: Registration | null;
 }
 
@@ -67,7 +81,61 @@ export async function checkBidangRegistration(bidangName: string): Promise<Bidan
         let singlePutra = { isRegistered: false, player: "", phone: "" };
         let singlePutri = { isRegistered: false, player: "", phone: "" };
 
+        const isHost = cleanName === "Teknologi Informasi";
+        let extraGandaTeams: (CategoryLockStatus & { teamNumber: number })[] = [];
+        let extraSinglePutra: { isRegistered: boolean; player?: string; phone?: string; playerNumber: number }[] = [];
+        let extraSinglePutri: { isRegistered: boolean; player?: string; phone?: string; playerNumber: number }[] = [];
+
         for (const row of data) {
+          // Check notes for extra teams/players (Host privilege)
+          if (row.notes) {
+            try {
+              if (row.notes.includes("extraGandaTeams") || row.notes.startsWith("{")) {
+                const parsed = JSON.parse(row.notes);
+                if (Array.isArray(parsed.extraGandaTeams)) {
+                  parsed.extraGandaTeams.forEach((eg: any) => {
+                    if (eg.player1 && eg.player2 && !extraGandaTeams.some((x) => x.teamNumber === eg.teamNumber)) {
+                      extraGandaTeams.push({
+                        isRegistered: true,
+                        player1: eg.player1,
+                        phone1: eg.phone1,
+                        player2: eg.player2,
+                        phone2: eg.phone2,
+                        teamNumber: eg.teamNumber || extraGandaTeams.length + 3,
+                      });
+                    }
+                  });
+                }
+                if (Array.isArray(parsed.extraSinglePutra)) {
+                  parsed.extraSinglePutra.forEach((esp: any) => {
+                    if (esp.player && !extraSinglePutra.some((x) => x.playerNumber === esp.playerNumber)) {
+                      extraSinglePutra.push({
+                        isRegistered: true,
+                        player: esp.player,
+                        phone: esp.phone,
+                        playerNumber: esp.playerNumber || extraSinglePutra.length + 2,
+                      });
+                    }
+                  });
+                }
+                if (Array.isArray(parsed.extraSinglePutri)) {
+                  parsed.extraSinglePutri.forEach((espi: any) => {
+                    if (espi.player && !extraSinglePutri.some((x) => x.playerNumber === espi.playerNumber)) {
+                      extraSinglePutri.push({
+                        isRegistered: true,
+                        player: espi.player,
+                        phone: espi.phone,
+                        playerNumber: espi.playerNumber || extraSinglePutri.length + 2,
+                      });
+                    }
+                  });
+                }
+              }
+            } catch {
+              // Not JSON notes
+            }
+          }
+
           // Ganda Tim 1
           if (
             !gandaTim1.isRegistered &&
@@ -126,9 +194,11 @@ export async function checkBidangRegistration(bidangName: string): Promise<Bidan
         }
 
         const isAnyRegistered =
-          gandaTim1.isRegistered || singlePutra.isRegistered || singlePutri.isRegistered;
-        const isFullyRegistered =
-          gandaTim1.isRegistered && singlePutra.isRegistered && singlePutri.isRegistered;
+          gandaTim1.isRegistered || singlePutra.isRegistered || singlePutri.isRegistered || extraGandaTeams.length > 0;
+        // Host (Teknologi Informasi) NEVER completely locks, can always add more
+        const isFullyRegistered = isHost
+          ? false
+          : gandaTim1.isRegistered && singlePutra.isRegistered && singlePutri.isRegistered;
 
         const mergedReg: Registration = {
           ...data[0],
@@ -149,10 +219,14 @@ export async function checkBidangRegistration(bidangName: string): Promise<Bidan
         return {
           isRegistered: isAnyRegistered,
           isFullyRegistered,
+          isHost,
           gandaTim1,
           gandaTim2,
+          extraGandaTeams,
           singlePutra,
+          extraSinglePutra,
           singlePutri,
+          extraSinglePutri,
           registration: mergedReg,
         };
       }
@@ -215,6 +289,36 @@ export async function submitBidangFullRegistration(
     if (payload.singlePutriPlayer && spiPhone) {
       const v = validateIndonesianPhone(spiPhone);
       if (!v.isValid) return { success: false, message: `Single Putri: ${v.message}` };
+    }
+
+    // Validate extra teams/players (Host Privilege)
+    if (payload.extraGandaTeams && payload.extraGandaTeams.length > 0) {
+      for (const t of payload.extraGandaTeams) {
+        if (t.player1 && t.phone1) {
+          const v = validateIndonesianPhone(cleanPhoneNumber(t.phone1));
+          if (!v.isValid) return { success: false, message: `Pemain 1 Ganda Tim ${t.teamNumber}: ${v.message}` };
+        }
+        if (t.player2 && t.phone2) {
+          const v = validateIndonesianPhone(cleanPhoneNumber(t.phone2));
+          if (!v.isValid) return { success: false, message: `Pemain 2 Ganda Tim ${t.teamNumber}: ${v.message}` };
+        }
+      }
+    }
+    if (payload.extraSinglePutra && payload.extraSinglePutra.length > 0) {
+      for (const sp of payload.extraSinglePutra) {
+        if (sp.player && sp.phone) {
+          const v = validateIndonesianPhone(cleanPhoneNumber(sp.phone));
+          if (!v.isValid) return { success: false, message: `Single Putra ${sp.playerNumber}: ${v.message}` };
+        }
+      }
+    }
+    if (payload.extraSinglePutri && payload.extraSinglePutri.length > 0) {
+      for (const spi of payload.extraSinglePutri) {
+        if (spi.player && spi.phone) {
+          const v = validateIndonesianPhone(cleanPhoneNumber(spi.phone));
+          if (!v.isValid) return { success: false, message: `Single Putri ${spi.playerNumber}: ${v.message}` };
+        }
+      }
     }
 
     const primaryPhone =
@@ -303,6 +407,69 @@ export async function submitBidangFullRegistration(
           cleanPhoneNumber(existing.phone_number) ||
           "-";
 
+        let mergedExtraGanda: any[] = [];
+        let mergedExtraSinglePa: any[] = [];
+        let mergedExtraSinglePi: any[] = [];
+
+        if (existing.notes) {
+          try {
+            if (existing.notes.includes("extraGandaTeams") || existing.notes.startsWith("{")) {
+              const oldParsed = JSON.parse(existing.notes);
+              if (Array.isArray(oldParsed.extraGandaTeams)) {
+                mergedExtraGanda = [...oldParsed.extraGandaTeams];
+              }
+              if (Array.isArray(oldParsed.extraSinglePutra)) {
+                mergedExtraSinglePa = [...oldParsed.extraSinglePutra];
+              }
+              if (Array.isArray(oldParsed.extraSinglePutri)) {
+                mergedExtraSinglePi = [...oldParsed.extraSinglePutri];
+              }
+            }
+          } catch {
+            // ignore non-json notes
+          }
+        }
+
+        if (payload.extraGandaTeams && payload.extraGandaTeams.length > 0) {
+          payload.extraGandaTeams.forEach((newTeam) => {
+            const idx = mergedExtraGanda.findIndex((x) => x.teamNumber === newTeam.teamNumber);
+            if (idx >= 0) {
+              mergedExtraGanda[idx] = newTeam;
+            } else {
+              mergedExtraGanda.push(newTeam);
+            }
+          });
+        }
+
+        if (payload.extraSinglePutra && payload.extraSinglePutra.length > 0) {
+          payload.extraSinglePutra.forEach((newSp) => {
+            const idx = mergedExtraSinglePa.findIndex((x) => x.playerNumber === newSp.playerNumber);
+            if (idx >= 0) {
+              mergedExtraSinglePa[idx] = newSp;
+            } else {
+              mergedExtraSinglePa.push(newSp);
+            }
+          });
+        }
+
+        if (payload.extraSinglePutri && payload.extraSinglePutri.length > 0) {
+          payload.extraSinglePutri.forEach((newSpi) => {
+            const idx = mergedExtraSinglePi.findIndex((x) => x.playerNumber === newSpi.playerNumber);
+            if (idx >= 0) {
+              mergedExtraSinglePi[idx] = newSpi;
+            } else {
+              mergedExtraSinglePi.push(newSpi);
+            }
+          });
+        }
+
+        const notesPayload = JSON.stringify({
+          extraGandaTeams: mergedExtraGanda,
+          extraSinglePutra: mergedExtraSinglePa,
+          extraSinglePutri: mergedExtraSinglePi,
+          userNote: payload.notes || "",
+        });
+
         const updateFields: Record<string, any> = {
           full_name: mergedAthleteDisplay,
           phone_number: mergedPhone,
@@ -318,11 +485,7 @@ export async function submitBidangFullRegistration(
           single_putra_phone: updatedSinglePutraPhone || null,
           single_putri_player: updatedSinglePutri || null,
           single_putri_phone: updatedSinglePutriPhone || null,
-          notes: payload.notes
-            ? existing.notes
-              ? `${existing.notes} | ${payload.notes}`
-              : payload.notes
-            : existing.notes || "",
+          notes: notesPayload,
         };
 
         const { data: updatedData, error: updateError } = await supabase
@@ -369,7 +532,12 @@ export async function submitBidangFullRegistration(
             single_putra_phone: spPhone,
             single_putri_player: payload.singlePutriPlayer,
             single_putri_phone: spiPhone,
-            notes: payload.notes || "",
+            notes: JSON.stringify({
+              extraGandaTeams: payload.extraGandaTeams || [],
+              extraSinglePutra: payload.extraSinglePutra || [],
+              extraSinglePutri: payload.extraSinglePutri || [],
+              userNote: payload.notes || "",
+            }),
           },
         ])
         .select()
