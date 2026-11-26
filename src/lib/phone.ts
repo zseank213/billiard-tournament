@@ -12,6 +12,8 @@ export function cleanPhoneNumber(phone?: string | null): string {
     cleaned = "0" + cleaned.slice(3);
   } else if (cleaned.startsWith("62") && cleaned.length >= 2) {
     cleaned = "0" + cleaned.slice(2);
+  } else if (cleaned.startsWith("8") && cleaned.length >= 9) {
+    cleaned = "0" + cleaned;
   }
 
   // Keep only digits

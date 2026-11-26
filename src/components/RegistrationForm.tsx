@@ -78,6 +78,26 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [registeredData, setRegisteredData] = useState<Registration | null>(null);
 
+  const topErrorRef = React.useRef<HTMLDivElement>(null);
+  const bottomErrorRef = React.useRef<HTMLDivElement>(null);
+
+  const showError = (msg: string, focusId?: string) => {
+    setErrorMessage(msg);
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        if (focusId) {
+          const el = document.getElementById(focusId);
+          if (el) {
+            el.focus();
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
+        }
+        bottomErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+    }
+  };
+
   // Helper to normalize phone numbers as user inputs or pastes:
   // - Replaces +62 or 62 with 0
   // - Removes hyphens '-'
@@ -177,12 +197,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     setErrorMessage("");
 
     if (!selectedBidang.trim()) {
-      setErrorMessage("Silakan pilih asal bidang dari daftar.");
+      showError("Silakan pilih asal bidang dari daftar terlebih dahulu.", "bidangSelect");
       return;
     }
 
     if (isAllLocked) {
-      setErrorMessage("Seluruh kategori untuk bidang ini sudah terdaftar resmi. Hubungi panitia jika membutuhkan revisi.");
+      showError("Seluruh kategori untuk bidang ini sudah terdaftar resmi. Hubungi panitia jika membutuhkan revisi.");
       return;
     }
 
@@ -200,28 +220,28 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
       if (hasGandaTim1P1) {
         if (!cleanG1P1Phone) {
-          setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 1) harus diisi.");
+          showError("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 1) harus diisi.", "gandaTim1P1Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG1P1Phone);
         if (!v.isValid) {
-          setErrorMessage(`Pemain 1 Ganda Tim 1: ${v.message}`);
+          showError(`Pemain 1 Ganda Tim 1: ${v.message}`, "gandaTim1P1Phone");
           return;
         }
       }
       if (hasGandaTim1P2) {
         if (!cleanG1P2Phone) {
-          setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 1) harus diisi.");
+          showError("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 1) harus diisi.", "gandaTim1P2Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG1P2Phone);
         if (!v.isValid) {
-          setErrorMessage(`Pemain 2 Ganda Tim 1: ${v.message}`);
+          showError(`Pemain 2 Ganda Tim 1: ${v.message}`, "gandaTim1P2Phone");
           return;
         }
       }
       if ((hasGandaTim1P1 && !hasGandaTim1P2) || (!hasGandaTim1P1 && hasGandaTim1P2)) {
-        setErrorMessage("Untuk Kategori Ganda Putra Tim 1, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau kosongkan jika tidak mendaftar.");
+        showError("Untuk Kategori Ganda Putra Tim 1, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau kosongkan jika tidak mendaftar.", !hasGandaTim1P1 ? "gandaTim1P1" : "gandaTim1P2");
         return;
       }
     }
@@ -233,28 +253,28 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
       if (hasGandaTim2P1) {
         if (!cleanG2P1Phone) {
-          setErrorMessage("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 2) harus diisi.");
+          showError("Nomor WhatsApp Pemain 1 (Ganda Putra Tim 2) harus diisi.", "gandaTim2P1Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG2P1Phone);
         if (!v.isValid) {
-          setErrorMessage(`Pemain 1 Ganda Tim 2: ${v.message}`);
+          showError(`Pemain 1 Ganda Tim 2: ${v.message}`, "gandaTim2P1Phone");
           return;
         }
       }
       if (hasGandaTim2P2) {
         if (!cleanG2P2Phone) {
-          setErrorMessage("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 2) harus diisi.");
+          showError("Nomor WhatsApp Pemain 2 (Ganda Putra Tim 2) harus diisi.", "gandaTim2P2Phone");
           return;
         }
         const v = validateIndonesianPhone(cleanG2P2Phone);
         if (!v.isValid) {
-          setErrorMessage(`Pemain 2 Ganda Tim 2: ${v.message}`);
+          showError(`Pemain 2 Ganda Tim 2: ${v.message}`, "gandaTim2P2Phone");
           return;
         }
       }
       if ((hasGandaTim2P1 && !hasGandaTim2P2) || (!hasGandaTim2P1 && hasGandaTim2P2)) {
-        setErrorMessage("Untuk Kategori Ganda Putra Tim 2, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau hapus Tim 2 jika tidak mendaftar.");
+        showError("Untuk Kategori Ganda Putra Tim 2, harap lengkapi kedua pemain (Pemain 1 & Pemain 2) atau hapus Tim 2 jika tidak mendaftar.", !hasGandaTim2P1 ? "gandaTim2P1" : "gandaTim2P2");
         return;
       }
     }
@@ -262,12 +282,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     // 3. Validasi Single Putra (hanya jika belum terkunci)
     if (!isSinglePaLocked && singlePutra.trim()) {
       if (!cleanSinglePaPhone) {
-        setErrorMessage("Nomor WhatsApp Atlet Single Putra harus diisi.");
+        showError("Nomor WhatsApp Atlet Single Putra harus diisi.", "singlePutraPhone");
         return;
       }
       const v = validateIndonesianPhone(cleanSinglePaPhone);
       if (!v.isValid) {
-        setErrorMessage(`Single Putra: ${v.message}`);
+        showError(`Single Putra: ${v.message}`, "singlePutraPhone");
         return;
       }
     }
@@ -275,12 +295,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     // 4. Validasi Single Putri (hanya jika belum terkunci)
     if (!isSinglePiLocked && singlePutri.trim()) {
       if (!cleanSinglePiPhone) {
-        setErrorMessage("Nomor WhatsApp Atlet Single Putri harus diisi.");
+        showError("Nomor WhatsApp Atlet Single Putri harus diisi.", "singlePutriPhone");
         return;
       }
       const v = validateIndonesianPhone(cleanSinglePiPhone);
       if (!v.isValid) {
-        setErrorMessage(`Single Putri: ${v.message}`);
+        showError(`Single Putri: ${v.message}`, "singlePutriPhone");
         return;
       }
     }
@@ -292,13 +312,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const hasNewSinglePi = !isSinglePiLocked && !!singlePutri.trim();
 
     if (!hasNewGanda1 && !hasNewGanda2 && !hasNewSinglePa && !hasNewSinglePi) {
-      setErrorMessage("Silakan isi data minimal 1 kategori atlet yang belum didaftarkan.");
+      showError("Silakan isi data minimal 1 kategori atlet yang belum didaftarkan.");
       return;
     }
 
     // 6. Checkbox persetujuan HARUS dicentang
     if (!agreedToRules) {
-      setErrorMessage("Harap centang kotak persetujuan ketentuan partisipasi turnamen.");
+      showError("Harap centang kotak persetujuan ketentuan partisipasi turnamen.", "rules");
       return;
     }
 
@@ -326,14 +346,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       const res = await submitBidangFullRegistration(payload);
 
       if (!res.success || !res.data) {
-        setErrorMessage(res.message || "Gagal mengirim formulir pendaftaran.");
+        showError(res.message || "Gagal mengirim formulir pendaftaran.");
       } else {
         setRegisteredData(res.data);
         onSuccess?.(res.data);
       }
     } catch (err: unknown) {
       const error = err as Error;
-      setErrorMessage(error?.message || "Terjadi kendala saat mengirim data.");
+      showError(error?.message || "Terjadi kendala saat mengirim data.");
     } finally {
       setIsSubmitting(false);
     }
@@ -693,7 +713,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
         {/* Error Alert if any */}
         {errorMessage && (
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm flex items-center gap-3">
+          <div
+            ref={topErrorRef}
+            className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm flex items-center gap-3"
+          >
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
             <span className="font-semibold">{errorMessage}</span>
           </div>
@@ -722,6 +745,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               ) : (
                 <select
+                  id="bidangSelect"
                   value={selectedBidang}
                   onChange={(e) => handleBidangChange(e.target.value)}
                   className="w-full px-4 py-3 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 font-bold text-slate-900 transition-colors"
@@ -894,6 +918,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       Nama Pemain 1
                     </label>
                     <input
+                      id="gandaTim1P1"
                       type="text"
                       placeholder="Contoh: Rudolf Sidauruk"
                       value={gandaTim1P1}
@@ -907,6 +932,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       Nomor WhatsApp Pemain 1
                     </label>
                     <input
+                      id="gandaTim1P1Phone"
                       type="tel"
                       inputMode="tel"
                       maxLength={14}
@@ -915,8 +941,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim1P1Phone)}
                       onBlur={() => setGandaTim1P1Phone(cleanPhoneNumber(gandaTim1P1Phone))}
                       disabled={!selectedBidang || isAllLocked}
-                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                      className={`w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border ${
+                        gandaTim1P1Phone && !validateIndonesianPhone(gandaTim1P1Phone).isValid
+                          ? "border-red-400 bg-red-50/20 text-red-900 focus:border-red-500"
+                          : "border-slate-200 focus:border-red-500 text-slate-900"
+                      } focus:outline-none font-medium disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed`}
                     />
+                    {gandaTim1P1Phone && !validateIndonesianPhone(gandaTim1P1Phone).isValid && (
+                      <p className="text-[11px] text-red-600 font-medium mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{validateIndonesianPhone(gandaTim1P1Phone).message}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -924,6 +960,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       Nama Pemain 2
                     </label>
                     <input
+                      id="gandaTim1P2"
                       type="text"
                       placeholder="Contoh: Eko Prasetyo"
                       value={gandaTim1P2}
@@ -937,6 +974,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       Nomor WhatsApp Pemain 2
                     </label>
                     <input
+                      id="gandaTim1P2Phone"
                       type="tel"
                       inputMode="tel"
                       maxLength={14}
@@ -945,8 +983,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim1P2Phone)}
                       onBlur={() => setGandaTim1P2Phone(cleanPhoneNumber(gandaTim1P2Phone))}
                       disabled={!selectedBidang || isAllLocked}
-                      className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                      className={`w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border ${
+                        gandaTim1P2Phone && !validateIndonesianPhone(gandaTim1P2Phone).isValid
+                          ? "border-red-400 bg-red-50/20 text-red-900 focus:border-red-500"
+                          : "border-slate-200 focus:border-red-500 text-slate-900"
+                      } focus:outline-none font-medium disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed`}
                     />
+                    {gandaTim1P2Phone && !validateIndonesianPhone(gandaTim1P2Phone).isValid && (
+                      <p className="text-[11px] text-red-600 font-medium mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{validateIndonesianPhone(gandaTim1P2Phone).message}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1026,6 +1074,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           Nama Pemain 1 (Tim 2)
                         </label>
                         <input
+                          id="gandaTim2P1"
                           type="text"
                           placeholder="Nama Pemain 1"
                           value={gandaTim2P1}
@@ -1039,6 +1088,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           Nomor WhatsApp Pemain 1 (Tim 2)
                         </label>
                         <input
+                          id="gandaTim2P1Phone"
                           type="tel"
                           inputMode="tel"
                           maxLength={14}
@@ -1047,8 +1097,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim2P1Phone)}
                           onBlur={() => setGandaTim2P1Phone(cleanPhoneNumber(gandaTim2P1Phone))}
                           disabled={!selectedBidang || isAllLocked}
-                          className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                          className={`w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border ${
+                            gandaTim2P1Phone && !validateIndonesianPhone(gandaTim2P1Phone).isValid
+                              ? "border-red-400 bg-red-50/20 text-red-900 focus:border-red-500"
+                              : "border-slate-200 focus:border-red-500 text-slate-900"
+                          } focus:outline-none font-medium disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed`}
                         />
+                        {gandaTim2P1Phone && !validateIndonesianPhone(gandaTim2P1Phone).isValid && (
+                          <p className="text-[11px] text-red-600 font-medium mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{validateIndonesianPhone(gandaTim2P1Phone).message}</span>
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -1056,6 +1116,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           Nama Pemain 2 (Tim 2)
                         </label>
                         <input
+                          id="gandaTim2P2"
                           type="text"
                           placeholder="Nama Pemain 2"
                           value={gandaTim2P2}
@@ -1069,6 +1130,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           Nomor WhatsApp Pemain 2 (Tim 2)
                         </label>
                         <input
+                          id="gandaTim2P2Phone"
                           type="tel"
                           inputMode="tel"
                           maxLength={14}
@@ -1077,8 +1139,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           onChange={(e) => handlePhoneInputChange(e.target.value, setGandaTim2P2Phone)}
                           onBlur={() => setGandaTim2P2Phone(cleanPhoneNumber(gandaTim2P2Phone))}
                           disabled={!selectedBidang || isAllLocked}
-                          className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-red-500 font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                          className={`w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-white border ${
+                            gandaTim2P2Phone && !validateIndonesianPhone(gandaTim2P2Phone).isValid
+                              ? "border-red-400 bg-red-50/20 text-red-900 focus:border-red-500"
+                              : "border-slate-200 focus:border-red-500 text-slate-900"
+                          } focus:outline-none font-medium disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed`}
                         />
+                        {gandaTim2P2Phone && !validateIndonesianPhone(gandaTim2P2Phone).isValid && (
+                          <p className="text-[11px] text-red-600 font-medium mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{validateIndonesianPhone(gandaTim2P2Phone).message}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1137,6 +1209,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Nama Lengkap Atlet Single Putra
                   </label>
                   <input
+                    id="singlePutra"
                     type="text"
                     placeholder="Contoh: Ahmad Fauzi"
                     value={singlePutra}
@@ -1151,6 +1224,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Nomor WhatsApp Atlet
                   </label>
                   <input
+                    id="singlePutraPhone"
                     type="tel"
                     inputMode="tel"
                     maxLength={14}
@@ -1159,8 +1233,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     onChange={(e) => handlePhoneInputChange(e.target.value, setSinglePutraPhone)}
                     onBlur={() => setSinglePutraPhone(cleanPhoneNumber(singlePutraPhone))}
                     disabled={!selectedBidang || isAllLocked}
-                    className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 font-medium text-slate-900 transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                    className={`w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border ${
+                      singlePutraPhone && !validateIndonesianPhone(singlePutraPhone).isValid
+                        ? "border-red-400 bg-red-50/20 text-red-900 focus:border-red-500"
+                        : "border-slate-200 focus:bg-white focus:border-red-500 text-slate-900"
+                    } focus:outline-none font-medium transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed`}
                   />
+                  {singlePutraPhone && !validateIndonesianPhone(singlePutraPhone).isValid && (
+                    <p className="text-[11px] text-red-600 font-medium mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      <span>{validateIndonesianPhone(singlePutraPhone).message}</span>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -1216,6 +1300,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Nama Lengkap Atlet Single Putri
                   </label>
                   <input
+                    id="singlePutri"
                     type="text"
                     placeholder="Contoh: Dewi Lestari"
                     value={singlePutri}
@@ -1230,6 +1315,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Nomor WhatsApp Atlet
                   </label>
                   <input
+                    id="singlePutriPhone"
                     type="tel"
                     inputMode="tel"
                     maxLength={14}
@@ -1238,8 +1324,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     onChange={(e) => handlePhoneInputChange(e.target.value, setSinglePutriPhone)}
                     onBlur={() => setSinglePutriPhone(cleanPhoneNumber(singlePutriPhone))}
                     disabled={!selectedBidang || isAllLocked}
-                    className="w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:border-red-500 font-medium text-slate-900 transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed"
+                    className={`w-full px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-50 border ${
+                      singlePutriPhone && !validateIndonesianPhone(singlePutriPhone).isValid
+                        ? "border-red-400 bg-red-50/20 text-red-900 focus:border-red-500"
+                        : "border-slate-200 focus:bg-white focus:border-red-500 text-slate-900"
+                    } focus:outline-none font-medium transition-colors disabled:bg-slate-100 disabled:text-slate-600 disabled:cursor-not-allowed`}
                   />
+                  {singlePutriPhone && !validateIndonesianPhone(singlePutriPhone).isValid && (
+                    <p className="text-[11px] text-red-600 font-medium mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      <span>{validateIndonesianPhone(singlePutriPhone).message}</span>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -1261,6 +1357,20 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 Kami menyatakan bahwa data pemain yang didaftarkan adalah perwakilan resmi bidang kami di <strong>Ganesha Operation</strong>, bersedia hadir tepat waktu pada Pertemuan Teknis (02 Desember 2026) dan bertanding dengan menjunjung tinggi <strong>sportivitas</strong>. <span className="text-red-600 font-bold">*</span>
               </label>
             </div>
+
+            {/* Error Alert above submit button if any */}
+            {errorMessage && (
+              <div
+                ref={bottomErrorRef}
+                className="p-4 rounded-2xl bg-red-50 border-2 border-red-300 text-red-800 text-xs sm:text-sm flex items-start gap-3 shadow-xs animate-shake"
+              >
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-black text-red-900">Perhatian / Formulir Belum Sesuai:</p>
+                  <p className="font-semibold text-red-700 mt-0.5">{errorMessage}</p>
+                </div>
+              </div>
+            )}
 
             {/* Submit / Lock Button */}
             {isAllLocked ? (
