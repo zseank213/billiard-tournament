@@ -359,7 +359,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  // SUCCESS SCREEN: Redesigned Digital Athlete Tournament Pass (No Registration Code, Clear Athlete WA Details)
+  // SUCCESS SCREEN: Refined Luxury Digital Athlete Tournament Pass (Simple, Elegant, Light Theme, High-Value)
   if (registeredData) {
     const hasGanda1 = !!(registeredData.ganda_tim1_player1 && registeredData.ganda_tim1_player2);
     const hasGanda2 = !!(registeredData.ganda_tim2_player1 && registeredData.ganda_tim2_player2);
@@ -367,315 +367,315 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const hasSinglePi = !!registeredData.single_putri_player;
 
     return (
-      <div className="max-w-2xl mx-auto py-4 px-2 sm:px-0">
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/5 text-center">
-          {/* Header Icon & Status */}
-          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-xs">
-            <CheckCircle2 className="w-8 h-8" />
+      <div className="max-w-xl mx-auto py-6 px-3 sm:px-0">
+        {/* Subtle Status Header */}
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center mx-auto mb-3 text-emerald-600 shadow-sm shadow-emerald-500/10">
+            <CheckCircle2 className="w-6 h-6 stroke-[2.5]" />
           </div>
 
-          <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block">
-            Pendaftaran Berhasil Diterima
+          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
+            Pendaftaran Diterima
           </span>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 tracking-tight">
-            Digital Athlete Tournament Pass
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 tracking-tight">
+            Tiket Delegasi Turnamen
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto">
-            Simpan atau screenshot tiket kartu pass delegasi ini sebagai bukti keikutsertaan resmi turnamen BOLA 8 antar bidang.
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            Simpan atau screenshot kartu pass ini sebagai bukti sah keikutsertaan turnamen bola 8 antar bidang.
           </p>
+        </div>
 
-          {/* BANNER / KARTU WAJIB GABUNG GRUP WHATSAPP PESERTA */}
-          <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/70 border-2 border-emerald-500/40 text-left shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/25">
-                  <MessageCircle className="w-5 h-5 fill-white" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-md">
-                      Wajib untuk Peserta
-                    </span>
-                    <span className="text-xs font-bold text-emerald-900">
-                      Grup WhatsApp Resmi Peserta
-                    </span>
-                  </div>
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 mt-1">
-                    Silakan Gabung ke WhatsApp Group Peserta
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                    Semua peserta &amp; perwakilan bidang diharapkan bergabung untuk koordinasi jadwal tanding, pengundian bagan, dan pengumuman Technical Meeting.
-                  </p>
-                </div>
+        {/* UNIFIED LUXURY PASS CARD */}
+        <div className="rounded-3xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/[0.04] overflow-hidden text-left">
+          {/* Top Championship Hairline Accent */}
+          <div className="h-1.5 w-full bg-gradient-to-r from-red-600 via-rose-500 to-amber-500" />
+
+          {/* Card Brand Header */}
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center font-black text-xs text-red-600 shadow-2xs">
+                GO
               </div>
+              <div>
+                <h4 className="text-sm font-black text-slate-900 tracking-wide">
+                  TI BILLIARD CUP 2026
+                </h4>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  Turnamen Bola 8 Antar Bidang
+                </p>
+              </div>
+            </div>
 
-              <a
-                href={TOURNAMENT_CONFIG.whatsapp_group_link || "https://chat.whatsapp.com/GTBsTJSt1mw4AaT1DiPUzf?mode=gi_t"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98] shrink-0 text-center"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Gabung Grup WhatsApp</span>
-                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-              </a>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-black uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Resmi</span>
+            </span>
+          </div>
+
+          {/* Asal Bidang & Venue Section */}
+          <div className="p-5 sm:p-6 bg-slate-50/50 border-b border-slate-100 space-y-3">
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                Asal Bidang Kontingen
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5 tracking-tight">
+                {registeredData.bidang_name || registeredData.club_name}
+              </h3>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs font-semibold text-slate-600">
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>{TOURNAMENT_CONFIG.venue}</span>
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>{TOURNAMENT_CONFIG.date_range}</span>
+              </span>
             </div>
           </div>
 
-          {/* PASS CARD PREVIEW */}
-          <div className="mt-7 rounded-2xl bg-white border border-slate-200/90 text-left overflow-hidden shadow-xs">
-            {/* Card Top Brand Ribbon (Light Championship Red Gradient) */}
-            <div className="px-5 py-4 bg-gradient-to-r from-red-600 via-red-600 to-amber-600 text-white flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/20 text-white font-black text-xs flex items-center justify-center shadow-xs">
-                  TI
-                </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-black tracking-wide text-white">TI BILLIARD CUP 2026</h4>
-                  <span className="text-[10px] text-red-100 font-bold uppercase tracking-wider block">
-                    TURNAMEN BOLA 8 ANTAR BIDANG
-                  </span>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-white/20 text-white border border-white/30 text-[10px] font-black uppercase tracking-wide flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-white" />
-                Terkonfirmasi Resmi
+          {/* Roster of Registered Athletes */}
+          <div className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-1">
+              <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
+                Daftar Atlet Terdaftar
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Ganesha Operation
               </span>
             </div>
 
-            {/* Bidang Info Bar */}
-            <div className="px-5 py-4 bg-white border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                  Asal Bidang Ganesha Operation
-                </span>
-                <p className="font-black text-slate-900 text-base sm:text-lg mt-0.5">
-                  {registeredData.bidang_name || registeredData.club_name}
-                </p>
-              </div>
-              <div className="text-left sm:text-right">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center sm:justify-end gap-1">
-                  <MapPin className="w-3 h-3 text-red-600" />
-                  Venue &amp; Waktu
-                </span>
-                <p className="text-xs font-bold text-slate-700 mt-0.5">
-                  {TOURNAMENT_CONFIG.venue} • {TOURNAMENT_CONFIG.date_range}
-                </p>
-              </div>
-            </div>
-
-            {/* DETAIL ATLET & KONTAK WHATSAPP PER KATEGORI */}
-            <div className="p-5 space-y-3.5">
-              <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-                <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider">
-                  Rincian Atlet Delegasi &amp; Kontak WhatsApp
-                </span>
-                <span className="text-[10px] font-bold text-slate-400">
-                  Perwakilan Resmi
-                </span>
-              </div>
-
-              {/* 1. Ganda Putra Tim 1 Card */}
+            <div className="space-y-3">
+              {/* 1. Ganda Putra Tim 1 */}
               {hasGanda1 && (
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black text-red-700 uppercase tracking-wider bg-red-50 px-2 py-0.5 rounded-md border border-red-200 flex items-center gap-1">
-                      <Users2 className="w-3 h-3" />
+                <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-black text-red-700 bg-red-50 border border-red-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
+                      <Users2 className="w-3 h-3 text-red-600" />
                       Ganda Putra (Tim 1)
                     </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                    <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Siap Tanding
+                    </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 1</span>
-                      <p className="font-black text-slate-900 text-xs mt-0.5">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pemain 1</span>
+                      <p className="text-sm font-black text-slate-900 mt-0.5 truncate">
                         {registeredData.ganda_tim1_player1}
                       </p>
                       {registeredData.ganda_tim1_player1_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
+                        <a
+                          href={`https://wa.me/${registeredData.ganda_tim1_player1_phone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 font-mono"
+                        >
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span className="break-all font-mono">{registeredData.ganda_tim1_player1_phone}</span>
-                        </p>
+                          <span className="break-all">{registeredData.ganda_tim1_player1_phone}</span>
+                        </a>
                       )}
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 2</span>
-                      <p className="font-black text-slate-900 text-xs mt-0.5">
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pemain 2</span>
+                      <p className="text-sm font-black text-slate-900 mt-0.5 truncate">
                         {registeredData.ganda_tim1_player2}
                       </p>
                       {registeredData.ganda_tim1_player2_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
+                        <a
+                          href={`https://wa.me/${registeredData.ganda_tim1_player2_phone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 font-mono"
+                        >
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span className="break-all font-mono">{registeredData.ganda_tim1_player2_phone}</span>
-                        </p>
+                          <span className="break-all">{registeredData.ganda_tim1_player2_phone}</span>
+                        </a>
                       )}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* 2. Ganda Putra Tim 2 Card (jika ada) */}
+              {/* 2. Ganda Putra Tim 2 (jika ada) */}
               {hasGanda2 && (
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black text-amber-700 uppercase tracking-wider bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 flex items-center gap-1">
-                      <Users2 className="w-3 h-3" />
+                <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
+                      <Users2 className="w-3 h-3 text-amber-600" />
                       Ganda Putra (Tim 2)
                     </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
+                    <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Siap Tanding
+                    </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 1</span>
-                      <p className="font-black text-slate-900 text-xs mt-0.5">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pemain 1</span>
+                      <p className="text-sm font-black text-slate-900 mt-0.5 truncate">
                         {registeredData.ganda_tim2_player1}
                       </p>
                       {registeredData.ganda_tim2_player1_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
+                        <a
+                          href={`https://wa.me/${registeredData.ganda_tim2_player1_phone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 font-mono"
+                        >
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span className="break-all font-mono">{registeredData.ganda_tim2_player1_phone}</span>
-                        </p>
+                          <span className="break-all">{registeredData.ganda_tim2_player1_phone}</span>
+                        </a>
                       )}
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Pemain 2</span>
-                      <p className="font-black text-slate-900 text-xs mt-0.5">
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pemain 2</span>
+                      <p className="text-sm font-black text-slate-900 mt-0.5 truncate">
                         {registeredData.ganda_tim2_player2}
                       </p>
                       {registeredData.ganda_tim2_player2_phone && (
-                        <p className="text-slate-600 font-medium text-[11px] flex items-center gap-1 mt-1 min-w-0 max-w-full overflow-hidden">
+                        <a
+                          href={`https://wa.me/${registeredData.ganda_tim2_player2_phone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 font-mono"
+                        >
                           <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span className="break-all font-mono">{registeredData.ganda_tim2_player2_phone}</span>
-                        </p>
+                          <span className="break-all">{registeredData.ganda_tim2_player2_phone}</span>
+                        </a>
                       )}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* 3. Single Putra Card */}
+              {/* 3. Single Putra */}
               {hasSinglePa && (
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black text-blue-700 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1">
-                      <User className="w-3 h-3" />
+                <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-black text-blue-700 bg-blue-50 border border-blue-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider inline-flex items-center gap-1.5">
+                      <User className="w-3 h-3 text-blue-600" />
                       Single Putra
                     </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1 min-w-0">
-                    <p className="font-black text-slate-900 text-sm truncate">
+                    <p className="text-sm font-black text-slate-900 mt-1.5">
                       {registeredData.single_putra_player}
                     </p>
-                    {registeredData.single_putra_phone && (
-                      <a
-                        href={`https://wa.me/${registeredData.single_putra_phone.replace(/\D/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors min-w-0 max-w-full overflow-hidden"
-                      >
-                        <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span className="break-all font-mono">{registeredData.single_putra_phone}</span>
-                      </a>
-                    )}
                   </div>
+                  {registeredData.single_putra_phone && (
+                    <a
+                      href={`https://wa.me/${registeredData.single_putra_phone.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-emerald-50 text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors font-mono self-start sm:self-center"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{registeredData.single_putra_phone}</span>
+                    </a>
+                  )}
                 </div>
               )}
 
-              {/* 4. Single Putri Card */}
+              {/* 4. Single Putri */}
               {hasSinglePi && (
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black text-pink-700 uppercase tracking-wider bg-pink-50 px-2 py-0.5 rounded-md border border-pink-200 flex items-center gap-1">
-                      <User className="w-3 h-3" />
+                <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-black text-pink-700 bg-pink-50 border border-pink-200/70 px-2.5 py-0.5 rounded-md uppercase tracking-wider inline-flex items-center gap-1.5">
+                      <User className="w-3 h-3 text-pink-600" />
                       Single Putri
                     </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Terdaftar</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1 min-w-0">
-                    <p className="font-black text-slate-900 text-sm truncate">
+                    <p className="text-sm font-black text-slate-900 mt-1.5">
                       {registeredData.single_putri_player}
                     </p>
-                    {registeredData.single_putri_phone && (
-                      <a
-                        href={`https://wa.me/${registeredData.single_putri_phone.replace(/\D/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-700 hover:text-emerald-600 flex items-center gap-1.5 transition-colors min-w-0 max-w-full overflow-hidden"
-                      >
-                        <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span className="break-all font-mono">{registeredData.single_putri_phone}</span>
-                      </a>
-                    )}
                   </div>
+                  {registeredData.single_putri_phone && (
+                    <a
+                      href={`https://wa.me/${registeredData.single_putri_phone.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-emerald-50 text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors font-mono self-start sm:self-center"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{registeredData.single_putri_phone}</span>
+                    </a>
+                  )}
                 </div>
               )}
-            </div>
-
-            {/* Card Footer Note */}
-            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200/80 text-[11px] text-slate-600 font-medium text-center space-y-1">
-              <p>Data delegasi bidang ini telah resmi tercatat untuk pengundian bagan &amp; jadwal pertandingan.</p>
-              <p className="text-emerald-700 font-bold">
-                Harap pastikan seluruh atlet bergabung ke WhatsApp Group turnamen untuk pengumuman jadwal resmi.
-              </p>
             </div>
           </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5">
-            {/* BUTTON 1: Gabung Grup WhatsApp */}
+          {/* Integrated WhatsApp Group Action Banner (Seamless inside pass) */}
+          <div className="p-5 bg-gradient-to-r from-emerald-50/90 via-teal-50/50 to-emerald-50/90 border-t border-emerald-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-emerald-600/30">
+                <MessageCircle className="w-5 h-5 fill-white" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-black text-slate-900">
+                  Wajib Gabung WhatsApp Group Peserta
+                </h4>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Untuk koordinasi jadwal tanding, drawing bagan, dan TM.
+                </p>
+              </div>
+            </div>
+
             <a
               href={TOURNAMENT_CONFIG.whatsapp_group_link || "https://chat.whatsapp.com/GTBsTJSt1mw4AaT1DiPUzf?mode=gi_t"}
               target="_blank"
               rel="noopener noreferrer"
-              className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/25 text-center transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition-all text-center shrink-0"
             >
-              <MessageCircle className="w-4 h-4 fill-white" />
-              <span>Grup WhatsApp Peserta</span>
+              <span>Gabung Grup WA</span>
               <ExternalLink className="w-3.5 h-3.5 opacity-80" />
             </a>
-
-            {/* BUTTON 2: Partisipasi Langsung */}
-            <Link
-              href="/participants"
-              className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-championship-red flex items-center justify-center gap-2 shadow-sm shadow-red-500/20 text-center"
-            >
-              <Users className="w-4 h-4" />
-              <span>Lihat Peserta</span>
-            </Link>
-
-            {/* BUTTON 3: Kembali ke pendaftaran dengan data kosong semua */}
-            <button
-              onClick={handleReturnToEmptyForm}
-              className="h-10 sm:h-11 px-5 rounded-xl text-xs sm:text-sm font-bold btn-luxury-pearl flex items-center justify-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4 text-slate-500" />
-              <span>Kembali</span>
-            </button>
           </div>
+        </div>
 
-          {/* Help Contact Link */}
-          <div className="mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500 flex flex-wrap items-center justify-center gap-3">
-            <span>Butuh revisi susunan atlet? Hubungi Panitia:</span>
-            <a
-              href={`https://wa.me/${TOURNAMENT_CONFIG.contact_sean}?text=Halo%20Sean%20(Panitia%20TI%20Billiard%20Cup),%20saya%20dari%20bidang%20${encodeURIComponent(registeredData.bidang_name || registeredData.club_name || "")}%20ingin%20mengajukan%20perubahan/revisi%20data%20atlet`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 underline"
-            >
-              <Phone className="w-3 h-3" /> Sean - TI (0851-8997-0998)
-            </a>
-            <span>atau</span>
-            <a
-              href={`https://wa.me/${TOURNAMENT_CONFIG.contact_novi}?text=Halo%20Novi%20(Panitia%20TI%20Billiard%20Cup),%20saya%20dari%20bidang%20${encodeURIComponent(registeredData.bidang_name || registeredData.club_name || "")}%20ingin%20mengajukan%20perubahan/revisi%20data%20atlet`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-slate-700 hover:text-slate-900 flex items-center gap-1 underline"
-            >
-              <Phone className="w-3 h-3" /> Novi (0856-2405-5869)
-            </a>
-          </div>
+        {/* TWO CLEAN ACTION BUTTONS */}
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <Link
+            href="/participants"
+            className="w-full sm:w-auto min-w-[180px] h-11 px-6 rounded-xl text-xs sm:text-sm font-bold btn-championship-red flex items-center justify-center gap-2 shadow-sm shadow-red-500/20 text-center"
+          >
+            <Users className="w-4 h-4" />
+            <span>Lihat Daftar Peserta</span>
+          </Link>
+
+          <button
+            onClick={handleReturnToEmptyForm}
+            className="w-full sm:w-auto min-w-[140px] h-11 px-5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 flex items-center justify-center gap-2 transition-colors shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4 text-slate-500" />
+            <span>Kembali</span>
+          </button>
+        </div>
+
+        {/* Panitia Contact Footer */}
+        <div className="mt-5 text-center text-[11px] text-slate-400 font-medium">
+          <span>Perlu revisi atlet? Hubungi Panitia: </span>
+          <a
+            href={`https://wa.me/${TOURNAMENT_CONFIG.contact_sean}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-slate-600 hover:text-emerald-600 transition-colors"
+          >
+            Sean (0851-8997-0998)
+          </a>
+          <span> • </span>
+          <a
+            href={`https://wa.me/${TOURNAMENT_CONFIG.contact_novi}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-slate-600 hover:text-emerald-600 transition-colors"
+          >
+            Novi (0856-2405-5869)
+          </a>
         </div>
       </div>
     );
