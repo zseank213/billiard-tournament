@@ -196,9 +196,13 @@ export async function checkBidangRegistration(bidangName: string): Promise<Bidan
         const isAnyRegistered =
           gandaTim1.isRegistered || singlePutra.isRegistered || singlePutri.isRegistered || extraGandaTeams.length > 0;
         // Host (Teknologi Informasi) NEVER completely locks, can always add more
+        // For other bidang, fully registered only when ALL quotas are met (Ganda Tim 1 & Tim 2, Single Putra, and Single Putri)
         const isFullyRegistered = isHost
           ? false
-          : gandaTim1.isRegistered && singlePutra.isRegistered && singlePutri.isRegistered;
+          : gandaTim1.isRegistered &&
+            gandaTim2.isRegistered &&
+            singlePutra.isRegistered &&
+            singlePutri.isRegistered;
 
         const mergedReg: Registration = {
           ...data[0],

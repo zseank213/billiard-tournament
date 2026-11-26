@@ -311,7 +311,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const isGanda2Locked = !!categoryStatus?.gandaTim2?.isRegistered;
   const isSinglePaLocked = !!categoryStatus?.singlePutra?.isRegistered;
   const isSinglePiLocked = !!categoryStatus?.singlePutri?.isRegistered;
-  const isAllLocked = isHost ? false : !!categoryStatus?.isFullyRegistered;
+  const isAllLocked = isHost
+    ? false
+    : isGanda1Locked && isGanda2Locked && isSinglePaLocked && isSinglePiLocked;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
