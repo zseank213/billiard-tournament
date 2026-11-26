@@ -33,6 +33,7 @@ import {
   ShieldCheck,
   MessageCircle,
   ExternalLink,
+  Info,
 } from "lucide-react";
 
 interface RegistrationFormProps {
@@ -87,6 +88,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   // Status states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successNotice, setSuccessNotice] = useState("");
   const [registeredData, setRegisteredData] = useState<Registration | null>(null);
 
   const topErrorRef = React.useRef<HTMLDivElement>(null);
@@ -573,6 +575,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         showError(res.message || "Gagal mengirim formulir pendaftaran.");
       } else {
         setRegisteredData(res.data);
+        if (res.message && res.message.includes("otomatis dialokasikan")) {
+          setSuccessNotice(res.message);
+        } else {
+          setSuccessNotice("");
+        }
         onSuccess?.(res.data);
       }
     } catch (err: unknown) {
@@ -626,6 +633,19 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             Simpan atau screenshot kartu pass ini sebagai bukti sah keikutsertaan turnamen bola 8 antar bidang.
           </p>
         </div>
+
+        {/* Smart Concurrency / Auto-shift Team Allocation Alert */}
+        {successNotice && (
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-50/90 border border-amber-200/90 text-amber-950 text-xs sm:text-sm font-medium flex items-start gap-3 shadow-xs">
+            <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-amber-950 flex items-center gap-1.5">
+                <span>Penyesuaian Nomor Tim Otomatis</span>
+              </p>
+              <p className="leading-relaxed text-amber-900/90">{successNotice}</p>
+            </div>
+          </div>
+        )}
 
         {/* UNIFIED LUXURY PASS CARD */}
         <div className="rounded-3xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/[0.04] overflow-hidden text-left">
