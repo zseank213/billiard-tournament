@@ -4,6 +4,11 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { TOURNAMENT_CONFIG, INVITED_BIDANG_LIST } from "@/lib/mock-data";
 import { getBidangList, BidangRecord } from "@/app/actions/bidang";
+import { getTableOfficials } from "@/app/actions/officials";
+import {
+  TableOfficialRecord,
+  DEFAULT_TABLE_OFFICIALS,
+} from "@/lib/officials";
 import {
   Trophy,
   ShieldCheck,
@@ -30,38 +35,50 @@ import {
   UserCheck,
   Users,
   ShieldAlert,
+  CircleDot,
+  Gamepad2,
 } from "lucide-react";
 
-export const RegulationView: React.FC = () => {
+interface RegulationViewProps {
+  initialOfficials?: TableOfficialRecord[];
+  initialBidang?: BidangRecord[];
+}
+
+export const RegulationView: React.FC<RegulationViewProps> = ({
+  initialOfficials = DEFAULT_TABLE_OFFICIALS,
+  initialBidang,
+}) => {
   const [isMerchModalOpen, setIsMerchModalOpen] = useState(false);
-  const [bidangList, setBidangList] = useState<BidangRecord[]>(() =>
-    INVITED_BIDANG_LIST.map((name, idx) => ({
-      id: idx + 1,
-      code: idx === 0 ? "IT" : name.slice(0, 4).toUpperCase(),
-      name,
-      short_name: idx === 0 ? "IT" : name.slice(0, 4).toUpperCase(),
-      is_host: idx === 0,
-      order_no: idx + 1,
-      status: idx === 0 ? "host" : "invited",
-      quota_ganda_putra: 2,
-      quota_single_putra: 1,
-      quota_single_putri: 1,
-    }))
+  const [bidangList] = useState<BidangRecord[]>(() =>
+    initialBidang && initialBidang.length > 0
+      ? initialBidang
+      : INVITED_BIDANG_LIST.map((name, idx) => ({
+          id: idx + 1,
+          code: idx === 0 ? "IT" : name.slice(0, 4).toUpperCase(),
+          name,
+          short_name: idx === 0 ? "IT" : name.slice(0, 4).toUpperCase(),
+          is_host: idx === 0,
+          order_no: idx + 1,
+          status: idx === 0 ? "host" : "invited",
+          quota_ganda_putra: 2,
+          quota_single_putra: 1,
+          quota_single_putri: 1,
+        }))
   );
-  const [isLoadingBidang, setIsLoadingBidang] = useState(false);
   const [activeSkTab, setActiveSkTab] = useState<
     "all" | "pertandingan" | "games" | "supporter" | "penonton"
   >("all");
+  const [tableOfficials, setTableOfficials] = useState<TableOfficialRecord[]>(initialOfficials);
 
   useEffect(() => {
     let isMounted = true;
-    getBidangList()
+    getTableOfficials()
       .then((res) => {
-        if (isMounted && res.bidang && res.bidang.length > 0) {
-          setBidangList(res.bidang);
+        if (isMounted && res && res.length > 0) {
+          setTableOfficials(res);
         }
       })
-      .catch((err) => console.warn("Using default bidang list:", err));
+      .catch(() => {});
     return () => {
       isMounted = false;
     };
@@ -219,30 +236,21 @@ export const RegulationView: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {isLoadingBidang ? (
-              Array.from({ length: 20 }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="h-7 w-28 sm:w-36 rounded-lg bg-slate-200 animate-pulse border border-slate-200"
-                />
-              ))
-            ) : (
-              bidangList.map((bidang, idx) => (
-                <span
-                  key={bidang.id || idx}
-                  className={`text-xs px-2.5 py-1 rounded-lg border font-semibold ${
-                    bidang.is_host
-                      ? "bg-red-600 text-white border-red-600 font-bold shadow-2xs"
-                      : "bg-slate-50 text-slate-700 border-slate-200"
-                  }`}
-                >
-                  <span className={bidang.is_host ? "text-amber-300 mr-1" : "text-slate-400 mr-1"}>
-                    {bidang.order_no || idx + 1}.
-                  </span>
-                  {bidang.name}
+            {bidangList.map((bidang, idx) => (
+              <span
+                key={bidang.id || idx}
+                className={`text-xs px-2.5 py-1 rounded-lg border font-semibold ${
+                  bidang.is_host
+                    ? "bg-red-600 text-white border-red-600 font-bold shadow-2xs"
+                    : "bg-slate-50 text-slate-700 border-slate-200"
+                }`}
+              >
+                <span className={bidang.is_host ? "text-amber-300 mr-1" : "text-slate-400 mr-1"}>
+                  {bidang.order_no || idx + 1}.
                 </span>
-              ))
-            )}
+                {bidang.name}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -293,7 +301,7 @@ export const RegulationView: React.FC = () => {
                   : "text-slate-600 hover:text-amber-600"
               }`}
             >
-              2. Mini Games
+              2. Mini Games (Meja 6)
             </button>
             <button
               onClick={() => setActiveSkTab("supporter")}
@@ -410,7 +418,7 @@ export const RegulationView: React.FC = () => {
             </div>
           )}
 
-          {/* KARTU 2: MINI GAMES MEJA 5 */}
+          {/* KARTU 2: MINI GAMES MEJA 6 */}
           {(activeSkTab === "all" || activeSkTab === "games") && (
             <div className="p-5 rounded-2xl bg-white border-2 border-amber-200 shadow-sm space-y-4 hover:border-amber-400 transition-colors">
               <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
@@ -420,7 +428,7 @@ export const RegulationView: React.FC = () => {
                       2
                     </span>
                     <h4 className="font-black text-slate-900 text-base">
-                      S&amp;K Mini Games &amp; Doorprize Meja 5
+                      S&amp;K Mini Games &amp; Doorprize Meja 6
                     </h4>
                   </div>
                   <p className="text-[11px] text-slate-500 font-medium pl-8">
@@ -437,12 +445,12 @@ export const RegulationView: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-600" />
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Meja 5 &amp; Games:</span>
-                    <span className="font-black text-slate-900">Koordinator Meja 5 (Tim Acara TI)</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Meja 6 &amp; Games:</span>
+                    <span className="font-black text-slate-900">Dzakiy Harissalam &amp; Ahmad Yoga Witdodo</span>
                   </div>
                 </div>
                 <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-lg">
-                  Stand Meja 5
+                  Stand Meja 6
                 </span>
               </div>
 
@@ -463,19 +471,19 @@ export const RegulationView: React.FC = () => {
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-slate-900">Pilihan Tingkat Tantangan:</strong> Peserta dapat memilih Kategori Sulit (Kaos official, Topi, Tumbler, Voucher Rp 100k) atau Kategori Gampang (Mug eksklusif, Gantungan kunci, Voucher Rp 50k, Paket Snack).
+                    <strong className="text-slate-900">Pilihan Tingkat Tantangan:</strong> Peserta dapat memilih <strong>Kategori Sulit</strong> (Kaos official, Topi, Tumbler, Mug/Gelas label, Voucher Rp 100k &amp; Rp 50k, Kipas tangan, Paket Snack/Indomie) atau <strong>Kategori Gampang</strong> (Gantungan Kunci Akrilik Resmi).
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-slate-900">Klaim Hadiah Langsung:</strong> Keberhasilan tantangan dinilai langsung oleh PIC Meja 5 dan hadiah langsung diserahkan di tempat selama persediaan masih ada.
+                    <strong className="text-slate-900">Klaim Hadiah Langsung:</strong> Keberhasilan tantangan dinilai langsung oleh PIC Meja 6 dan hadiah langsung diserahkan di tempat selama persediaan masih ada.
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-slate-900">Pemeliharaan Meja:</strong> Dilarang meletakkan gelas minuman, rokok, atau makanan di atas pinggiran Meja 5.
+                    <strong className="text-slate-900">Pemeliharaan Meja:</strong> Dilarang meletakkan gelas minuman, rokok, atau makanan di atas pinggiran Meja 6.
                   </span>
                 </div>
               </div>
@@ -586,7 +594,7 @@ export const RegulationView: React.FC = () => {
                   </div>
                 </div>
                 <span className="text-[11px] font-bold text-indigo-800 bg-indigo-100/70 px-2.5 py-1 rounded-lg">
-                  Area Meja 1 - 4
+                  Area Meja 1 - 5 &amp; Meja 6
                 </span>
               </div>
 
@@ -626,6 +634,98 @@ export const RegulationView: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* SUBSECTION: PENUGASAN RESMI PIC & PJ PER MEJA (MEJA 1 s/d MEJA 6) */}
+        <div className="mt-8 pt-6 border-t border-slate-200 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+                  Struktur Operasional Lapangan
+                </span>
+                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  Total 10 Personil PJ
+                </span>
+              </div>
+              <h4 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-1 flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-red-600" />
+                Daftar Penanggung Jawab (PJ) &amp; Wasit Per Meja (Meja 1 – 6)
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Setiap meja diawasi langsung oleh PJ resmi dari Departemen TI untuk menjamin akurasi skor, ketertiban, dan kenyamanan pemain
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+            {[1, 2, 3, 4, 5, 6].map((tableNum) => {
+              const officials = tableOfficials.filter((o) => o.table_number === tableNum);
+              const isMiniGame = tableNum === 6;
+
+              return (
+                <div
+                  key={tableNum}
+                  className={`p-4 rounded-2xl border transition-all ${
+                    isMiniGame
+                      ? "bg-gradient-to-br from-amber-50/80 to-amber-100/40 border-amber-300/80 shadow-xs ring-1 ring-amber-300/50"
+                      : "bg-slate-50/70 border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/60 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center font-mono ${
+                          isMiniGame
+                            ? "bg-amber-600 text-white shadow-2xs"
+                            : "bg-slate-900 text-white"
+                        }`}
+                      >
+                        {tableNum}
+                      </span>
+                      <h5 className="font-black text-slate-900 text-sm">Meja {tableNum}</h5>
+                    </div>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                        isMiniGame
+                          ? "bg-white text-amber-900 border-amber-300"
+                          : "bg-white text-slate-600 border-slate-200"
+                      }`}
+                    >
+                      {isMiniGame ? "Arena Mini Games" : "Meja Tanding Bola 8"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {officials.length > 0 ? (
+                      officials.map((pj) => (
+                        <div
+                          key={pj.id}
+                          className="flex items-start gap-2 p-2 rounded-xl bg-white/90 border border-slate-200/70 shadow-2xs text-xs"
+                        >
+                          <CircleDot
+                            className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                              isMiniGame ? "text-amber-600" : "text-red-600"
+                            }`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-black text-slate-900 leading-snug truncate">
+                              {pj.pj_name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 font-medium leading-none mt-0.5">
+                              {pj.role}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-slate-400 italic">Petugas sedang dikonfirmasi</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* 3. Banner Hadiah Games Mini & Merchandise Resmi */}
@@ -639,7 +739,7 @@ export const RegulationView: React.FC = () => {
               Hadiah Games Mini &amp; Merchandise Eksklusif
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tersedia di Meja 5 khusus Mini Game untuk suporter dan atlet perwakilan bidang
+              Tersedia di Meja 6 khusus Mini Game untuk suporter dan atlet perwakilan bidang
             </p>
           </div>
 
@@ -695,7 +795,23 @@ export const RegulationView: React.FC = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>Mug / Gelas Label TI Billiard Cup 2026</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
                 <span>Voucher Belanja Indomaret Rp 100.000</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>Voucher Belanja Indomaret Rp 50.000</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>Kipas Tangan Eksklusif TI Billiard Cup</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>Paket Snack &amp; Indomie Cup Spesial</span>
               </li>
             </ul>
           </div>
@@ -708,26 +824,14 @@ export const RegulationView: React.FC = () => {
             <ul className="text-xs text-slate-700 space-y-1.5 font-medium">
               <li className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span>Mug / Gelas Label TI Billiard Cup 2026</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span>Gantungan Kunci Akrilik Resmi</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span>Voucher Belanja Indomaret Rp 50.000</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span>Paket Snack &amp; Indomie Cup Spesial</span>
+                <span>Gantungan Kunci Akrilik Resmi TI Billiard Cup 2026</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* 3. Peraturan Pertandingan Resmi Bola 8 */}
+      {/* 4. Peraturan Pertandingan Resmi Bola 8 */}
       <div className="rounded-3xl bg-white border border-slate-200 shadow-xs p-4 sm:p-8 space-y-5">
         <div className="pb-3 border-b border-slate-200">
           <span className="text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200 inline-block mb-1">
