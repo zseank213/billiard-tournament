@@ -780,20 +780,21 @@ export async function submitBidangFullRegistration(
       let savedRecord: Registration | null = null;
 
       if (primaryRow) {
-        // Update existing row
+        // Try updating existing row first (use maybeSingle so RLS with 0 updated rows does not throw PGRST116)
         const { data: updatedData, error: updateError } = await supabase
           .from("registrations")
           .update(recordToSave)
           .eq("id", primaryRow.id)
           .select()
-          .single();
+          .maybeSingle();
 
-        if (updateError || !updatedData) {
-          throw new Error(updateError?.message || "Gagal memperbarui data pendaftaran.");
+        if (!updateError && updatedData) {
+          savedRecord = updatedData as Registration;
         }
-        savedRecord = updatedData as Registration;
-      } else {
-        // Insert new row
+      }
+
+      // If row was not updated (or update was restricted by RLS), insert fresh registration row
+      if (!savedRecord) {
         const { data: insertedData, error: insertError } = await supabase
           .from("registrations")
           .insert([
@@ -811,10 +812,10 @@ export async function submitBidangFullRegistration(
             },
           ])
           .select()
-          .single();
+          .maybeSingle();
 
         if (insertError || !insertedData) {
-          throw new Error(insertError?.message || "Gagal menyimpan data pendaftaran baru.");
+          throw new Error(insertError?.message || "Gagal menyimpan data pendaftaran.");
         }
         savedRecord = insertedData as Registration;
       }
