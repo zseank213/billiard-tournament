@@ -384,7 +384,7 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
                 <Sparkles className="w-4 h-4 text-amber-600" />
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase block">PIC Meja 6 &amp; Games:</span>
-                  <span className="font-black text-slate-900">Dzakiy Harissalam &amp; Ahmad Yoga Witdodo</span>
+                  <span className="font-black text-slate-900">Wildan Farid Afif &amp; Yudha Kusetyadi</span>
                 </div>
               </div>
               <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-lg">
@@ -577,7 +577,7 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
                   Struktur Operasional Lapangan
                 </span>
                 <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                  Total 10 Personil PJ
+                  Total 12 Personil PJ (2 PJ Per Meja)
                 </span>
               </div>
               <h4 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-1 flex items-center gap-2">

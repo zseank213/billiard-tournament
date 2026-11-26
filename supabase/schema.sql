@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS public.table_officials (
 
 CREATE INDEX IF NOT EXISTS idx_table_officials_num ON public.table_officials(table_number);
 
--- Seed Data 10 Penanggung Jawab Resmi Per Meja
+-- Seed Data 12 Penanggung Jawab Resmi Per Meja (2 PJ per Meja)
 INSERT INTO public.table_officials (id, table_number, table_name, table_type, category_label, pj_name, role, order_no)
 VALUES
 (1, 1, 'Meja 1', 'match', 'Turnamen Bola 8 Resmi', 'Musbahniar', 'Wasit Utama Meja 1', 1),
@@ -269,10 +269,12 @@ VALUES
 (4, 2, 'Meja 2', 'match', 'Turnamen Bola 8 Resmi', 'Muhammad Asman', 'Pengawas & Pencatat Meja 2', 2),
 (5, 3, 'Meja 3', 'match', 'Turnamen Bola 8 Resmi', 'Calvin Satria Dewangga Putra H', 'Wasit Utama Meja 3', 1),
 (6, 3, 'Meja 3', 'match', 'Turnamen Bola 8 Resmi', 'Muhammad Alwin Lapapahi', 'Pengawas & Pencatat Meja 3', 2),
-(7, 4, 'Meja 4', 'match', 'Turnamen Bola 8 Resmi', 'Raihan Fuad Syakir', 'Wasit & Pengawas Meja 4', 1),
-(8, 5, 'Meja 5', 'match', 'Turnamen Bola 8 Resmi', 'Muhammad Ilham Rizki Pratama', 'Wasit & Pengawas Meja 5', 1),
-(9, 6, 'Meja 6', 'mini_game', 'Mini Games & Doorprize Arena', 'Dzakiy Harissalam', 'Koordinator Mini Game Meja 6', 1),
-(10, 6, 'Meja 6', 'mini_game', 'Mini Games & Doorprize Arena', 'Ahmad Yoga Witdodo', 'PJ Validasi & Doorprize Meja 6', 2)
+(7, 4, 'Meja 4', 'match', 'Turnamen Bola 8 Resmi', 'Raihan Fuad Syakir', 'Wasit Utama Meja 4', 1),
+(8, 4, 'Meja 4', 'match', 'Turnamen Bola 8 Resmi', 'Muhammad Ilham Rizki Pratama', 'Pengawas & Pencatat Meja 4', 2),
+(9, 5, 'Meja 5', 'match', 'Turnamen Bola 8 Resmi', 'Dzakiy Harissalam', 'Wasit Utama Meja 5', 1),
+(10, 5, 'Meja 5', 'match', 'Turnamen Bola 8 Resmi', 'Ahmad Yoga Witdodo', 'Pengawas & Pencatat Meja 5', 2),
+(11, 6, 'Meja 6', 'mini_game', 'Mini Games & Doorprize Arena', 'Wildan Farid Afif', 'Koordinator Mini Game Meja 6', 1),
+(12, 6, 'Meja 6', 'mini_game', 'Mini Games & Doorprize Arena', 'Yudha Kusetyadi', 'PJ Validasi & Doorprize Meja 6', 2)
 ON CONFLICT (id) DO UPDATE
 SET table_number = EXCLUDED.table_number,
     table_name = EXCLUDED.table_name,
