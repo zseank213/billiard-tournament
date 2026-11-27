@@ -104,7 +104,7 @@ export const GroupStageView: React.FC = () => {
     {
       id: "ganda-putra",
       title: "Kategori Ganda (Campuran / Bebas)",
-      subtitle: "Maksimal 2 Tim / Bidang • Boleh Campuran Pa-Pi, Pa-Pa, Pi-Pi • Piala Bergilir DirRen",
+      subtitle: "Maksimal 2 Tim / Bidang • Boleh Campuran Putra-Putri, Putra-Putra, Putri-Putri • Piala Bergilir DirRen",
       badge: "Piala Bergilir Utama",
       badgeColor: "bg-red-50 text-red-700 border-red-200",
       icon: Users2,
