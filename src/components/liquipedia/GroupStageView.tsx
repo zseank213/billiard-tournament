@@ -30,7 +30,7 @@ interface CategoryStageConfig {
   icon: typeof Trophy;
 }
 
-const STORAGE_KEY_PREFIX = "ti_billiard_drawn_groups_v1_";
+const STORAGE_KEY_PREFIX = "ti_billiard_drawn_groups_v2_";
 
 export const GroupStageView: React.FC = () => {
   const [participants, setParticipants] = useState<ParticipantTeam[]>([]);
@@ -164,33 +164,58 @@ export const GroupStageView: React.FC = () => {
   const getCandidatesForCategory = (categoryKey: string): { teamName: string; shortName: string; playerName?: string }[] => {
     if (!participants || participants.length === 0) return [];
 
-    return participants.map((p) => {
-      let playerName: string | undefined = undefined;
+    const candidates: { teamName: string; shortName: string; playerName?: string }[] = [];
+    const usedBidang = new Set<string>();
+
+    // 1. Ambil seluruh tim/atlet yang terdaftar (termasuk seluruh tim dari Teknologi Informasi & bidang lain)
+    participants.forEach((p) => {
+      let matchedSlots: typeof p.slots = [];
 
       if (categoryKey === "ganda-putra") {
-        // Find ganda slot
-        const gandaSlot = p.slots.find((s) => s.category.includes("Ganda") && s.playerName && !s.playerName.includes("TBD"));
-        if (gandaSlot) {
-          playerName = gandaSlot.playerName;
-        }
+        matchedSlots = p.slots.filter(
+          (s) => s.category.includes("Ganda") && s.playerName && !s.playerName.includes("TBD")
+        );
       } else if (categoryKey === "single-putra") {
-        const paSlot = p.slots.find((s) => s.category === "Single Putra" && s.playerName && !s.playerName.includes("TBD"));
-        if (paSlot) {
-          playerName = paSlot.playerName;
-        }
+        matchedSlots = p.slots.filter(
+          (s) => s.category === "Single Putra" && s.playerName && !s.playerName.includes("TBD")
+        );
       } else if (categoryKey === "single-putri") {
-        const piSlot = p.slots.find((s) => s.category === "Single Putri" && s.playerName && !s.playerName.includes("TBD"));
-        if (piSlot) {
-          playerName = piSlot.playerName;
-        }
+        matchedSlots = p.slots.filter(
+          (s) => s.category === "Single Putri" && s.playerName && !s.playerName.includes("TBD")
+        );
       }
 
-      return {
-        teamName: p.name,
-        shortName: p.shortName,
-        playerName,
-      };
+      if (matchedSlots.length > 0) {
+        usedBidang.add(p.name);
+        matchedSlots.forEach((slot) => {
+          let label = p.name;
+          if (matchedSlots.length > 1) {
+            label = `${p.name} (${slot.role})`;
+          } else if (slot.role && (slot.role.includes("Ganda") || slot.role.includes("Atlet"))) {
+            label = `${p.name} (${slot.role})`;
+          }
+
+          candidates.push({
+            teamName: label,
+            shortName: p.shortName,
+            playerName: slot.playerName,
+          });
+        });
+      }
     });
+
+    // 2. Isi slot tersisa hingga minimal 20 slot dengan bidang yang belum mendaftarkan atletnya
+    participants.forEach((p) => {
+      if (!usedBidang.has(p.name)) {
+        candidates.push({
+          teamName: p.name,
+          shortName: p.shortName,
+          playerName: "Belum Ada Atlet Terdaftar (TBD)",
+        });
+      }
+    });
+
+    return candidates;
   };
 
   // Perform Roulette / Shuffle for a specific category
@@ -223,22 +248,14 @@ export const GroupStageView: React.FC = () => {
       }
 
       const groupLetters: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
-      const roundRobinPairs: [number, number][] = [
-        [0, 1],
-        [2, 3],
-        [0, 2],
-        [1, 4],
-        [0, 3],
-        [2, 4],
-        [0, 4],
-        [1, 3],
-        [1, 2],
-        [3, 4],
-      ];
+      const baseSize = Math.floor(shuffled.length / 4);
+      const remainder = shuffled.length % 4;
 
+      let startIndex = 0;
       const newGroups: GroupStageData[] = groupLetters.map((letter, gIdx) => {
-        // Slice 5 teams for each group
-        const groupTeams = shuffled.slice(gIdx * 5, (gIdx + 1) * 5);
+        const groupSize = baseSize + (gIdx < remainder ? 1 : 0);
+        const groupTeams = shuffled.slice(startIndex, startIndex + groupSize);
+        startIndex += groupSize;
 
         const standings: GroupTeamStanding[] = groupTeams.map((team, idx) => ({
           pos: idx + 1,
@@ -255,6 +272,14 @@ export const GroupStageView: React.FC = () => {
           points: 0,
           status: null,
         }));
+
+        // Dynamic round-robin match pairs
+        const roundRobinPairs: [number, number][] = [];
+        for (let i = 0; i < groupTeams.length; i++) {
+          for (let j = i + 1; j < groupTeams.length; j++) {
+            roundRobinPairs.push([i, j]);
+          }
+        }
 
         const matches = roundRobinPairs.map(([t1, t2], mIdx) => {
           const team1 = standings[t1]?.teamName || "TBD";
@@ -351,7 +376,7 @@ export const GroupStageView: React.FC = () => {
             </h3>
           </div>
           <span className="text-[11px] sm:text-xs font-bold text-slate-600 bg-white px-2.5 sm:px-3 py-1 rounded-xl border border-slate-200 shadow-2xs">
-            5 Bidang
+            {group.standings.length} Tim
           </span>
         </div>
 
@@ -470,7 +495,7 @@ export const GroupStageView: React.FC = () => {
         {/* Head-to-Head Matches List */}
         <div className="p-4 border-t border-slate-200 bg-white space-y-2.5">
           <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-            Jadwal Pertandingan Head-to-Head (10 Match):
+            Jadwal Pertandingan Head-to-Head ({group.matches.length} Match):
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {group.matches.map((m) => (
