@@ -137,6 +137,7 @@ export const RouletteView: React.FC = () => {
   const animFrameIdRef = useRef<number | null>(null);
   const lastTickIndexRef = useRef<number>(-1);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const needleDeflectionRef = useRef<number>(0);
 
   // Web Audio Synthesized Tick and Fanfare
   const playTick = useCallback(() => {
@@ -406,8 +407,8 @@ export const RouletteView: React.FC = () => {
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#ffffff";
 
-      // Font size adapts to slice count (larger base)
-      const fontSize = Math.max(11, Math.min(18, Math.floor(580 / numSlices)));
+      // Font size adapts to slice count (balanced for long Indonesian department names)
+      const fontSize = Math.max(10, Math.min(14, Math.floor(480 / numSlices)));
       ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
 
       // Text shadow for crisp legibility
@@ -418,8 +419,8 @@ export const RouletteView: React.FC = () => {
 
       const entry = entries[i];
       let displayLabel = entry.teamName;
-      if (displayLabel.length > 28) {
-        displayLabel = displayLabel.substring(0, 26) + "...";
+      if (displayLabel.length > 35) {
+        displayLabel = displayLabel.substring(0, 33) + "...";
       }
 
       ctx.fillText(displayLabel, radius - 22, 0);
@@ -467,10 +468,16 @@ export const RouletteView: React.FC = () => {
     ctx.fillText(isSpinning ? "MENUNGGU..." : "KLIK DISINI", centerX, centerY + 13);
     ctx.restore();
 
-    // Right Pointer Needle (Clean emerald pointer pointing right into 3 o'clock)
+    // Right Pointer Needle (Clean emerald pointer with realistic deflection/bounce)
     ctx.save();
     const ptrX = centerX + radius + 12;
     const ptrY = centerY;
+
+    // Apply needle wobble deflection around base hinge (ptrX + 28, ptrY)
+    const deflection = needleDeflectionRef.current || 0;
+    ctx.translate(ptrX + 28, ptrY);
+    ctx.rotate(deflection);
+    ctx.translate(-(ptrX + 28), -ptrY);
 
     ctx.beginPath();
     ctx.moveTo(ptrX, ptrY);
@@ -504,51 +511,72 @@ export const RouletteView: React.FC = () => {
     setWinner(null);
     setIsWinnerModalOpen(false);
 
-    // Initial random angular velocity: 22 - 32 rad/s
-    const initialVel = 24 + Math.random() * 10;
-    angularVelocityRef.current = initialVel;
+    const numSlices = entries.length;
+    const arc = (2 * Math.PI) / numSlices;
 
-    const friction = 0.985 + Math.random() * 0.005;
-    let lastTime = performance.now();
+    // Minimum 7 to 10 full 360-degree rotations for high excitement
+    const fullSpins = (7 + Math.random() * 3) * 2 * Math.PI;
+    // Uniform random landing offset
+    const randomOffset = Math.random() * 2 * Math.PI;
+    const totalDistance = fullSpins + randomOffset;
+
+    const startAngle = currentRotationRef.current;
+    const targetAngle = startAngle + totalDistance;
+
+    // Smooth duration: 7.8 seconds
+    const duration = 7800;
+    let startTime: number | null = null;
 
     const animate = (currentTime: number) => {
-      const dt = (currentTime - lastTime) / 1000;
-      lastTime = currentTime;
+      if (!startTime) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const t = Math.min(1, elapsed / duration);
 
-      currentRotationRef.current += angularVelocityRef.current * dt * 10;
-      angularVelocityRef.current *= friction;
+      // Smooth custom ease-out curve (power 3.6):
+      // Rapid initial spin -> steady natural deceleration -> dramatic, nail-biting slow crawl in the final 2.5s
+      const progress = 1 - Math.pow(1 - t, 3.6);
+      const currentAngle = startAngle + totalDistance * progress;
+      currentRotationRef.current = currentAngle;
 
-      // Audio tick trigger
-      const numSlices = entries.length;
+      // Audio tick trigger & physical needle deflection
       if (numSlices > 0) {
-        const arc = (2 * Math.PI) / numSlices;
-        const normRot = ((-currentRotationRef.current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        const normRot = ((-currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const currSlice = Math.floor(normRot / arc);
         if (currSlice !== lastTickIndexRef.current) {
           lastTickIndexRef.current = currSlice;
           playTick();
+          // Deflect needle upwards (counter-clockwise) to simulate peg friction
+          needleDeflectionRef.current = -0.22;
         }
       }
 
+      // Smooth elastic return for pointer needle
+      needleDeflectionRef.current *= 0.82;
+
       drawWheel();
 
-      // Stopping threshold
-      if (angularVelocityRef.current < 0.12) {
-        angularVelocityRef.current = 0;
-        setIsSpinning(false);
+      if (t < 1) {
+        animFrameIdRef.current = requestAnimationFrame(animate);
+      } else {
+        // Complete rest: snap to exact targetAngle
+        currentRotationRef.current = targetAngle;
+        needleDeflectionRef.current = 0;
+        drawWheel();
 
-        // Determine winner
-        const numSlices = entries.length;
-        const arc = (2 * Math.PI) / numSlices;
-        const normRot = ((-currentRotationRef.current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        // Determine exact winner at the 3 o'clock pointer
+        const normRot = ((-targetAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const winningIndex = Math.floor(normRot / arc) % numSlices;
         const winningEntry = entries[winningIndex];
 
-        setWinner(winningEntry);
-        setIsWinnerModalOpen(true);
-        playFanfare();
-      } else {
-        animFrameIdRef.current = requestAnimationFrame(animate);
+        // DRAMATIC SUSPENSE PAUSE (700ms):
+        // Biarkan roda berhenti total terlebih dahulu agar penonton melihat jelas panah menunjuk ke siapa,
+        // baru kemudian muncul efek selebrasi dan popup pemenang.
+        setTimeout(() => {
+          setIsSpinning(false);
+          setWinner(winningEntry);
+          setIsWinnerModalOpen(true);
+          playFanfare();
+        }, 700);
       }
     };
 
