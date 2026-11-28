@@ -93,6 +93,15 @@ export interface GroupStageData {
   }[];
 }
 
+export type GroupMatchItem = GroupStageData["matches"][number];
+
+export interface SingleEliminationBracket {
+  quarterfinals: BracketMatchNode[];
+  semifinals: BracketMatchNode[];
+  bronzeMatch: BracketMatchNode;
+  grandFinal: BracketMatchNode;
+}
+
 export interface BracketTeamSlot {
   name: string;
   shortName: string;

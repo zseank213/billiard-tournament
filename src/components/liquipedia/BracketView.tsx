@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LIQUIPEDIA_PLAYOFFS_DATA } from "@/lib/mock-data";
-import { BracketMatchNode } from "@/types/tournament";
+import { BracketMatchNode, SingleEliminationBracket } from "@/types/tournament";
+import { getPlayoffsData } from "@/app/actions/playoffs";
 import {
   Trophy,
   Info,
@@ -22,8 +23,21 @@ import {
 export const BracketView: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<"ganda-putra" | "single-putra" | "single-putri">("ganda-putra");
   const [activeMatchModal, setActiveMatchModal] = useState<BracketMatchNode | null>(null);
+  const [playoffsMap, setPlayoffsMap] = useState<Record<string, SingleEliminationBracket>>(LIQUIPEDIA_PLAYOFFS_DATA);
 
-  const data = LIQUIPEDIA_PLAYOFFS_DATA[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA["ganda-putra"];
+  useEffect(() => {
+    let isMounted = true;
+    getPlayoffsData().then((res) => {
+      if (isMounted && res.playoffs) {
+        setPlayoffsMap((prev) => ({ ...prev, ...res.playoffs }));
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const data = playoffsMap[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA["ganda-putra"];
 
   // Render Clean Light Match Card
   const renderCleanMatchCard = (match: BracketMatchNode, isGrandFinal = false) => {

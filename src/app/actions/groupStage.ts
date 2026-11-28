@@ -2,6 +2,7 @@
 
 import { GroupStageData } from "@/types/tournament";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { recalculateGroupStandings } from "@/lib/tournament-calc";
 
 export interface GroupStageSaveResult {
   success: boolean;
@@ -125,6 +126,66 @@ export async function getGroupStageDraws(): Promise<{
   return {
     draws: {},
     isLiveSupabase: true,
+  };
+}
+
+/**
+ * Update a specific match score and sync auto-recalculated standings to Supabase
+ */
+export async function updateGroupMatchScore(
+  categoryKey: string,
+  groupId: string,
+  matchId: string,
+  score1: number,
+  score2: number,
+  status: "upcoming" | "live" | "completed",
+  tableNumber?: number
+): Promise<{ success: boolean; message: string; updatedGroups?: GroupStageData[] }> {
+  const { draws } = await getGroupStageDraws();
+  const cleanKey = categoryKey.toLowerCase().trim();
+  const groups = draws[cleanKey];
+
+  if (!groups || groups.length === 0) {
+    return { success: false, message: "Data undian grup belum tersedia." };
+  }
+
+  const groupIndex = groups.findIndex(
+    (g) => g.groupId === groupId || g.groupName.toLowerCase().includes(groupId.toLowerCase())
+  );
+
+  if (groupIndex === -1) {
+    return { success: false, message: "Grup tidak ditemukan." };
+  }
+
+  const targetGroup = groups[groupIndex];
+  const matchIndex = targetGroup.matches.findIndex((m) => m.id === matchId);
+
+  if (matchIndex === -1) {
+    return { success: false, message: "Pertandingan tidak ditemukan." };
+  }
+
+  // Update match
+  targetGroup.matches[matchIndex] = {
+    ...targetGroup.matches[matchIndex],
+    score1,
+    score2,
+    status,
+    table: tableNumber || targetGroup.matches[matchIndex].table,
+  };
+
+  // Recalculate standings
+  groups[groupIndex] = recalculateGroupStandings(targetGroup);
+
+  // Save to database
+  const saveRes = await saveGroupStageDraw(cleanKey, groups);
+  if (!saveRes.success) {
+    return { success: false, message: saveRes.message };
+  }
+
+  return {
+    success: true,
+    message: "Skor pertandingan dan klasemen grup berhasil diperbarui & dipublikasikan live!",
+    updatedGroups: groups,
   };
 }
 
