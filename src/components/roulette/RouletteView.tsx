@@ -31,6 +31,8 @@ import {
   Layers,
   ChevronRight,
   RotateCcw,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 interface CategoryOption {
@@ -122,6 +124,7 @@ export const RouletteView: React.FC = () => {
   const [isWinnerModalOpen, setIsWinnerModalOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState<"entries" | "groups">("groups");
+  const [viewMode, setViewMode] = useState<"split" | "jumbo">("split");
 
   // Save state & feedback
   const [isSaving, setIsSaving] = useState(false);
@@ -319,21 +322,21 @@ export const RouletteView: React.FC = () => {
     };
   }, [selectedCategory, participants, extractRegisteredEntries]);
 
-  // DRAW RETINA-SHARP CANVAS WHEEL
+  // DRAW RETINA-SHARP CANVAS WHEEL (Much Larger & High-Resolution)
   const drawWheel = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Retina scaling for ultra-crisp display
+    // Retina scaling for ultra-crisp display (720px base resolution)
     const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const size = 520;
+    const size = 720;
     if (canvas.width !== size * dpr || canvas.height !== size * dpr) {
       canvas.width = size * dpr;
       canvas.height = size * dpr;
-      canvas.style.width = `${size}px`;
-      canvas.style.height = `${size}px`;
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
     }
 
     ctx.save();
@@ -341,7 +344,7 @@ export const RouletteView: React.FC = () => {
 
     const centerX = size / 2;
     const centerY = size / 2;
-    const radius = size / 2 - 28;
+    const radius = size / 2 - 32;
 
     ctx.clearRect(0, 0, size, size);
 
@@ -352,17 +355,17 @@ export const RouletteView: React.FC = () => {
       ctx.fillStyle = "#f8fafc";
       ctx.fill();
       ctx.strokeStyle = "#e2e8f0";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
       ctx.stroke();
 
       ctx.fillStyle = "#64748b";
-      ctx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("Semua Peserta Sudah Terbagi ke Grup!", centerX, centerY - 12);
-      ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillText("Semua Peserta Sudah Terbagi ke Grup!", centerX, centerY - 14);
+      ctx.font = "14px -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.fillStyle = "#94a3b8";
-      ctx.fillText("Klik 'Reset Roda' untuk mengulang dari awal", centerX, centerY + 12);
+      ctx.fillText("Klik 'Reset Roda' untuk mengulang dari awal", centerX, centerY + 14);
       ctx.restore();
       return;
     }
@@ -403,23 +406,23 @@ export const RouletteView: React.FC = () => {
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#ffffff";
 
-      // Font size adapts to slice count
-      const fontSize = Math.max(9, Math.min(14, Math.floor(400 / numSlices)));
+      // Font size adapts to slice count (larger base)
+      const fontSize = Math.max(11, Math.min(18, Math.floor(580 / numSlices)));
       ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
 
       // Text shadow for crisp legibility
-      ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
       ctx.shadowBlur = 4;
       ctx.shadowOffsetX = 1;
       ctx.shadowOffsetY = 1;
 
       const entry = entries[i];
       let displayLabel = entry.teamName;
-      if (displayLabel.length > 25) {
-        displayLabel = displayLabel.substring(0, 23) + "...";
+      if (displayLabel.length > 28) {
+        displayLabel = displayLabel.substring(0, 26) + "...";
       }
 
-      ctx.fillText(displayLabel, radius - 18, 0);
+      ctx.fillText(displayLabel, radius - 22, 0);
       ctx.restore();
     }
 
@@ -427,61 +430,61 @@ export const RouletteView: React.FC = () => {
 
     // Outer wheel decorative rings (light & clean)
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius + 3, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, radius + 4, 0, 2 * Math.PI);
     ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 7;
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius + 8, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, radius + 11, 0, 2 * Math.PI);
     ctx.strokeStyle = "#cbd5e1";
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     // Center Hub (Clean, Modern Button)
     ctx.save();
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 46, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, 58, 0, 2 * Math.PI);
     ctx.fillStyle = "#ffffff";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
-    ctx.shadowBlur = 12;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.16)";
+    ctx.shadowBlur = 14;
     ctx.fill();
 
     // Hub border ring
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 5;
     ctx.strokeStyle = "#dc2626"; // red-600
     ctx.stroke();
 
     // Hub Text
     ctx.shadowColor = "transparent";
     ctx.fillStyle = "#dc2626";
-    ctx.font = "900 13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.font = "900 16px -apple-system, BlinkMacSystemFont, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(isSpinning ? "SPINNING" : "PUTAR", centerX, centerY - 4);
-    ctx.font = "bold 9px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(isSpinning ? "SPINNING" : "PUTAR", centerX, centerY - 6);
+    ctx.font = "bold 10px -apple-system, BlinkMacSystemFont, sans-serif";
     ctx.fillStyle = "#64748b";
-    ctx.fillText(isSpinning ? "MENUNGGU..." : "KLIK DISINI", centerX, centerY + 10);
+    ctx.fillText(isSpinning ? "MENUNGGU..." : "KLIK DISINI", centerX, centerY + 13);
     ctx.restore();
 
     // Right Pointer Needle (Clean emerald pointer pointing right into 3 o'clock)
     ctx.save();
-    const ptrX = centerX + radius + 10;
+    const ptrX = centerX + radius + 12;
     const ptrY = centerY;
 
     ctx.beginPath();
     ctx.moveTo(ptrX, ptrY);
-    ctx.lineTo(ptrX + 24, ptrY - 14);
-    ctx.lineTo(ptrX + 24, ptrY + 14);
+    ctx.lineTo(ptrX + 28, ptrY - 17);
+    ctx.lineTo(ptrX + 28, ptrY + 17);
     ctx.closePath();
 
     ctx.fillStyle = "#10b981"; // emerald-500
-    ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
-    ctx.shadowBlur = 6;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
+    ctx.shadowBlur = 8;
     ctx.fill();
 
     ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     ctx.stroke();
     ctx.restore();
 
@@ -815,6 +818,16 @@ export const RouletteView: React.FC = () => {
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
+            onClick={() => setViewMode((prev) => (prev === "split" ? "jumbo" : "split"))}
+            className="p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-1.5 transition-colors bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-2xs"
+            title={viewMode === "split" ? "Ganti ke Mode Roda Jumbo (Penuh)" : "Ganti ke Mode Tampilan Samping"}
+          >
+            {viewMode === "split" ? <Maximize2 className="w-4 h-4 text-slate-600" /> : <Minimize2 className="w-4 h-4 text-slate-600" />}
+            <span className="text-[11px] font-bold">{viewMode === "split" ? "Roda Jumbo" : "Mode Split"}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setSoundEnabled((prev) => !prev)}
             className={`p-2.5 rounded-2xl border text-xs font-bold flex items-center gap-1.5 transition-colors ${
               soundEnabled
@@ -983,9 +996,13 @@ export const RouletteView: React.FC = () => {
       )}
 
       {/* 4. MAIN ARENA: WHEEL + CONTROLS & GROUP PREVIEW */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className={viewMode === "jumbo" ? "space-y-6" : "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"}>
         {/* LEFT / CENTER: INTERACTIVE CANVAS WHEEL */}
-        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-xs flex flex-col items-center justify-center relative space-y-4">
+        <div
+          className={`${
+            viewMode === "jumbo" ? "w-full max-w-4xl mx-auto" : "lg:col-span-7 xl:col-span-7"
+          } bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-xs flex flex-col items-center justify-center relative space-y-4`}
+        >
           <div className="w-full flex items-center justify-between text-xs text-slate-500 font-bold px-1">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -994,8 +1011,12 @@ export const RouletteView: React.FC = () => {
             <span className="text-[11px] text-slate-400">Tekan [Spasi] atau Klik Roda untuk Putar</span>
           </div>
 
-          {/* Wheel Canvas Container */}
-          <div className="relative flex items-center justify-center w-full max-w-[480px] aspect-square py-2">
+          {/* Wheel Canvas Container (Much Larger) */}
+          <div
+            className={`relative flex items-center justify-center w-full ${
+              viewMode === "jumbo" ? "max-w-[680px] sm:max-w-[720px]" : "max-w-[580px] sm:max-w-[640px]"
+            } aspect-square py-2`}
+          >
             <canvas
               ref={canvasRef}
               onClick={spinWheel}
@@ -1011,7 +1032,7 @@ export const RouletteView: React.FC = () => {
               type="button"
               disabled={isSpinning || entries.length === 0}
               onClick={spinWheel}
-              className={`w-full max-w-md py-3.5 px-6 rounded-2xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-all ${
+              className={`w-full max-w-md py-4 px-6 rounded-2xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-all ${
                 isSpinning
                   ? "bg-amber-500 text-white cursor-wait"
                   : entries.length === 0
@@ -1031,8 +1052,12 @@ export const RouletteView: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT PANEL: LIVE GROUPS (A, B, C, D) & ENTRIES LIST */}
-        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col">
+        {/* RIGHT / BOTTOM PANEL: LIVE GROUPS (A, B, C, D) & ENTRIES LIST */}
+        <div
+          className={`${
+            viewMode === "jumbo" ? "w-full max-w-5xl mx-auto" : "lg:col-span-5 xl:col-span-5"
+          } bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col`}
+        >
           {/* Panel Navigation Tabs */}
           <div className="flex items-center border-b border-slate-200 bg-slate-50/80 p-2 gap-1.5">
             <button

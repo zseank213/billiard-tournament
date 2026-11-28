@@ -121,10 +121,11 @@ export async function getGroupStageDraws(): Promise<{
 
     for (const row of data) {
       const catKey = (row.bidang_name || "").toLowerCase().trim();
-      if (catKey && !latestByCategory[catKey] && row.notes) {
+      if (catKey && latestByCategory[catKey] === undefined && row.notes) {
         try {
           const parsed = JSON.parse(row.notes);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
+            // Store the latest draw record (even if empty, marking reset)
             latestByCategory[catKey] = parsed as GroupStageData[];
           }
         } catch (e) {
@@ -133,8 +134,16 @@ export async function getGroupStageDraws(): Promise<{
       }
     }
 
+    // Filter out categories where draw is empty array (meaning reset/cleared)
+    const validDraws: Record<string, GroupStageData[]> = {};
+    for (const [k, v] of Object.entries(latestByCategory)) {
+      if (v && v.length > 0) {
+        validDraws[k] = v;
+      }
+    }
+
     return {
-      draws: latestByCategory,
+      draws: validDraws,
       isLiveSupabase: true,
     };
   } catch (err) {
@@ -145,3 +154,4 @@ export async function getGroupStageDraws(): Promise<{
     };
   }
 }
+
