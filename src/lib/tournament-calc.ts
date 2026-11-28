@@ -1,4 +1,4 @@
-import { GroupStageData } from "@/types/tournament";
+import { GroupStageData, SingleEliminationBracket } from "@/types/tournament";
 
 /**
  * Recalculate standings for a group based on its 10 head-to-head matches
@@ -112,4 +112,129 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
     ...group,
     standings: finalizedStandings,
   };
+}
+
+/**
+ * Sync qualified teams from Group Stage standings into the Playoff bracket
+ * QF 1: 1A vs 2B
+ * QF 2: 1C vs 2D
+ * QF 3: 1B vs 2A
+ * QF 4: 1D vs 2C
+ */
+export function syncPlayoffBracketWithGroups(
+  currentBracket: SingleEliminationBracket,
+  groups: GroupStageData[]
+): SingleEliminationBracket {
+  if (!groups || groups.length === 0) return currentBracket;
+
+  const bracket: SingleEliminationBracket = JSON.parse(JSON.stringify(currentBracket));
+
+  const getRankTeam = (groupLetter: string, rank: number) => {
+    const grp = groups.find(
+      (g) =>
+        g.groupName.toUpperCase().includes(`GRUP ${groupLetter}`) ||
+        g.groupId.toUpperCase().includes(`GROUP-${groupLetter.toLowerCase()}`)
+    );
+    if (!grp || !grp.standings || grp.standings.length < rank) return null;
+    const nonTbd = grp.standings.filter((s) => s.teamName && !s.teamName.includes("TBD"));
+    if (nonTbd.length === 0) return null;
+
+    const sorted = [...nonTbd].sort((a, b) => {
+      if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
+      if ((b.rackDiff || 0) !== (a.rackDiff || 0)) return (b.rackDiff || 0) - (a.rackDiff || 0);
+      return (b.racksWon || 0) - (a.racksWon || 0);
+    });
+
+    const candidate = sorted[rank - 1];
+    // Pastikan tim ini sudah bertanding (matchesPlayed > 0)
+    if (!candidate || !candidate.matchesPlayed || candidate.matchesPlayed === 0) return null;
+    return candidate;
+  };
+
+  const t1A = getRankTeam("A", 1);
+  const t2A = getRankTeam("A", 2);
+  const t1B = getRankTeam("B", 1);
+  const t2B = getRankTeam("B", 2);
+  const t1C = getRankTeam("C", 1);
+  const t2C = getRankTeam("C", 2);
+  const t1D = getRankTeam("D", 1);
+  const t2D = getRankTeam("D", 2);
+
+  // QF 1: 1A vs 2B
+  if (bracket.quarterfinals && bracket.quarterfinals[0]) {
+    if (t1A) {
+      bracket.quarterfinals[0].team1 = {
+        ...bracket.quarterfinals[0].team1,
+        name: t1A.teamName,
+        shortName: t1A.shortName || "1A",
+        seed: 1,
+      };
+    }
+    if (t2B) {
+      bracket.quarterfinals[0].team2 = {
+        ...bracket.quarterfinals[0].team2,
+        name: t2B.teamName,
+        shortName: t2B.shortName || "2B",
+      };
+    }
+  }
+
+  // QF 2: 1C vs 2D
+  if (bracket.quarterfinals && bracket.quarterfinals[1]) {
+    if (t1C) {
+      bracket.quarterfinals[1].team1 = {
+        ...bracket.quarterfinals[1].team1,
+        name: t1C.teamName,
+        shortName: t1C.shortName || "1C",
+        seed: 1,
+      };
+    }
+    if (t2D) {
+      bracket.quarterfinals[1].team2 = {
+        ...bracket.quarterfinals[1].team2,
+        name: t2D.teamName,
+        shortName: t2D.shortName || "2D",
+      };
+    }
+  }
+
+  // QF 3: 1B vs 2A
+  if (bracket.quarterfinals && bracket.quarterfinals[2]) {
+    if (t1B) {
+      bracket.quarterfinals[2].team1 = {
+        ...bracket.quarterfinals[2].team1,
+        name: t1B.teamName,
+        shortName: t1B.shortName || "1B",
+        seed: 1,
+      };
+    }
+    if (t2A) {
+      bracket.quarterfinals[2].team2 = {
+        ...bracket.quarterfinals[2].team2,
+        name: t2A.teamName,
+        shortName: t2A.shortName || "2A",
+      };
+    }
+  }
+
+  // QF 4: 1D vs 2C
+  if (bracket.quarterfinals && bracket.quarterfinals[3]) {
+    if (t1D) {
+      bracket.quarterfinals[3].team1 = {
+        ...bracket.quarterfinals[3].team1,
+        name: t1D.teamName,
+        shortName: t1D.shortName || "1D",
+        seed: 1,
+      };
+    }
+    if (t2C) {
+      bracket.quarterfinals[3].team2 = {
+        ...bracket.quarterfinals[3].team2,
+        name: t2C.teamName,
+        shortName: t2C.shortName || "2C",
+      };
+    }
+  }
+
+  return bracket;
 }

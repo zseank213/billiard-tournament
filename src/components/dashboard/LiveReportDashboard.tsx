@@ -231,7 +231,20 @@ export const LiveReportDashboard: React.FC = () => {
     try {
       const res = await saveGroupStageDraw(selectedCategory, currentCategoryGroups);
       if (res.success) {
-        setGroupSuccessMsg(res.message || "Data babak grup & klasemen berhasil disimpan ke server!");
+        // Automatically sync & update playoffs with any newly qualified teams
+        try {
+          const playRes = await populatePlayoffsFromGroupStage(selectedCategory);
+          if (playRes.success && playRes.bracket) {
+            setAllPlayoffsData((prev) => ({
+              ...prev,
+              [selectedCategory]: playRes.bracket!,
+            }));
+          }
+        } catch {}
+
+        setGroupSuccessMsg(
+          res.message || "Data babak grup & klasemen berhasil disimpan! Bagan Playoff juga telah otomatis diperbarui."
+        );
         setTimeout(() => setGroupSuccessMsg(""), 4500);
       } else {
         setGroupErrorMsg(res.message || "Gagal menyimpan ke server.");

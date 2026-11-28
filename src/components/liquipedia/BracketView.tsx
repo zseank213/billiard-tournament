@@ -35,7 +35,7 @@ export const BracketView: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [selectedCategory]);
 
   const data = playoffsMap[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA["ganda-putra"];
 
