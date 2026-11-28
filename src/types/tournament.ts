@@ -91,6 +91,7 @@ export interface GroupStageData {
     status: "completed" | "live" | "upcoming";
     time?: string;
     table?: number;
+    winner?: string;
   }[];
 }
 

@@ -762,6 +762,10 @@ export const LiveReportDashboard: React.FC = () => {
                         const p1 = playerMap[m.team1.trim().toLowerCase()];
                         const p2 = playerMap[m.team2.trim().toLowerCase()];
 
+                        const isPlayed = isCompleted || (m.score1 > 0 || m.score2 > 0);
+                        const isTeam1Winner = isPlayed && m.score1 > m.score2;
+                        const isTeam2Winner = isPlayed && m.score2 > m.score1;
+
                         return (
                           <div
                             key={m.id}
@@ -814,12 +818,34 @@ export const LiveReportDashboard: React.FC = () => {
                             {/* Team 1 vs Team 2 Score Inputs */}
                             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 pt-1">
                               {/* Team 1 */}
-                              <div className="min-w-0 pr-1">
-                                <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
-                                  {m.team1}
-                                </span>
+                              <div className={`min-w-0 pr-1 p-2 rounded-xl transition-colors ${
+                                isTeam1Winner
+                                  ? "bg-emerald-50 border border-emerald-200/80"
+                                  : isTeam2Winner
+                                  ? "bg-rose-50/70 border border-rose-100"
+                                  : ""
+                              }`}>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className={`font-bold text-xs block truncate leading-snug ${
+                                    isTeam1Winner ? "text-emerald-950 font-black" : isTeam2Winner ? "text-slate-500" : "text-slate-900"
+                                  }`}>
+                                    {m.team1}
+                                  </span>
+                                  {isTeam1Winner && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900 border border-emerald-300 shrink-0">
+                                      Menang
+                                    </span>
+                                  )}
+                                  {isTeam2Winner && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
+                                      Kalah
+                                    </span>
+                                  )}
+                                </div>
                                 {p1 && (
-                                  <span className="text-[10px] text-red-700 font-semibold block truncate leading-tight mt-0.5">
+                                  <span className={`text-[10px] font-semibold block truncate leading-tight mt-0.5 ${
+                                    isTeam1Winner ? "text-emerald-700" : isTeam2Winner ? "text-slate-400" : "text-red-700"
+                                  }`}>
                                     {p1}
                                   </span>
                                 )}
@@ -847,12 +873,34 @@ export const LiveReportDashboard: React.FC = () => {
                               </div>
 
                               {/* Team 2 */}
-                              <div className="min-w-0 pl-1 text-right">
-                                <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
-                                  {m.team2}
-                                </span>
+                              <div className={`min-w-0 pl-1 text-right p-2 rounded-xl transition-colors ${
+                                isTeam2Winner
+                                  ? "bg-emerald-50 border border-emerald-200/80"
+                                  : isTeam1Winner
+                                  ? "bg-rose-50/70 border border-rose-100"
+                                  : ""
+                              }`}>
+                                <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                  {isTeam2Winner && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900 border border-emerald-300 shrink-0">
+                                      Menang
+                                    </span>
+                                  )}
+                                  {isTeam1Winner && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
+                                      Kalah
+                                    </span>
+                                  )}
+                                  <span className={`font-bold text-xs block truncate leading-snug ${
+                                    isTeam2Winner ? "text-emerald-950 font-black" : isTeam1Winner ? "text-slate-500" : "text-slate-900"
+                                  }`}>
+                                    {m.team2}
+                                  </span>
+                                </div>
                                 {p2 && (
-                                  <span className="text-[10px] text-red-700 font-semibold block truncate leading-tight mt-0.5">
+                                  <span className={`text-[10px] font-semibold block truncate leading-tight mt-0.5 ${
+                                    isTeam2Winner ? "text-emerald-700" : isTeam1Winner ? "text-slate-400" : "text-red-700"
+                                  }`}>
                                     {p2}
                                   </span>
                                 )}
