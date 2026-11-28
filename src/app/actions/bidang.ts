@@ -82,7 +82,9 @@ export async function getParticipantsWithRosters(): Promise<{
       const { data: regData } = await supabase
         .from("registrations")
         .select("*")
-        .order("created_at", { ascending: true });
+        .neq("category", "drawn-group-stage")
+        .neq("category", "tournament-drawn-state")
+        .order("created_at", { ascending: false }); // Latest first
 
       if (regData && regData.length > 0) {
         regData.forEach((reg) => {
@@ -166,6 +168,11 @@ export async function getParticipantsWithRosters(): Promise<{
           }
         } catch {
           // ignore non-json notes
+        }
+
+        // If the latest registration row already defines extra teams/players, treat it as authoritative
+        if (r.notes && (r.notes.includes("extraSinglePutra") || r.notes.includes("extraGandaTeams"))) {
+          break;
         }
       }
     }

@@ -26,7 +26,22 @@ export async function saveGroupStageDraw(
     const cleanKey = categoryKey.trim().toLowerCase();
     const payloadNotes = JSON.stringify(groups);
 
-    // Save state as a confirmed system record in registrations (which has public INSERT policy)
+    // 1. Try primary dedicated tournament_draws table first
+    let savedToDedicated = false;
+    try {
+      const { error: drawErr } = await supabase.from("tournament_draws").upsert({
+        category: cleanKey,
+        groups_data: groups,
+        updated_at: new Date().toISOString(),
+      });
+      if (!drawErr) {
+        savedToDedicated = true;
+      }
+    } catch {
+      // Table might not exist yet if SQL migration has not run
+    }
+
+    // 2. Fallback / replica save to registrations
     const { error: insertError } = await supabase.from("registrations").insert([
       {
         registration_code: `DRAWN_${cleanKey}_${Date.now()}`,
@@ -40,7 +55,7 @@ export async function saveGroupStageDraw(
       },
     ]);
 
-    if (insertError) {
+    if (!savedToDedicated && insertError) {
       console.warn("Failed to insert group stage draw to Supabase:", insertError);
       return {
         success: false,
@@ -103,6 +118,31 @@ export async function getGroupStageDraws(): Promise<{
     };
   }
 
+  // 1. Try reading from dedicated tournament_draws table first
+  try {
+    const { data: drawRows, error: drawErr } = await supabase
+      .from("tournament_draws")
+      .select("category, groups_data");
+
+    if (!drawErr && drawRows && drawRows.length > 0) {
+      const parsedDraws: Record<string, GroupStageData[]> = {};
+      for (const row of drawRows) {
+        if (Array.isArray(row.groups_data) && row.groups_data.length > 0) {
+          parsedDraws[row.category.toLowerCase().trim()] = row.groups_data as GroupStageData[];
+        }
+      }
+      if (Object.keys(parsedDraws).length > 0) {
+        return {
+          draws: parsedDraws,
+          isLiveSupabase: true,
+        };
+      }
+    }
+  } catch {
+    // tournament_draws table may not exist yet, fallback to registrations
+  }
+
+  // 2. Fallback read from registrations
   try {
     const { data, error } = await supabase
       .from("registrations")
