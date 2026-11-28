@@ -237,18 +237,8 @@ export const ParticipantsView: React.FC = () => {
 
                       // Clean formatted role label
                       const formatRole = () => {
-                        if (slot.category === "Ganda Putra" || slot.category.includes("Ganda")) {
-                          const matchTim = slot.role.match(/(\d+)/);
-                          const timNum = matchTim ? matchTim[1] : "1";
-                          return `Ganda ${timNum}`;
-                        }
-                        if (slot.category === "Single Putra") {
-                          const matchPa = slot.role.match(/Atlet (\d+)/);
-                          return matchPa ? `Single Putra • Atlet ${matchPa[1]}` : "Single Putra";
-                        }
-                        if (slot.category === "Single Putri") {
-                          const matchPi = slot.role.match(/Atlet (\d+)/);
-                          return matchPi ? `Single Putri • Atlet ${matchPi[1]}` : "Single Putri";
+                        if (slot.role) {
+                          return slot.role;
                         }
                         return slot.category;
                       };

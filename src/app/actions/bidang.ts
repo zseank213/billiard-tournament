@@ -127,17 +127,28 @@ export async function getParticipantsWithRosters(): Promise<{
       const slots: ParticipantMemberSlot[] = [];
       let slotIdx = 1;
 
-      // 1. GANDA
-      const gandaRows = bRegs.filter((r) => r.category === "GANDA");
+      // Helper to extract team / player number from label (e.g. "Ganda 2", "Single Putra 5")
+      const extractLabelNumber = (label: string | null | undefined): number => {
+        if (!label) return 1;
+        const m = label.match(/(\d+)/);
+        return m ? parseInt(m[1], 10) : 1;
+      };
+
+      // 1. GANDA: Pastikan Ganda 1 sampai seterusnya berurut
+      const gandaRows = bRegs
+        .filter((r) => r.category === "GANDA")
+        .sort((a, b) => extractLabelNumber(a.team_label) - extractLabelNumber(b.team_label));
+
       gandaRows.forEach((gr, idx) => {
+        const teamNum = extractLabelNumber(gr.team_label) || idx + 1;
         slots.push({
           slotNumber: slotIdx++,
           category: "Ganda Putra",
-          role: gr.team_label || `Ganda ${idx + 1}`,
+          role: `Ganda ${teamNum}`,
           playerName: `${gr.player1_name}${gr.player2_name ? ` & ${gr.player2_name}` : ""}`,
         });
       });
-      const minGanda = Math.max(2, b.quota_ganda_putra || 2);
+      const minGanda = b.is_host ? gandaRows.length : Math.max(2, b.quota_ganda_putra || 2);
       for (let i = gandaRows.length; i < minGanda; i++) {
         slots.push({
           slotNumber: slotIdx++,
@@ -147,13 +158,23 @@ export async function getParticipantsWithRosters(): Promise<{
         });
       }
 
-      // 2. SINGLE PUTRA
-      const spRows = bRegs.filter((r) => r.category === "SINGLE_PUTRA");
+      // 2. SINGLE PUTRA: Setelah Ganda (khusus TI ada Single Putra 1 - seterusnya)
+      const spRows = bRegs
+        .filter((r) => r.category === "SINGLE_PUTRA")
+        .sort((a, b) => extractLabelNumber(a.team_label) - extractLabelNumber(b.team_label));
+
       spRows.forEach((sr, idx) => {
+        const num = extractLabelNumber(sr.team_label) || idx + 1;
+        const roleLabel = b.is_host
+          ? `Single Putra ${num}`
+          : spRows.length > 1
+          ? `Single Putra ${num}`
+          : "Single Putra";
+
         slots.push({
           slotNumber: slotIdx++,
           category: "Single Putra",
-          role: sr.team_label || (idx === 0 ? "Single Putra" : `Single Putra (Atlet ${idx + 1})`),
+          role: roleLabel,
           playerName: sr.player1_name,
         });
       });
@@ -161,18 +182,28 @@ export async function getParticipantsWithRosters(): Promise<{
         slots.push({
           slotNumber: slotIdx++,
           category: "Single Putra",
-          role: "Single Putra",
+          role: b.is_host ? "Single Putra 1" : "Single Putra",
           playerName: "Belum Didaftarkan (TBD)",
         });
       }
 
-      // 3. SINGLE PUTRI
-      const spiRows = bRegs.filter((r) => r.category === "SINGLE_PUTRI");
+      // 3. SINGLE PUTRI: Setelah Single Putra (khusus TI ada Single Putri 1 - seterusnya)
+      const spiRows = bRegs
+        .filter((r) => r.category === "SINGLE_PUTRI")
+        .sort((a, b) => extractLabelNumber(a.team_label) - extractLabelNumber(b.team_label));
+
       spiRows.forEach((spir, idx) => {
+        const num = extractLabelNumber(spir.team_label) || idx + 1;
+        const roleLabel = b.is_host
+          ? `Single Putri ${num}`
+          : spiRows.length > 1
+          ? `Single Putri ${num}`
+          : "Single Putri";
+
         slots.push({
           slotNumber: slotIdx++,
           category: "Single Putri",
-          role: spir.team_label || (idx === 0 ? "Single Putri" : `Single Putri (Atlet ${idx + 1})`),
+          role: roleLabel,
           playerName: spir.player1_name,
         });
       });
@@ -180,7 +211,7 @@ export async function getParticipantsWithRosters(): Promise<{
         slots.push({
           slotNumber: slotIdx++,
           category: "Single Putri",
-          role: "Single Putri",
+          role: b.is_host ? "Single Putri 1" : "Single Putri",
           playerName: "Belum Didaftarkan (TBD)",
         });
       }
