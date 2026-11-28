@@ -87,6 +87,7 @@ export interface GroupStageData {
     team2: string;
     score1: number;
     score2: number;
+    ballDiff?: number; // Selisih jumlah bola yang masih tersisa di meja
     status: "completed" | "live" | "upcoming";
     time?: string;
     table?: number;

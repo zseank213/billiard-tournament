@@ -12,6 +12,7 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
       seriesLost: number;
       racksWon: number;
       racksLost: number;
+      ballDiff: number;
       points: number;
     }
   > = {};
@@ -25,6 +26,7 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
         seriesLost: 0,
         racksWon: 0,
         racksLost: 0,
+        ballDiff: 0,
         points: 0,
       };
     }
@@ -34,6 +36,7 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
   for (const m of group.matches) {
     const s1 = Number(m.score1) || 0;
     const s2 = Number(m.score2) || 0;
+    const bDiff = Number(m.ballDiff) || 0;
     const t1 = m.team1;
     const t2 = m.team2;
 
@@ -50,11 +53,15 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
         if (s1 > s2) {
           standingsMap[t1].seriesWon += 1;
           standingsMap[t1].points += 1;
+          standingsMap[t1].ballDiff += bDiff;
           standingsMap[t2].seriesLost += 1;
+          standingsMap[t2].ballDiff -= bDiff;
         } else if (s2 > s1) {
           standingsMap[t2].seriesWon += 1;
           standingsMap[t2].points += 1;
+          standingsMap[t2].ballDiff += bDiff;
           standingsMap[t1].seriesLost += 1;
+          standingsMap[t1].ballDiff -= bDiff;
         }
       }
     }
@@ -64,7 +71,8 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
   const updatedStandings = group.standings.map((st) => {
     const stats = standingsMap[st.teamName];
     if (!stats) return st;
-    const rackDiff = stats.racksWon - stats.racksLost;
+    // Gunakan selisih bola sisa jika ada match yang diisi ballDiff; jika belum, gunakan selisih game
+    const rackDiff = stats.ballDiff !== 0 ? stats.ballDiff : (stats.racksWon - stats.racksLost);
     return {
       ...st,
       matchesPlayed: stats.matchesPlayed,

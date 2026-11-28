@@ -136,20 +136,27 @@ export const LiveReportDashboard: React.FC = () => {
 
   const handleUpdateMatch = (
     matchId: string,
-    field: "score1" | "score2" | "status" | "table",
+    field: "score1" | "score2" | "status" | "table" | "ballDiff",
     value: any
   ) => {
     if (!currentGroup) return;
 
     const updatedMatches = currentGroup.matches.map((m) => {
       if (m.id === matchId) {
-        const val = field === "score1" || field === "score2" ? Math.max(0, parseInt(value, 10) || 0) : value;
+        const val =
+          field === "score1" || field === "score2" || field === "ballDiff"
+            ? Math.max(0, parseInt(value, 10) || 0)
+            : value;
         const updated = {
           ...m,
           [field]: val,
         };
         // Auto-switch status to completed if score is entered and status was upcoming
-        if ((field === "score1" || field === "score2") && m.status === "upcoming" && (updated.score1 > 0 || updated.score2 > 0)) {
+        if (
+          (field === "score1" || field === "score2") &&
+          m.status === "upcoming" &&
+          (updated.score1 > 0 || updated.score2 > 0)
+        ) {
           updated.status = "completed" as const;
         }
         return updated;
@@ -168,6 +175,46 @@ export const LiveReportDashboard: React.FC = () => {
     // Update in local state
     const newCategoryGroups = [...currentCategoryGroups];
     newCategoryGroups[selectedGroupIndex] = recalculatedGroup;
+
+    setAllGroupsData((prev) => ({
+      ...prev,
+      [selectedCategory]: newCategoryGroups,
+    }));
+  };
+
+  const handleUpdateStandingRackDiff = (teamId: string, diff: number) => {
+    if (!currentGroup) return;
+    const updatedStandings = currentGroup.standings.map((st) => {
+      if (st.teamId === teamId) {
+        return { ...st, rackDiff: diff };
+      }
+      return st;
+    });
+
+    updatedStandings.sort((a, b) => {
+      if (a.teamName.includes("TBD")) return 1;
+      if (b.teamName.includes("TBD")) return -1;
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.rackDiff !== a.rackDiff) return b.rackDiff - a.rackDiff;
+      return b.racksWon - a.racksWon;
+    });
+
+    const finalized = updatedStandings.map((st, idx) => ({
+      ...st,
+      pos: idx + 1,
+      status:
+        !st.teamName.includes("TBD") && st.matchesPlayed > 0
+          ? idx + 1 <= 2
+            ? ("qualified" as const)
+            : ("eliminated" as const)
+          : null,
+    }));
+
+    const newCategoryGroups = [...currentCategoryGroups];
+    newCategoryGroups[selectedGroupIndex] = {
+      ...currentGroup,
+      standings: finalized,
+    };
 
     setAllGroupsData((prev) => ({
       ...prev,
@@ -558,7 +605,7 @@ export const LiveReportDashboard: React.FC = () => {
                         <th className="py-2.5 px-3 text-center">Main</th>
                         <th className="py-2.5 px-3 text-center">M - K</th>
                         <th className="py-2.5 px-3 text-center">Game</th>
-                        <th className="py-2.5 px-3 text-center">Selisih</th>
+                        <th className="py-2.5 px-3 text-center">Selisih Bola</th>
                         <th className="py-2.5 px-3 text-center font-extrabold text-slate-900">Poin</th>
                         <th className="py-2.5 px-3 text-center">Status</th>
                       </tr>
@@ -593,8 +640,22 @@ export const LiveReportDashboard: React.FC = () => {
                           <td className="py-2 px-3 text-center font-mono">
                             {st.racksWon} - {st.racksLost}
                           </td>
-                          <td className="py-2 px-3 text-center font-mono font-bold">
-                            {st.rackDiff > 0 ? `+${st.rackDiff}` : st.rackDiff}
+                          <td className="py-2 px-3 text-center">
+                            <input
+                              type="number"
+                              value={st.rackDiff}
+                              onChange={(e) =>
+                                handleUpdateStandingRackDiff(st.teamId, parseInt(e.target.value, 10) || 0)
+                              }
+                              title="Selisih sisa bola total (dapat diedit manual)"
+                              className={`w-14 px-1 py-0.5 text-center font-mono font-bold text-xs rounded-md border ${
+                                st.rackDiff > 0
+                                  ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                                  : st.rackDiff < 0
+                                  ? "bg-rose-50 text-rose-800 border-rose-300"
+                                  : "bg-slate-50 text-slate-700 border-slate-200"
+                              }`}
+                            />
                           </td>
                           <td className="py-2 px-3 text-center font-mono font-black text-slate-900 text-sm">
                             {st.points}
@@ -643,12 +704,12 @@ export const LiveReportDashboard: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex items-start sm:items-center gap-2.5 p-3 bg-blue-50/80 border border-blue-200/80 rounded-2xl text-xs text-blue-900">
+                <div className="flex items-start sm:items-center gap-2.5 p-3.5 bg-blue-50/90 border border-blue-200 rounded-2xl text-xs text-blue-900">
                   <span className="font-black px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] uppercase tracking-wider shrink-0 mt-0.5 sm:mt-0">
-                    Otomatis
+                    Input Selisih Bola
                   </span>
                   <span>
-                    Kolom <strong>Selisih</strong>, <strong>Game</strong>, dan <strong>Poin</strong> tidak perlu diisi manual. Sistem langsung menghitung otomatis dari skor match di bawah ini (misal menang <strong>2 - 0</strong> = Selisih <strong>+2</strong>, kalah <strong>0 - 2</strong> = Selisih <strong>-2</strong>).
+                    Catat <strong>Selisih Sisa Bola</strong> (berapa bola lawan yang masih tersisa di meja saat laga usai) pada kotak di tiap kartu match. Sistem otomatis menghitung (+) untuk pemenang dan (-) untuk yang kalah. Anda juga bisa mengoreksi langsung total Selisih Bola pada kolom tabel klasemen di atas!
                   </span>
                 </div>
 
@@ -754,6 +815,34 @@ export const LiveReportDashboard: React.FC = () => {
                             <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
                               {m.team2}
                             </span>
+                          </div>
+                        </div>
+
+                        {/* Selisih Sisa Bola Lawan Input */}
+                        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                              Selisih Sisa Bola:
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              (sisa bola lawan di meja)
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-slate-400">±</span>
+                            <input
+                              type="number"
+                              min={0}
+                              max={15}
+                              value={m.ballDiff ?? 0}
+                              onChange={(e) =>
+                                handleUpdateMatch(m.id, "ballDiff", e.target.value)
+                              }
+                              placeholder="0"
+                              title="Jumlah bola lawan yang masih tersisa di meja"
+                              className="w-12 h-6 text-center font-mono font-bold text-xs bg-slate-50 border border-slate-300 rounded-md focus:outline-none focus:border-red-500 focus:bg-white"
+                            />
+                            <span className="text-[10px] font-bold text-slate-500">bola</span>
                           </div>
                         </div>
                       </div>

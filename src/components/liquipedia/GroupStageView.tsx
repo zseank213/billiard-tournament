@@ -200,8 +200,11 @@ export const GroupStageView: React.FC = () => {
                 <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
                   Game
                 </th>
-                <th className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap">
-                  Selisih
+                <th
+                  className="py-2.5 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap cursor-help"
+                  title="Selisih Sisa Bola (jumlah bola lawan yang masih tersisa di meja)"
+                >
+                  Selisih Bola
                 </th>
                 <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center font-black text-slate-900">Poin</th>
               </tr>
