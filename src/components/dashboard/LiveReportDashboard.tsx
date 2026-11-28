@@ -950,39 +950,53 @@ export const LiveReportDashboard: React.FC = () => {
 
                   {/* Team 1 Row */}
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={m.team1.name}
-                      onChange={(e) => handleUpdatePlayoffMatch("quarterfinals", idx, "team1_name", e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
-                      placeholder="Nama Tim 1"
-                    />
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={m.team1.name}
+                        onChange={(e) => handleUpdatePlayoffMatch("quarterfinals", idx, "team1_name", e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
+                        placeholder="Nama Tim 1"
+                      />
+                      {m.team1.playerName && (
+                        <span className="text-[10px] text-red-600 font-semibold block px-1 truncate mt-0.5">
+                          Atlet: {m.team1.playerName}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="number"
                       min={0}
                       max={9}
                       value={m.team1.score}
                       onChange={(e) => handleUpdatePlayoffMatch("quarterfinals", idx, "team1_score", e.target.value)}
-                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white"
+                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white shrink-0"
                     />
                   </div>
 
                   {/* Team 2 Row */}
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={m.team2.name}
-                      onChange={(e) => handleUpdatePlayoffMatch("quarterfinals", idx, "team2_name", e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
-                      placeholder="Nama Tim 2"
-                    />
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={m.team2.name}
+                        onChange={(e) => handleUpdatePlayoffMatch("quarterfinals", idx, "team2_name", e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
+                        placeholder="Nama Tim 2"
+                      />
+                      {m.team2.playerName && (
+                        <span className="text-[10px] text-red-600 font-semibold block px-1 truncate mt-0.5">
+                          Atlet: {m.team2.playerName}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="number"
                       min={0}
                       max={9}
                       value={m.team2.score}
                       onChange={(e) => handleUpdatePlayoffMatch("quarterfinals", idx, "team2_score", e.target.value)}
-                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white"
+                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white shrink-0"
                     />
                   </div>
 
@@ -1030,38 +1044,52 @@ export const LiveReportDashboard: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={m.team1.name}
-                      onChange={(e) => handleUpdatePlayoffMatch("semifinals", idx, "team1_name", e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
-                      placeholder="Nama Tim 1"
-                    />
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={m.team1.name}
+                        onChange={(e) => handleUpdatePlayoffMatch("semifinals", idx, "team1_name", e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
+                        placeholder="Nama Tim 1"
+                      />
+                      {m.team1.playerName && (
+                        <span className="text-[10px] text-red-600 font-semibold block px-1 truncate mt-0.5">
+                          Atlet: {m.team1.playerName}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="number"
                       min={0}
                       max={9}
                       value={m.team1.score}
                       onChange={(e) => handleUpdatePlayoffMatch("semifinals", idx, "team1_score", e.target.value)}
-                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white"
+                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white shrink-0"
                     />
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={m.team2.name}
-                      onChange={(e) => handleUpdatePlayoffMatch("semifinals", idx, "team2_name", e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
-                      placeholder="Nama Tim 2"
-                    />
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={m.team2.name}
+                        onChange={(e) => handleUpdatePlayoffMatch("semifinals", idx, "team2_name", e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
+                        placeholder="Nama Tim 2"
+                      />
+                      {m.team2.playerName && (
+                        <span className="text-[10px] text-red-600 font-semibold block px-1 truncate mt-0.5">
+                          Atlet: {m.team2.playerName}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="number"
                       min={0}
                       max={9}
                       value={m.team2.score}
                       onChange={(e) => handleUpdatePlayoffMatch("semifinals", idx, "team2_score", e.target.value)}
-                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white"
+                      className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white shrink-0"
                     />
                   </div>
 
@@ -1106,38 +1134,52 @@ export const LiveReportDashboard: React.FC = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={currentPlayoffBracket.grandFinal.team1.name}
-                    onChange={(e) => handleUpdatePlayoffMatch("grandFinal", 0, "team1_name", e.target.value)}
-                    className="flex-1 px-3 py-2 text-xs font-bold rounded-xl border border-amber-200 bg-white"
-                    placeholder="Finalis 1"
-                  />
+                  <div className="flex-1 min-w-0">
+                    <input
+                      type="text"
+                      value={currentPlayoffBracket.grandFinal.team1.name}
+                      onChange={(e) => handleUpdatePlayoffMatch("grandFinal", 0, "team1_name", e.target.value)}
+                      className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-amber-200 bg-white"
+                      placeholder="Finalis 1"
+                    />
+                    {currentPlayoffBracket.grandFinal.team1.playerName && (
+                      <span className="text-[10px] text-amber-900 font-semibold block px-1 truncate mt-0.5">
+                        Atlet: {currentPlayoffBracket.grandFinal.team1.playerName}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     min={0}
                     max={9}
                     value={currentPlayoffBracket.grandFinal.team1.score}
                     onChange={(e) => handleUpdatePlayoffMatch("grandFinal", 0, "team1_score", e.target.value)}
-                    className="w-12 h-9 text-center font-mono font-black text-sm rounded-xl border border-amber-200 bg-white"
+                    className="w-12 h-9 text-center font-mono font-black text-sm rounded-xl border border-amber-200 bg-white shrink-0"
                   />
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={currentPlayoffBracket.grandFinal.team2.name}
-                    onChange={(e) => handleUpdatePlayoffMatch("grandFinal", 0, "team2_name", e.target.value)}
-                    className="flex-1 px-3 py-2 text-xs font-bold rounded-xl border border-amber-200 bg-white"
-                    placeholder="Finalis 2"
-                  />
+                  <div className="flex-1 min-w-0">
+                    <input
+                      type="text"
+                      value={currentPlayoffBracket.grandFinal.team2.name}
+                      onChange={(e) => handleUpdatePlayoffMatch("grandFinal", 0, "team2_name", e.target.value)}
+                      className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-amber-200 bg-white"
+                      placeholder="Finalis 2"
+                    />
+                    {currentPlayoffBracket.grandFinal.team2.playerName && (
+                      <span className="text-[10px] text-amber-900 font-semibold block px-1 truncate mt-0.5">
+                        Atlet: {currentPlayoffBracket.grandFinal.team2.playerName}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     min={0}
                     max={9}
                     value={currentPlayoffBracket.grandFinal.team2.score}
                     onChange={(e) => handleUpdatePlayoffMatch("grandFinal", 0, "team2_score", e.target.value)}
-                    className="w-12 h-9 text-center font-mono font-black text-sm rounded-xl border border-amber-200 bg-white"
+                    className="w-12 h-9 text-center font-mono font-black text-sm rounded-xl border border-amber-200 bg-white shrink-0"
                   />
                 </div>
 
@@ -1188,38 +1230,52 @@ export const LiveReportDashboard: React.FC = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={currentPlayoffBracket.bronzeMatch.team1.name}
-                    onChange={(e) => handleUpdatePlayoffMatch("bronzeMatch", 0, "team1_name", e.target.value)}
-                    className="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
-                    placeholder="Tim 1"
-                  />
+                  <div className="flex-1 min-w-0">
+                    <input
+                      type="text"
+                      value={currentPlayoffBracket.bronzeMatch.team1.name}
+                      onChange={(e) => handleUpdatePlayoffMatch("bronzeMatch", 0, "team1_name", e.target.value)}
+                      className="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
+                      placeholder="Tim 1"
+                    />
+                    {currentPlayoffBracket.bronzeMatch.team1.playerName && (
+                      <span className="text-[10px] text-red-600 font-semibold block px-1 truncate mt-0.5">
+                        Atlet: {currentPlayoffBracket.bronzeMatch.team1.playerName}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     min={0}
                     max={9}
                     value={currentPlayoffBracket.bronzeMatch.team1.score}
                     onChange={(e) => handleUpdatePlayoffMatch("bronzeMatch", 0, "team1_score", e.target.value)}
-                    className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white"
+                    className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white shrink-0"
                   />
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={currentPlayoffBracket.bronzeMatch.team2.name}
-                    onChange={(e) => handleUpdatePlayoffMatch("bronzeMatch", 0, "team2_name", e.target.value)}
-                    className="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
-                    placeholder="Tim 2"
-                  />
+                  <div className="flex-1 min-w-0">
+                    <input
+                      type="text"
+                      value={currentPlayoffBracket.bronzeMatch.team2.name}
+                      onChange={(e) => handleUpdatePlayoffMatch("bronzeMatch", 0, "team2_name", e.target.value)}
+                      className="w-full px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white"
+                      placeholder="Tim 2"
+                    />
+                    {currentPlayoffBracket.bronzeMatch.team2.playerName && (
+                      <span className="text-[10px] text-red-600 font-semibold block px-1 truncate mt-0.5">
+                        Atlet: {currentPlayoffBracket.bronzeMatch.team2.playerName}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="number"
                     min={0}
                     max={9}
                     value={currentPlayoffBracket.bronzeMatch.team2.score}
                     onChange={(e) => handleUpdatePlayoffMatch("bronzeMatch", 0, "team2_score", e.target.value)}
-                    className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white"
+                    className="w-10 h-8 text-center font-mono font-black text-sm rounded-lg border border-slate-200 bg-white shrink-0"
                   />
                 </div>
 

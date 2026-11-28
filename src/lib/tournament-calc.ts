@@ -167,6 +167,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[0].team1,
         name: t1A.teamName,
         shortName: t1A.shortName || "1A",
+        playerName: t1A.playerName,
         seed: 1,
       };
     }
@@ -175,6 +176,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[0].team2,
         name: t2B.teamName,
         shortName: t2B.shortName || "2B",
+        playerName: t2B.playerName,
       };
     }
   }
@@ -186,6 +188,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[1].team1,
         name: t1C.teamName,
         shortName: t1C.shortName || "1C",
+        playerName: t1C.playerName,
         seed: 1,
       };
     }
@@ -194,6 +197,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[1].team2,
         name: t2D.teamName,
         shortName: t2D.shortName || "2D",
+        playerName: t2D.playerName,
       };
     }
   }
@@ -205,6 +209,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[2].team1,
         name: t1B.teamName,
         shortName: t1B.shortName || "1B",
+        playerName: t1B.playerName,
         seed: 1,
       };
     }
@@ -213,6 +218,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[2].team2,
         name: t2A.teamName,
         shortName: t2A.shortName || "2A",
+        playerName: t2A.playerName,
       };
     }
   }
@@ -224,6 +230,7 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[3].team1,
         name: t1D.teamName,
         shortName: t1D.shortName || "1D",
+        playerName: t1D.playerName,
         seed: 1,
       };
     }
@@ -232,9 +239,37 @@ export function syncPlayoffBracketWithGroups(
         ...bracket.quarterfinals[3].team2,
         name: t2C.teamName,
         shortName: t2C.shortName || "2C",
+        playerName: t2C.playerName,
       };
     }
   }
+
+  // Build a lookup map of player names from all groups to enrich all rounds
+  const playerNameMap: Record<string, string> = {};
+  for (const g of groups) {
+    if (g.standings) {
+      for (const s of g.standings) {
+        if (s.teamName && s.playerName) {
+          playerNameMap[s.teamName.trim()] = s.playerName.trim();
+        }
+      }
+    }
+  }
+
+  const enrichNode = (node?: any) => {
+    if (!node) return;
+    if (node.team1 && node.team1.name && playerNameMap[node.team1.name.trim()]) {
+      node.team1.playerName = playerNameMap[node.team1.name.trim()];
+    }
+    if (node.team2 && node.team2.name && playerNameMap[node.team2.name.trim()]) {
+      node.team2.playerName = playerNameMap[node.team2.name.trim()];
+    }
+  };
+
+  bracket.quarterfinals?.forEach(enrichNode);
+  bracket.semifinals?.forEach(enrichNode);
+  enrichNode(bracket.bronzeMatch);
+  enrichNode(bracket.grandFinal);
 
   return bracket;
 }

@@ -63,14 +63,21 @@ export const BracketView: React.FC = () => {
 
         {/* Team 1 Row */}
         <div
-          className={`flex items-center justify-between px-3.5 py-2.5 border-b border-slate-100 transition-colors ${
+          className={`flex items-center justify-between px-3.5 py-2 border-b border-slate-100 transition-colors ${
             match.team1.isWinner
               ? "bg-amber-50/40 text-slate-900 font-black"
-              : "text-slate-600 font-medium"
+              : "text-slate-700 font-medium"
           }`}
         >
-          <div className="flex items-center min-w-0 pr-1 flex-1">
-            <span className="truncate text-xs font-semibold text-slate-800">{match.team1.name}</span>
+          <div className="flex flex-col min-w-0 pr-1 flex-1 justify-center py-0.5">
+            <span className="truncate text-xs font-bold text-slate-900 leading-snug">
+              {match.team1.name}
+            </span>
+            {match.team1.playerName && (
+              <span className="truncate text-[10px] text-red-600 font-semibold leading-tight mt-0.5">
+                {match.team1.playerName}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0 pl-2">
             <span
@@ -90,14 +97,21 @@ export const BracketView: React.FC = () => {
 
         {/* Team 2 Row */}
         <div
-          className={`flex items-center justify-between px-3.5 py-2.5 transition-colors ${
+          className={`flex items-center justify-between px-3.5 py-2 transition-colors ${
             match.team2.isWinner
               ? "bg-amber-50/40 text-slate-900 font-black"
-              : "text-slate-600 font-medium"
+              : "text-slate-700 font-medium"
           }`}
         >
-          <div className="flex items-center min-w-0 pr-1 flex-1">
-            <span className="truncate text-xs font-semibold text-slate-800">{match.team2.name}</span>
+          <div className="flex flex-col min-w-0 pr-1 flex-1 justify-center py-0.5">
+            <span className="truncate text-xs font-bold text-slate-900 leading-snug">
+              {match.team2.name}
+            </span>
+            {match.team2.playerName && (
+              <span className="truncate text-[10px] text-red-600 font-semibold leading-tight mt-0.5">
+                {match.team2.playerName}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0 pl-2">
             <span
@@ -270,15 +284,29 @@ export const BracketView: React.FC = () => {
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between font-bold text-slate-800">
-                  <span className="text-sm">{activeMatchModal.team1.name}</span>
-                  <span className="font-black text-lg font-mono text-red-600">
+                  <div className="min-w-0 pr-2">
+                    <span className="text-sm block">{activeMatchModal.team1.name}</span>
+                    {activeMatchModal.team1.playerName && (
+                      <span className="text-xs text-red-600 block font-semibold mt-0.5">
+                        {activeMatchModal.team1.playerName}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-black text-lg font-mono text-red-600 shrink-0">
                     {activeMatchModal.team1.score}
                   </span>
                 </div>
                 <div className="h-px bg-slate-200" />
                 <div className="flex items-center justify-between font-bold text-slate-800">
-                  <span className="text-sm">{activeMatchModal.team2.name}</span>
-                  <span className="font-black text-lg font-mono text-red-600">
+                  <div className="min-w-0 pr-2">
+                    <span className="text-sm block">{activeMatchModal.team2.name}</span>
+                    {activeMatchModal.team2.playerName && (
+                      <span className="text-xs text-red-600 block font-semibold mt-0.5">
+                        {activeMatchModal.team2.playerName}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-black text-lg font-mono text-red-600 shrink-0">
                     {activeMatchModal.team2.score}
                   </span>
                 </div>

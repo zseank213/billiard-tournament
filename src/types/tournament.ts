@@ -106,6 +106,7 @@ export interface SingleEliminationBracket {
 export interface BracketTeamSlot {
   name: string;
   shortName: string;
+  playerName?: string; // Nama atlet / pemain
   seed?: number;
   score?: number;
   isWinner?: boolean;
