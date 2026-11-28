@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { ParticipantTeam, GroupStageData, GroupTeamStanding } from "@/types/tournament";
 import {
   Trophy,
@@ -12,9 +11,7 @@ import {
   CheckCircle2,
   Calendar,
   Sparkles,
-  Dices,
   AlertCircle,
-  ExternalLink,
 } from "lucide-react";
 
 interface CategoryStageConfig {
@@ -307,7 +304,7 @@ export const GroupStageView: React.FC = () => {
 
   return (
     <div className="space-y-10 w-full min-w-0 max-w-full">
-      {/* Top Header Banner with Link to /roulette */}
+      {/* Top Header Banner */}
       <div className="p-5 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2 flex-wrap">
@@ -329,18 +326,6 @@ export const GroupStageView: React.FC = () => {
           <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
             Klasemen 4 grup (A, B, C, D) untuk seluruh kategori turnamen. Juara dan runner-up masing-masing grup berhak melaju ke Babak 8 Besar (Playoffs).
           </p>
-        </div>
-
-        {/* CTA to Roulette Page */}
-        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-          <Link
-            href="/roulette"
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <Dices className="w-4 h-4 text-amber-200 animate-spin" />
-            <span>🎯 Buka Roda Undian (Wheel of Names)</span>
-            <ExternalLink className="w-3.5 h-3.5 text-white/80" />
-          </Link>
         </div>
       </div>
 
@@ -388,7 +373,7 @@ export const GroupStageView: React.FC = () => {
                           </span>
                         ) : (
                           <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
-                            Menunggu Undian di /roulette
+                            Menunggu Pengundian Resmi
                           </span>
                         )}
                       </div>
@@ -398,16 +383,8 @@ export const GroupStageView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Category Action Link */}
+                  {/* Category Badge */}
                   <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
-                    <Link
-                      href={`/roulette?category=${cat.id}`}
-                      className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-red-600 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
-                    >
-                      <Dices className="w-3.5 h-3.5 text-red-600" />
-                      <span>{hasDrawn ? "Lihat / Undi Ulang di Wheel" : "Undi di Wheel of Names"}</span>
-                    </Link>
-
                     <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-xl border ${cat.badgeColor} shrink-0 shadow-2xs`}>
                       {cat.badge}
                     </span>

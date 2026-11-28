@@ -18,7 +18,6 @@ import {
   X,
   Phone,
   Home,
-  Dices,
 } from "lucide-react";
 
 export const Navbar: React.FC = () => {
@@ -59,7 +58,6 @@ export const Navbar: React.FC = () => {
   const navMenuItems = [
     { href: "/playoffs", label: "Bagan Gugur (8 Besar)", icon: GitFork },
     { href: "/group-stage", label: "Babak Grup (Penyisihan)", icon: TableProperties },
-    { href: "/roulette", label: "Wheel of Names (Undian)", icon: Dices },
     { href: "/participants", label: "Daftar Peserta (Bidang)", icon: Users },
     { href: "/prize-pool", label: "Total Hadiah & Piala", icon: Trophy },
     { href: "/merchandise", label: "Souvenir & Hadiah Hiburan", icon: Gift },
@@ -146,18 +144,6 @@ export const Navbar: React.FC = () => {
             >
               <TableProperties className="w-3.5 h-3.5" />
               <span>Group Stage</span>
-            </Link>
-
-            <Link
-              href="/roulette"
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                pathname === "/roulette"
-                  ? "bg-white text-red-600 shadow-xs font-black"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <Dices className="w-3.5 h-3.5 text-amber-500" />
-              <span>Wheel</span>
             </Link>
 
             <Link
