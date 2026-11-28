@@ -24,20 +24,65 @@ export const BracketView: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<"ganda-putra" | "single-putra" | "single-putri">("ganda-putra");
   const [activeMatchModal, setActiveMatchModal] = useState<BracketMatchNode | null>(null);
   const [playoffsMap, setPlayoffsMap] = useState<Record<string, SingleEliminationBracket>>(LIQUIPEDIA_PLAYOFFS_DATA);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-    getPlayoffsData().then((res) => {
-      if (isMounted && res.playoffs) {
-        setPlayoffsMap((prev) => ({ ...prev, ...res.playoffs }));
-      }
-    });
+    setIsLoading(true);
+    getPlayoffsData()
+      .then((res) => {
+        if (isMounted && res.playoffs) {
+          setPlayoffsMap((prev) => ({ ...prev, ...res.playoffs }));
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load playoffs data:", err);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
     return () => {
       isMounted = false;
     };
-  }, [selectedCategory]);
+  }, []);
 
   const data = playoffsMap[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA[selectedCategory] || LIQUIPEDIA_PLAYOFFS_DATA["ganda-putra"];
+
+  // Render Shimmer Skeleton Match Card
+  const renderShimmerMatchCard = (isGrandFinal = false) => (
+    <div
+      className={`w-full max-w-[340px] mx-auto bg-white rounded-2xl border shadow-xs overflow-hidden ${
+        isGrandFinal ? "border-amber-300 ring-2 ring-amber-300/30" : "border-slate-200"
+      }`}
+    >
+      {/* Match Header Shimmer */}
+      <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+        <div className="h-3 w-28 bg-slate-200 rounded animate-pulse" />
+        <div className="h-4 w-16 bg-slate-200 rounded animate-pulse" />
+      </div>
+
+      {/* Team 1 Row Shimmer */}
+      <div className="flex items-center justify-between px-3.5 py-3 border-b border-slate-100 bg-slate-50/40">
+        <div className="space-y-1.5 flex-1 pr-3">
+          <div className="h-3.5 w-3/4 bg-slate-200 rounded animate-pulse" />
+          <div className="h-2.5 w-1/2 bg-slate-100 rounded animate-pulse" />
+        </div>
+        <div className="h-6 w-6 bg-slate-200 rounded-md shrink-0 animate-pulse" />
+      </div>
+
+      {/* Team 2 Row Shimmer */}
+      <div className="flex items-center justify-between px-3.5 py-3 bg-slate-50/40">
+        <div className="space-y-1.5 flex-1 pr-3">
+          <div className="h-3.5 w-2/3 bg-slate-200 rounded animate-pulse" />
+          <div className="h-2.5 w-1/3 bg-slate-100 rounded animate-pulse" />
+        </div>
+        <div className="h-6 w-6 bg-slate-200 rounded-md shrink-0 animate-pulse" />
+      </div>
+    </div>
+  );
 
   // Render Clean Light Match Card
   const renderCleanMatchCard = (match: BracketMatchNode, isGrandFinal = false) => {
@@ -254,39 +299,77 @@ export const BracketView: React.FC = () => {
             </div>
           </div>
 
-          {/* Tournament Tree Columns */}
-          <div className="grid grid-cols-3 gap-8 items-center">
-            {/* Column 1: Quarterfinals (4 matches) */}
+          {isLoading ? (
+            /* Shimmer Skeleton Tournament Tree */
             <div className="space-y-6">
-              {data.quarterfinals.map((m) => renderCleanMatchCard(m))}
-            </div>
-
-            {/* Column 2: Semifinals (2 matches) */}
-            <div className="space-y-28">
-              {data.semifinals.map((m) => renderCleanMatchCard(m))}
-            </div>
-
-            {/* Column 3: Grand Final & Bronze Match */}
-            <div className="flex flex-col items-center justify-center space-y-8">
-              {/* Grand Final Card */}
-              <div className="w-full max-w-[340px] space-y-2">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-900 bg-amber-100/80 px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs text-center">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>Piala Bergilir DirRen {selectedCategory === "ganda-putra" ? "Ganda (Campuran)" : selectedCategory === "single-putra" ? "Single Putra" : "Single Putri"}</span>
-                </div>
-                {renderCleanMatchCard(data.grandFinal, true)}
+              <div className="flex items-center justify-center gap-2 py-2 px-4 bg-slate-100 rounded-full text-xs font-semibold text-slate-500 animate-pulse w-fit mx-auto">
+                <div className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+                <span>Memuat bagan &amp; skor langsung dari server...</span>
               </div>
 
-              {/* Bronze Match (Perebutan Juara 3) */}
-              <div className="w-full max-w-[340px] space-y-2 pt-4 border-t border-slate-200">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-600 text-center">
-                  <Award className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                  <span>Perebutan Juara 3 (Bronze Match)</span>
+              <div className="grid grid-cols-3 gap-8 items-center">
+                {/* Column 1 Shimmer: 4 Quarterfinals */}
+                <div className="space-y-6">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i}>{renderShimmerMatchCard()}</div>
+                  ))}
                 </div>
-                {renderCleanMatchCard(data.bronzeMatch)}
+
+                {/* Column 2 Shimmer: 2 Semifinals */}
+                <div className="space-y-28">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i}>{renderShimmerMatchCard()}</div>
+                  ))}
+                </div>
+
+                {/* Column 3 Shimmer: Grand Final & Bronze */}
+                <div className="flex flex-col items-center justify-center space-y-8">
+                  <div className="w-full max-w-[340px] space-y-2">
+                    <div className="h-7 w-full bg-amber-100/70 rounded-xl animate-pulse" />
+                    {renderShimmerMatchCard(true)}
+                  </div>
+                  <div className="w-full max-w-[340px] space-y-2 pt-4 border-t border-slate-200">
+                    <div className="h-5 w-48 bg-slate-100 rounded-lg mx-auto animate-pulse" />
+                    {renderShimmerMatchCard()}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            /* Tournament Tree Columns */
+            <div className="grid grid-cols-3 gap-8 items-center">
+              {/* Column 1: Quarterfinals (4 matches) */}
+              <div className="space-y-6">
+                {data.quarterfinals.map((m) => renderCleanMatchCard(m))}
+              </div>
+
+              {/* Column 2: Semifinals (2 matches) */}
+              <div className="space-y-28">
+                {data.semifinals.map((m) => renderCleanMatchCard(m))}
+              </div>
+
+              {/* Column 3: Grand Final & Bronze Match */}
+              <div className="flex flex-col items-center justify-center space-y-8">
+                {/* Grand Final Card */}
+                <div className="w-full max-w-[340px] space-y-2">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-900 bg-amber-100/80 px-3 py-1.5 rounded-xl border border-amber-300 shadow-2xs text-center">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Piala Bergilir DirRen {selectedCategory === "ganda-putra" ? "Ganda (Campuran)" : selectedCategory === "single-putra" ? "Single Putra" : "Single Putri"}</span>
+                  </div>
+                  {renderCleanMatchCard(data.grandFinal, true)}
+                </div>
+
+                {/* Bronze Match (Perebutan Juara 3) */}
+                <div className="w-full max-w-[340px] space-y-2 pt-4 border-t border-slate-200">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-600 text-center">
+                    <Award className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>Perebutan Juara 3 (Bronze Match)</span>
+                  </div>
+                  {renderCleanMatchCard(data.bronzeMatch)}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       </div>
