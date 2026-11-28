@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ParticipantTeam, GroupStageData, GroupTeamStanding } from "@/types/tournament";
+import { getGroupStageDraws } from "@/app/actions/groupStage";
 import {
   Trophy,
   TableProperties,
@@ -56,27 +57,62 @@ export const GroupStageView: React.FC = () => {
     },
   ];
 
-  // Restore saved drawings from localStorage (generated via /roulette)
+  // Fetch saved drawings from Supabase server with localStorage fallback
   useEffect(() => {
+    let isMounted = true;
     setIsLoading(true);
-    if (typeof window !== "undefined") {
-      const restored: Record<string, GroupStageData[]> = {};
-      categories.forEach((cat) => {
-        try {
-          const saved = localStorage.getItem(`${STORAGE_KEY_ROULETTE}${cat.id}`);
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length === 4) {
-              restored[cat.id] = parsed;
+
+    getGroupStageDraws()
+      .then((res) => {
+        if (!isMounted) return;
+        const restored: Record<string, GroupStageData[]> = { ...(res.draws || {}) };
+
+        // Fallback to localStorage if any category not yet on server
+        if (typeof window !== "undefined") {
+          categories.forEach((cat) => {
+            if (!restored[cat.id]) {
+              try {
+                const saved = localStorage.getItem(`${STORAGE_KEY_ROULETTE}${cat.id}`);
+                if (saved) {
+                  const parsed = JSON.parse(saved);
+                  if (Array.isArray(parsed) && parsed.length === 4) {
+                    restored[cat.id] = parsed;
+                  }
+                }
+              } catch (e) {
+                console.warn("Failed reading saved draw from localStorage:", e);
+              }
             }
-          }
-        } catch (e) {
-          console.warn("Failed reading saved draw from localStorage:", e);
+          });
         }
+
+        setDrawnGroupsMap(restored);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Failed fetching draws from server:", err);
+        // Fallback to localStorage on error
+        if (typeof window !== "undefined") {
+          const restored: Record<string, GroupStageData[]> = {};
+          categories.forEach((cat) => {
+            try {
+              const saved = localStorage.getItem(`${STORAGE_KEY_ROULETTE}${cat.id}`);
+              if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length === 4) {
+                  restored[cat.id] = parsed;
+                }
+              }
+            } catch (e) {}
+          });
+          if (isMounted) setDrawnGroupsMap(restored);
+        }
+        if (isMounted) setIsLoading(false);
       });
-      setDrawnGroupsMap(restored);
-    }
-    setIsLoading(false);
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Helper to generate default 4 groups (A, B, C, D) with TBD slots
