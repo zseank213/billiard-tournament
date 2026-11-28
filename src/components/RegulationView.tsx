@@ -33,7 +33,6 @@ import {
   VolumeX,
   AlertTriangle,
   UserCheck,
-  Download,
   Users,
   ShieldAlert,
   CircleDot,
@@ -145,15 +144,6 @@ export const RegulationView: React.FC<RegulationViewProps> = ({
               <ShieldCheck className="w-3.5 h-3.5 text-red-600" />
               <span>Dokumen Resmi</span>
             </span>
-            <a
-              href="/downloads/REGULASI_DAN_SK_RESMI_TI_BILLIARD_CUP_2026.docx"
-              download
-              className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-2xs transition-all hover:scale-[1.02]"
-              title="Unduh Dokumen Regulasi Format Word (.docx) untuk Dicetak"
-            >
-              <Download className="w-3.5 h-3.5 text-amber-400" />
-              <span>Unduh .DOCX (Siap Print)</span>
-            </a>
           </div>
         </div>
 
