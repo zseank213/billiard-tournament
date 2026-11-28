@@ -63,69 +63,103 @@ export const BracketView: React.FC = () => {
 
         {/* Team 1 Row */}
         <div
-          className={`flex items-center justify-between px-3.5 py-2 border-b border-slate-100 transition-colors ${
+          className={`flex items-center justify-between px-3.5 py-2.5 border-b border-slate-100 transition-colors ${
             match.team1.isWinner
-              ? "bg-amber-50/40 text-slate-900 font-black"
-              : "text-slate-700 font-medium"
+              ? "bg-emerald-50 text-emerald-950 font-bold"
+              : match.team2.isWinner
+              ? "bg-rose-50/70 text-slate-400 font-medium"
+              : "text-slate-700 font-medium hover:bg-slate-50/70"
           }`}
         >
           <div className="flex flex-col min-w-0 pr-1 flex-1 justify-center py-0.5">
-            <span className="truncate text-xs font-bold text-slate-900 leading-snug">
+            <span
+              className={`truncate text-xs leading-snug ${
+                match.team1.isWinner
+                  ? "font-black text-emerald-900"
+                  : match.team2.isWinner
+                  ? "font-medium text-slate-500"
+                  : "font-bold text-slate-900"
+              }`}
+            >
               {match.team1.name}
             </span>
             {match.team1.playerName && (
-              <span className="truncate text-[10px] text-red-600 font-semibold leading-tight mt-0.5">
+              <span
+                className={`truncate text-[10px] leading-tight mt-0.5 ${
+                  match.team1.isWinner
+                    ? "font-bold text-emerald-700"
+                    : match.team2.isWinner
+                    ? "text-slate-400"
+                    : "font-semibold text-red-600"
+                }`}
+              >
                 {match.team1.playerName}
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0 pl-2">
             <span
-              className={`w-6 text-center font-mono text-sm ${
+              className={`min-w-6 px-1.5 py-0.5 rounded text-center font-mono text-xs ${
                 match.team1.isWinner
-                  ? "text-red-600 font-black"
-                  : "text-slate-400 font-semibold"
+                  ? "bg-emerald-600 text-white font-black shadow-xs"
+                  : match.team2.isWinner
+                  ? "bg-rose-100 text-rose-700 font-bold"
+                  : "text-slate-400 font-bold"
               }`}
             >
               {match.team1.score !== undefined ? match.team1.score : "-"}
             </span>
-            {match.team1.isWinner && (
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            )}
           </div>
         </div>
 
         {/* Team 2 Row */}
         <div
-          className={`flex items-center justify-between px-3.5 py-2 transition-colors ${
+          className={`flex items-center justify-between px-3.5 py-2.5 transition-colors ${
             match.team2.isWinner
-              ? "bg-amber-50/40 text-slate-900 font-black"
-              : "text-slate-700 font-medium"
+              ? "bg-emerald-50 text-emerald-950 font-bold"
+              : match.team1.isWinner
+              ? "bg-rose-50/70 text-slate-400 font-medium"
+              : "text-slate-700 font-medium hover:bg-slate-50/70"
           }`}
         >
           <div className="flex flex-col min-w-0 pr-1 flex-1 justify-center py-0.5">
-            <span className="truncate text-xs font-bold text-slate-900 leading-snug">
+            <span
+              className={`truncate text-xs leading-snug ${
+                match.team2.isWinner
+                  ? "font-black text-emerald-900"
+                  : match.team1.isWinner
+                  ? "font-medium text-slate-500"
+                  : "font-bold text-slate-900"
+              }`}
+            >
               {match.team2.name}
             </span>
             {match.team2.playerName && (
-              <span className="truncate text-[10px] text-red-600 font-semibold leading-tight mt-0.5">
+              <span
+                className={`truncate text-[10px] leading-tight mt-0.5 ${
+                  match.team2.isWinner
+                    ? "font-bold text-emerald-700"
+                    : match.team1.isWinner
+                    ? "text-slate-400"
+                    : "font-semibold text-red-600"
+                }`}
+              >
                 {match.team2.playerName}
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0 pl-2">
             <span
-              className={`w-6 text-center font-mono text-sm ${
+              className={`min-w-6 px-1.5 py-0.5 rounded text-center font-mono text-xs ${
                 match.team2.isWinner
-                  ? "text-red-600 font-black"
-                  : "text-slate-400 font-semibold"
+                  ? "bg-emerald-600 text-white font-black shadow-xs"
+                  : match.team1.isWinner
+                  ? "bg-rose-100 text-rose-700 font-bold"
+                  : "text-slate-400 font-bold"
               }`}
             >
               {match.team2.score !== undefined ? match.team2.score : "-"}
             </span>
-            {match.team2.isWinner && (
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            )}
           </div>
         </div>
       </div>

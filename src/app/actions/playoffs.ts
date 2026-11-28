@@ -123,6 +123,42 @@ export async function savePlayoffsData(
       updated_at: new Date().toISOString(),
     });
 
+    // 3. Mirror individual matches into playoff_matches table for Supabase Table Editor view
+    try {
+      const catLabel =
+        cleanKey === "ganda-putra"
+          ? "Ganda Putra"
+          : cleanKey === "single-putra"
+          ? "Single Putra"
+          : "Single Putri";
+
+      const matches = [
+        ...(bracketData.quarterfinals || []),
+        ...(bracketData.semifinals || []),
+        bracketData.bronzeMatch,
+        bracketData.grandFinal,
+      ].filter(Boolean);
+
+      const rows = matches.map((m) => ({
+        id: m.id.includes(cleanKey) ? m.id : `${cleanKey}-${m.id}`,
+        category: catLabel,
+        round_name: m.roundName,
+        team1_name: m.team1?.name || "TBD",
+        team1_short: m.team1?.shortName || null,
+        team1_score: m.team1?.score ?? 0,
+        team2_name: m.team2?.name || "TBD",
+        team2_short: m.team2?.shortName || null,
+        team2_score: m.team2?.score ?? 0,
+        race_to: m.raceTo || 4,
+        status: m.status || "upcoming",
+        winner: m.team1?.isWinner ? m.team1.name : m.team2?.isWinner ? m.team2.name : null,
+      }));
+
+      await supabase.from("playoff_matches").upsert(rows, { onConflict: "id" });
+    } catch (e) {
+      console.warn("Could not mirror to playoff_matches table:", e);
+    }
+
     if (drawErr && !saved) {
       return { success: false, message: `Gagal menyimpan ke server: ${drawErr.message}` };
     }
