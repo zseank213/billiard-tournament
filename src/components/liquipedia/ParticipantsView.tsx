@@ -277,7 +277,8 @@ export const ParticipantsView: React.FC = () => {
                                 {formatRole()}
                               </span>
                               <span
-                                className={`text-xs sm:text-sm truncate block leading-snug ${
+                                title={slot.playerName}
+                                className={`text-xs sm:text-sm line-clamp-2 break-words block leading-snug ${
                                   isFilled
                                     ? "font-bold text-slate-900"
                                     : "text-slate-400 italic font-medium"
