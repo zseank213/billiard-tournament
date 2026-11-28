@@ -825,27 +825,15 @@ export const LiveReportDashboard: React.FC = () => {
                                   ? "bg-rose-50/70 border border-rose-100"
                                   : ""
                               }`}>
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className={`font-bold text-xs block truncate leading-snug ${
-                                    isTeam1Winner ? "text-emerald-950 font-black" : isTeam2Winner ? "text-slate-500" : "text-slate-900"
-                                  }`}>
-                                    {m.team1}
-                                  </span>
-                                  {isTeam1Winner && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900 border border-emerald-300 shrink-0">
-                                      Menang
-                                    </span>
-                                  )}
-                                  {isTeam2Winner && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                                      Kalah
-                                    </span>
-                                  )}
-                                </div>
+                                <span className={`font-bold text-xs block truncate leading-snug ${
+                                  isTeam1Winner ? "text-emerald-950 font-black" : isTeam2Winner ? "text-slate-500" : "text-slate-900"
+                                }`} title={m.team1}>
+                                  {m.team1}
+                                </span>
                                 {p1 && (
                                   <span className={`text-[10px] font-semibold block truncate leading-tight mt-0.5 ${
                                     isTeam1Winner ? "text-emerald-700" : isTeam2Winner ? "text-slate-400" : "text-red-700"
-                                  }`}>
+                                  }`} title={p1}>
                                     {p1}
                                   </span>
                                 )}
@@ -880,27 +868,15 @@ export const LiveReportDashboard: React.FC = () => {
                                   ? "bg-rose-50/70 border border-rose-100"
                                   : ""
                               }`}>
-                                <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                                  {isTeam2Winner && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900 border border-emerald-300 shrink-0">
-                                      Menang
-                                    </span>
-                                  )}
-                                  {isTeam1Winner && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                                      Kalah
-                                    </span>
-                                  )}
-                                  <span className={`font-bold text-xs block truncate leading-snug ${
-                                    isTeam2Winner ? "text-emerald-950 font-black" : isTeam1Winner ? "text-slate-500" : "text-slate-900"
-                                  }`}>
-                                    {m.team2}
-                                  </span>
-                                </div>
+                                <span className={`font-bold text-xs block truncate leading-snug ${
+                                  isTeam2Winner ? "text-emerald-950 font-black" : isTeam1Winner ? "text-slate-500" : "text-slate-900"
+                                }`} title={m.team2}>
+                                  {m.team2}
+                                </span>
                                 {p2 && (
                                   <span className={`text-[10px] font-semibold block truncate leading-tight mt-0.5 ${
                                     isTeam2Winner ? "text-emerald-700" : isTeam1Winner ? "text-slate-400" : "text-red-700"
-                                  }`}>
+                                  }`} title={p2}>
                                     {p2}
                                   </span>
                                 )}

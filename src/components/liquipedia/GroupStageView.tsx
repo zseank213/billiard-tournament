@@ -334,45 +334,35 @@ export const GroupStageView: React.FC = () => {
                     <div
                       className={`flex items-center justify-between p-2 rounded-xl transition-colors ${
                         isTeam1Winner
-                          ? "bg-emerald-50 text-emerald-950 font-bold border border-emerald-200/80"
+                          ? "bg-emerald-50 text-emerald-950 border border-emerald-200/80"
                           : isTeam2Winner
-                          ? "bg-rose-50/70 text-slate-400 font-medium border border-rose-100"
-                          : "text-slate-800 font-medium bg-slate-50 border border-slate-100"
+                          ? "bg-rose-50/70 text-slate-500 border border-rose-100"
+                          : "text-slate-800 bg-slate-50 border border-slate-100"
                       }`}
                     >
                       <div className="min-w-0 pr-2 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span
-                            className={`line-clamp-1 break-words text-xs ${
-                              isTeam1Winner
-                                ? "font-bold text-emerald-950"
-                                : isTeam2Winner
-                                ? "text-slate-500 font-medium"
-                                : "font-bold text-slate-800"
-                            }`}
-                          >
-                            {m.team1}
-                          </span>
-                          {isTeam1Winner && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900 border border-emerald-300 shrink-0">
-                              Menang
-                            </span>
-                          )}
-                          {isTeam2Winner && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                              Kalah
-                            </span>
-                          )}
-                        </div>
+                        <span
+                          className={`truncate text-xs block ${
+                            isTeam1Winner
+                              ? "font-bold text-emerald-950"
+                              : isTeam2Winner
+                              ? "text-slate-500 font-medium"
+                              : "font-bold text-slate-800"
+                          }`}
+                          title={m.team1}
+                        >
+                          {m.team1}
+                        </span>
                         {p1 && (
                           <span
-                            className={`text-[10px] block line-clamp-1 leading-tight mt-0.5 ${
+                            className={`truncate text-[10px] block leading-tight mt-0.5 ${
                               isTeam1Winner
                                 ? "text-emerald-700 font-bold"
                                 : isTeam2Winner
                                 ? "text-slate-400 font-normal"
                                 : "text-red-700 font-semibold"
                             }`}
+                            title={p1}
                           >
                             {p1}
                           </span>
@@ -395,45 +385,35 @@ export const GroupStageView: React.FC = () => {
                     <div
                       className={`flex items-center justify-between p-2 rounded-xl mt-1.5 transition-colors ${
                         isTeam2Winner
-                          ? "bg-emerald-50 text-emerald-950 font-bold border border-emerald-200/80"
+                          ? "bg-emerald-50 text-emerald-950 border border-emerald-200/80"
                           : isTeam1Winner
-                          ? "bg-rose-50/70 text-slate-400 font-medium border border-rose-100"
-                          : "text-slate-800 font-medium bg-slate-50 border border-slate-100"
+                          ? "bg-rose-50/70 text-slate-500 border border-rose-100"
+                          : "text-slate-800 bg-slate-50 border border-slate-100"
                       }`}
                     >
                       <div className="min-w-0 pr-2 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span
-                            className={`line-clamp-1 break-words text-xs ${
-                              isTeam2Winner
-                                ? "font-bold text-emerald-950"
-                                : isTeam1Winner
-                                ? "text-slate-500 font-medium"
-                                : "font-bold text-slate-800"
-                            }`}
-                          >
-                            {m.team2}
-                          </span>
-                          {isTeam2Winner && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900 border border-emerald-300 shrink-0">
-                              Menang
-                            </span>
-                          )}
-                          {isTeam1Winner && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                              Kalah
-                            </span>
-                          )}
-                        </div>
+                        <span
+                          className={`truncate text-xs block ${
+                            isTeam2Winner
+                              ? "font-bold text-emerald-950"
+                              : isTeam1Winner
+                              ? "text-slate-500 font-medium"
+                              : "font-bold text-slate-800"
+                          }`}
+                          title={m.team2}
+                        >
+                          {m.team2}
+                        </span>
                         {p2 && (
                           <span
-                            className={`text-[10px] block line-clamp-1 leading-tight mt-0.5 ${
+                            className={`truncate text-[10px] block leading-tight mt-0.5 ${
                               isTeam2Winner
                                 ? "text-emerald-700 font-bold"
                                 : isTeam1Winner
                                 ? "text-slate-400 font-normal"
                                 : "text-red-700 font-semibold"
                             }`}
+                            title={p2}
                           >
                             {p2}
                           </span>
