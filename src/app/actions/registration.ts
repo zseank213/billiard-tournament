@@ -783,6 +783,154 @@ export async function submitBidangFullRegistration(
 
       let savedRecord: Registration | null = null;
 
+      // Check if table has been migrated to the new clean schema (category ENUM: GANDA, SINGLE_PUTRA, SINGLE_PUTRI)
+      let isNewSchema = false;
+      try {
+        const { data: sampleRow, error: sampleErr } = await supabase
+          .from("registrations")
+          .select("category")
+          .limit(1);
+        if (!sampleErr && sampleRow && sampleRow.length > 0) {
+          const cat = sampleRow[0].category;
+          if (cat === "GANDA" || cat === "SINGLE_PUTRA" || cat === "SINGLE_PUTRI") {
+            isNewSchema = true;
+          }
+        }
+      } catch {}
+
+      if (isNewSchema) {
+        // 1. Delete previous team rows for this bidang
+        await supabase.from("registrations").delete().eq("bidang_name", cleanName);
+
+        // 2. Prepare clean separated rows per team/entry
+        const rowsToInsert: any[] = [];
+
+        // Ganda 1
+        if (tim1?.player1) {
+          rowsToInsert.push({
+            bidang_name: cleanName,
+            category: "GANDA",
+            team_label: "Ganda 1",
+            player1_name: tim1.player1,
+            player1_phone: tim1.phone1 || null,
+            player2_name: tim1.player2 || null,
+            player2_phone: tim1.phone2 || null,
+          });
+        }
+        // Ganda 2
+        if (tim2?.player1) {
+          rowsToInsert.push({
+            bidang_name: cleanName,
+            category: "GANDA",
+            team_label: "Ganda 2",
+            player1_name: tim2.player1,
+            player1_phone: tim2.phone1 || null,
+            player2_name: tim2.player2 || null,
+            player2_phone: tim2.phone2 || null,
+          });
+        }
+        // Extra Ganda
+        if (extraGandaToSave && extraGandaToSave.length > 0) {
+          extraGandaToSave.forEach((eg) => {
+            if (eg.player1) {
+              rowsToInsert.push({
+                bidang_name: cleanName,
+                category: "GANDA",
+                team_label: `Ganda ${eg.teamNumber}`,
+                player1_name: eg.player1,
+                player1_phone: eg.phone1 || null,
+                player2_name: eg.player2 || null,
+                player2_phone: eg.phone2 || null,
+              });
+            }
+          });
+        }
+        // Single Putra
+        if (finalSinglePa?.player) {
+          rowsToInsert.push({
+            bidang_name: cleanName,
+            category: "SINGLE_PUTRA",
+            team_label: "Single Putra",
+            player1_name: finalSinglePa.player,
+            player1_phone: finalSinglePa.phone || null,
+            player2_name: null,
+            player2_phone: null,
+          });
+        }
+        // Extra Single Putra
+        if (extraSinglePaToSave && extraSinglePaToSave.length > 0) {
+          extraSinglePaToSave.forEach((esp) => {
+            if (esp.player) {
+              rowsToInsert.push({
+                bidang_name: cleanName,
+                category: "SINGLE_PUTRA",
+                team_label: `Single Putra ${esp.playerNumber}`,
+                player1_name: esp.player,
+                player1_phone: esp.phone || null,
+                player2_name: null,
+                player2_phone: null,
+              });
+            }
+          });
+        }
+        // Single Putri
+        if (finalSinglePi?.player) {
+          rowsToInsert.push({
+            bidang_name: cleanName,
+            category: "SINGLE_PUTRI",
+            team_label: "Single Putri",
+            player1_name: finalSinglePi.player,
+            player1_phone: finalSinglePi.phone || null,
+            player2_name: null,
+            player2_phone: null,
+          });
+        }
+        // Extra Single Putri
+        if (extraSinglePiToSave && extraSinglePiToSave.length > 0) {
+          extraSinglePiToSave.forEach((espi) => {
+            if (espi.player) {
+              rowsToInsert.push({
+                bidang_name: cleanName,
+                category: "SINGLE_PUTRI",
+                team_label: `Single Putri ${espi.playerNumber}`,
+                player1_name: espi.player,
+                player1_phone: espi.phone || null,
+                player2_name: null,
+                player2_phone: null,
+              });
+            }
+          });
+        }
+
+        if (rowsToInsert.length > 0) {
+          const { error: insErr } = await supabase.from("registrations").insert(rowsToInsert);
+          if (insErr) {
+            throw new Error(`Gagal menyimpan pendaftaran: ${insErr.message}`);
+          }
+        }
+
+        return {
+          success: true,
+          message:
+            shiftNotices.length > 0
+              ? `Pendaftaran berhasil! ${shiftNotices.join(" ")}`
+              : "Pendaftaran delegasi bidang berhasil disimpan secara rapi per atlet!",
+          data: {
+            registration_code: registrationCode,
+            bidang_name: cleanName,
+            category: "delegasi-lengkap",
+            full_name: cleanName,
+            phone_number: mergedPhone || "",
+            email: "",
+            city: "Bandung",
+            club_name: cleanName,
+            handicap: "HC 4",
+            payment_method: "GRATIS",
+            payment_status: "confirmed",
+          } as any,
+        };
+      }
+
       if (primaryRow) {
         // Try updating existing row first (use maybeSingle so RLS with 0 updated rows does not throw PGRST116)
         const { data: updatedData, error: updateError } = await supabase

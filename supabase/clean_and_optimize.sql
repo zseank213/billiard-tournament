@@ -80,3 +80,4 @@ CREATE POLICY "Public can manage group_matches" ON public.group_matches
 DROP POLICY IF EXISTS "Public can manage playoff_matches" ON public.playoff_matches;
 CREATE POLICY "Public can manage playoff_matches" ON public.playoff_matches
   FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+

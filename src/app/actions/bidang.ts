@@ -77,6 +77,8 @@ export async function getParticipantsWithRosters(): Promise<{
 
   // If Supabase is connected, we can also check registrations to fill roster slots
   let registrationsMap: Record<string, any[]> = {};
+  let rawRegData: any[] = [];
+
   if (isLiveSupabase && supabase) {
     try {
       const { data: regData } = await supabase
@@ -87,6 +89,7 @@ export async function getParticipantsWithRosters(): Promise<{
         .order("created_at", { ascending: false }); // Latest first
 
       if (regData && regData.length > 0) {
+        rawRegData = regData;
         regData.forEach((reg) => {
           const key1 = reg.bidang_name;
           const key2 = reg.club_name;
@@ -103,6 +106,99 @@ export async function getParticipantsWithRosters(): Promise<{
     } catch (err) {
       console.warn("Could not load registrations for participants:", err);
     }
+  }
+
+  // Check if registrations table is in the new clean schema:
+  // (category in 'GANDA', 'SINGLE_PUTRA', 'SINGLE_PUTRI')
+  const isNewSchema = rawRegData.some(
+    (r) => r.category === "GANDA" || r.category === "SINGLE_PUTRA" || r.category === "SINGLE_PUTRI"
+  );
+
+  if (isNewSchema) {
+    const participants: ParticipantTeam[] = bidang.map((b) => {
+      // Filter rows belonging to this bidang (sorted by created_at ascending)
+      const bRegs = rawRegData
+        .filter((r) => r.bidang_name === b.name || r.bidang_name === b.short_name)
+        .reverse();
+
+      const isRegistered = bRegs.length > 0;
+      const slots: ParticipantMemberSlot[] = [];
+      let slotIdx = 1;
+
+      // 1. GANDA
+      const gandaRows = bRegs.filter((r) => r.category === "GANDA");
+      gandaRows.forEach((gr, idx) => {
+        slots.push({
+          slotNumber: slotIdx++,
+          category: "Ganda Putra",
+          role: gr.team_label || `Ganda ${idx + 1}`,
+          playerName: `${gr.player1_name}${gr.player2_name ? ` & ${gr.player2_name}` : ""}`,
+        });
+      });
+      const minGanda = Math.max(2, b.quota_ganda_putra || 2);
+      for (let i = gandaRows.length; i < minGanda; i++) {
+        slots.push({
+          slotNumber: slotIdx++,
+          category: "Ganda Putra",
+          role: `Ganda ${i + 1}`,
+          playerName: "Belum Didaftarkan (TBD)",
+        });
+      }
+
+      // 2. SINGLE PUTRA
+      const spRows = bRegs.filter((r) => r.category === "SINGLE_PUTRA");
+      spRows.forEach((sr, idx) => {
+        slots.push({
+          slotNumber: slotIdx++,
+          category: "Single Putra",
+          role: sr.team_label || (idx === 0 ? "Single Putra" : `Single Putra (Atlet ${idx + 1})`),
+          playerName: sr.player1_name,
+        });
+      });
+      if (spRows.length === 0) {
+        slots.push({
+          slotNumber: slotIdx++,
+          category: "Single Putra",
+          role: "Single Putra",
+          playerName: "Belum Didaftarkan (TBD)",
+        });
+      }
+
+      // 3. SINGLE PUTRI
+      const spiRows = bRegs.filter((r) => r.category === "SINGLE_PUTRI");
+      spiRows.forEach((spir, idx) => {
+        slots.push({
+          slotNumber: slotIdx++,
+          category: "Single Putri",
+          role: spir.team_label || (idx === 0 ? "Single Putri" : `Single Putri (Atlet ${idx + 1})`),
+          playerName: spir.player1_name,
+        });
+      });
+      if (spiRows.length === 0) {
+        slots.push({
+          slotNumber: slotIdx++,
+          category: "Single Putri",
+          role: "Single Putri",
+          playerName: "Belum Didaftarkan (TBD)",
+        });
+      }
+
+      return {
+        id: `team-${b.id}`,
+        name: b.name,
+        shortName: b.short_name,
+        bidang: b.name,
+        seed: b.order_no,
+        status: b.is_host ? ("host" as const) : isRegistered ? ("registered" as const) : ("invited" as const),
+        accentColor: b.is_host ? "bg-red-600 text-white" : "bg-slate-100 text-slate-800",
+        slots,
+      };
+    });
+
+    return {
+      participants: participants.length > 0 ? participants : LIQUIPEDIA_PARTICIPANTS,
+      isLiveSupabase: true,
+    };
   }
 
   const participants: ParticipantTeam[] = bidang.map((b) => {
