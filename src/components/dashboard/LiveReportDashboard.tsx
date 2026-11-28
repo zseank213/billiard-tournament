@@ -745,97 +745,119 @@ export const LiveReportDashboard: React.FC = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {currentGroup.matches.map((m, mIdx) => {
-                    const isLive = m.status === "live";
-                    const isCompleted = m.status === "completed";
+                {/* Player map for displaying player names under team names */}
+                {(() => {
+                  const playerMap: Record<string, string> = {};
+                  currentGroup.standings.forEach((st) => {
+                    if (st.teamName && st.playerName) {
+                      playerMap[st.teamName.trim().toLowerCase()] = st.playerName.trim();
+                    }
+                  });
 
-                    return (
-                      <div
-                        key={m.id}
-                        className={`p-3.5 rounded-2xl border transition-all ${
-                          isLive
-                            ? "bg-amber-50/50 border-amber-300 ring-1 ring-amber-300/40"
-                            : isCompleted
-                            ? "bg-white border-slate-200 shadow-2xs"
-                            : "bg-slate-50/60 border-slate-200/80"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
-                          <span>Match #{mIdx + 1}</span>
-                          <div className="flex items-center gap-2">
-                            {/* Table Selector */}
-                            <select
-                              value={m.table || 1}
-                              onChange={(e) =>
-                                handleUpdateMatch(m.id, "table", parseInt(e.target.value, 10))
-                              }
-                              className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-bold focus:outline-none"
-                            >
-                              <option value={1}>Meja 1</option>
-                              <option value={2}>Meja 2</option>
-                              <option value={3}>Meja 3</option>
-                              <option value={4}>Meja 4</option>
-                              <option value={5}>Meja 5</option>
-                              <option value={6}>Meja 6</option>
-                            </select>
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {currentGroup.matches.map((m, mIdx) => {
+                        const isLive = m.status === "live";
+                        const isCompleted = m.status === "completed";
+                        const p1 = playerMap[m.team1.trim().toLowerCase()];
+                        const p2 = playerMap[m.team2.trim().toLowerCase()];
 
-                            {/* Status Selector */}
-                            <select
-                              value={m.status || "upcoming"}
-                              onChange={(e) => handleUpdateMatch(m.id, "status", e.target.value)}
-                              className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase border focus:outline-none ${
-                                isLive
-                                  ? "bg-amber-100 text-amber-900 border-amber-300"
-                                  : isCompleted
-                                  ? "bg-emerald-100 text-emerald-900 border-emerald-300"
-                                  : "bg-slate-100 text-slate-600 border-slate-200"
-                              }`}
-                            >
-                              <option value="upcoming">Upcoming</option>
-                              <option value="live">Sedang Main (LIVE)</option>
-                              <option value="completed">Selesai (Final)</option>
-                            </select>
-                          </div>
-                        </div>
+                        return (
+                          <div
+                            key={m.id}
+                            className={`p-3.5 rounded-2xl border transition-all ${
+                              isLive
+                                ? "bg-amber-50/50 border-amber-300 ring-1 ring-amber-300/40"
+                                : isCompleted
+                                ? "bg-white border-slate-200 shadow-2xs"
+                                : "bg-slate-50/60 border-slate-200/80"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
+                              <span>Match #{mIdx + 1}</span>
+                              <div className="flex items-center gap-2">
+                                {/* Table Selector */}
+                                <select
+                                  value={m.table || 1}
+                                  onChange={(e) =>
+                                    handleUpdateMatch(m.id, "table", parseInt(e.target.value, 10))
+                                  }
+                                  className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-bold focus:outline-none"
+                                >
+                                  <option value={1}>Meja 1</option>
+                                  <option value={2}>Meja 2</option>
+                                  <option value={3}>Meja 3</option>
+                                  <option value={4}>Meja 4</option>
+                                  <option value={5}>Meja 5</option>
+                                  <option value={6}>Meja 6</option>
+                                </select>
 
-                        {/* Team 1 vs Team 2 Score Inputs */}
-                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 pt-1">
-                          {/* Team 1 */}
-                          <div className="min-w-0 pr-1">
-                            <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
-                              {m.team1}
-                            </span>
-                          </div>
+                                {/* Status Selector */}
+                                <select
+                                  value={m.status || "upcoming"}
+                                  onChange={(e) => handleUpdateMatch(m.id, "status", e.target.value)}
+                                  className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase border focus:outline-none ${
+                                    isLive
+                                      ? "bg-amber-100 text-amber-900 border-amber-300"
+                                      : isCompleted
+                                      ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                                      : "bg-slate-100 text-slate-600 border-slate-200"
+                                  }`}
+                                >
+                                  <option value="upcoming">Upcoming</option>
+                                  <option value="live">Sedang Main (LIVE)</option>
+                                  <option value="completed">Selesai (Final)</option>
+                                </select>
+                              </div>
+                            </div>
 
-                          {/* Score Inputs */}
-                          <div className="flex items-center gap-1.5 shrink-0 px-2 py-1 bg-slate-100 rounded-xl border border-slate-200">
-                            <input
-                              type="number"
-                              min={0}
-                              max={9}
-                              value={m.score1}
-                              onChange={(e) => handleUpdateMatch(m.id, "score1", e.target.value)}
-                              className="w-8 h-8 text-center font-mono font-black text-sm bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-red-500"
-                            />
-                            <span className="font-bold text-slate-400 text-xs">-</span>
-                            <input
-                              type="number"
-                              min={0}
-                              max={9}
-                              value={m.score2}
-                              onChange={(e) => handleUpdateMatch(m.id, "score2", e.target.value)}
-                              className="w-8 h-8 text-center font-mono font-black text-sm bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-red-500"
-                            />
-                          </div>
+                            {/* Team 1 vs Team 2 Score Inputs */}
+                            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 pt-1">
+                              {/* Team 1 */}
+                              <div className="min-w-0 pr-1">
+                                <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
+                                  {m.team1}
+                                </span>
+                                {p1 && (
+                                  <span className="text-[10px] text-red-700 font-semibold block truncate leading-tight mt-0.5">
+                                    {p1}
+                                  </span>
+                                )}
+                              </div>
 
-                          {/* Team 2 */}
-                          <div className="min-w-0 pl-1 text-right">
-                            <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
-                              {m.team2}
-                            </span>
-                          </div>
-                        </div>
+                              {/* Score Inputs */}
+                              <div className="flex items-center gap-1.5 shrink-0 px-2 py-1 bg-slate-100 rounded-xl border border-slate-200">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={9}
+                                  value={m.score1}
+                                  onChange={(e) => handleUpdateMatch(m.id, "score1", e.target.value)}
+                                  className="w-8 h-8 text-center font-mono font-black text-sm bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-red-500"
+                                />
+                                <span className="font-bold text-slate-400 text-xs">-</span>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={9}
+                                  value={m.score2}
+                                  onChange={(e) => handleUpdateMatch(m.id, "score2", e.target.value)}
+                                  className="w-8 h-8 text-center font-mono font-black text-sm bg-white rounded-lg border border-slate-200 focus:outline-none focus:border-red-500"
+                                />
+                              </div>
+
+                              {/* Team 2 */}
+                              <div className="min-w-0 pl-1 text-right">
+                                <span className="font-bold text-xs text-slate-900 block truncate leading-snug">
+                                  {m.team2}
+                                </span>
+                                {p2 && (
+                                  <span className="text-[10px] text-red-700 font-semibold block truncate leading-tight mt-0.5">
+                                    {p2}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
 
                         {/* Selisih Sisa Bola Lawan Input */}
                         <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
@@ -868,6 +890,8 @@ export const LiveReportDashboard: React.FC = () => {
                     );
                   })}
                 </div>
+              );
+            })()}
               </div>
             </>
           )}

@@ -308,31 +308,61 @@ export const GroupStageView: React.FC = () => {
             Jadwal Pertandingan Head-to-Head ({group.matches.length} Match):
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {group.matches.map((m) => (
-              <div
-                key={m.id}
-                className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs hover:border-slate-300 transition-colors"
-              >
-                <div className="flex-1 min-w-0 pr-2">
-                  <div className="flex items-center justify-between">
-                    <span className="line-clamp-1 break-words text-xs font-bold text-slate-800">
-                      {m.team1}
-                    </span>
-                    <span className="font-mono text-xs ml-2 px-2 py-0.5 rounded-md text-slate-400 bg-slate-100 font-bold shrink-0">
-                      {m.score1}
-                    </span>
+            {(() => {
+              const playerMap: Record<string, string> = {};
+              group.standings.forEach((st) => {
+                if (st.teamName && st.playerName) {
+                  playerMap[st.teamName.trim().toLowerCase()] = st.playerName.trim();
+                  playerMap[st.teamName.trim()] = st.playerName.trim();
+                }
+              });
+
+              return group.matches.map((m) => {
+                const p1 = playerMap[m.team1.trim().toLowerCase()] || playerMap[m.team1.trim()];
+                const p2 = playerMap[m.team2.trim().toLowerCase()] || playerMap[m.team2.trim()];
+
+                return (
+                  <div
+                    key={m.id}
+                    className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between text-xs hover:border-slate-300 transition-colors"
+                  >
+                    {/* Team 1 */}
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                      <div className="min-w-0 pr-2 flex-1">
+                        <span className="line-clamp-1 break-words text-xs font-bold text-slate-800">
+                          {m.team1}
+                        </span>
+                        {p1 && (
+                          <span className="text-[10px] text-red-700 font-semibold block line-clamp-1 leading-tight mt-0.5">
+                            {p1}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-mono text-xs ml-2 px-2 py-0.5 rounded-md text-slate-700 bg-white border border-slate-200 font-bold shrink-0">
+                        {m.score1}
+                      </span>
+                    </div>
+
+                    {/* Team 2 */}
+                    <div className="flex items-center justify-between pt-1.5">
+                      <div className="min-w-0 pr-2 flex-1">
+                        <span className="line-clamp-1 break-words text-xs font-bold text-slate-800">
+                          {m.team2}
+                        </span>
+                        {p2 && (
+                          <span className="text-[10px] text-red-700 font-semibold block line-clamp-1 leading-tight mt-0.5">
+                            {p2}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-mono text-xs ml-2 px-2 py-0.5 rounded-md text-slate-700 bg-white border border-slate-200 font-bold shrink-0">
+                        {m.score2}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between mt-1.5">
-                    <span className="line-clamp-1 break-words text-xs font-bold text-slate-800">
-                      {m.team2}
-                    </span>
-                    <span className="font-mono text-xs ml-2 px-2 py-0.5 rounded-md text-slate-400 bg-slate-100 font-bold shrink-0">
-                      {m.score2}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+                );
+              });
+            })()}
           </div>
         </div>
       </div>
