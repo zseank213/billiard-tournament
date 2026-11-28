@@ -471,104 +471,165 @@ export async function submitBidangFullRegistration(
       const primaryRow = existingRows && existingRows.length > 0 ? existingRows[0] : null;
 
       if (existingRows && existingRows.length > 0) {
-        for (const row of existingRows) {
-          // Ganda Tim 1
-          if (row.ganda_tim1_player1 && row.ganda_tim1_player2) {
-            if (!existingGandaTeams.some((t) => t.teamNumber === 1)) {
-              existingGandaTeams.push({
-                teamNumber: 1,
-                player1: row.ganda_tim1_player1,
-                phone1: cleanPhoneNumber(row.ganda_tim1_player1_phone),
-                player2: row.ganda_tim1_player2,
-                phone2: cleanPhoneNumber(row.ganda_tim1_player2_phone),
-              });
-            }
-          }
-          // Ganda Tim 2
-          if (row.ganda_tim2_player1 && row.ganda_tim2_player2) {
-            if (!existingGandaTeams.some((t) => t.teamNumber === 2)) {
-              existingGandaTeams.push({
-                teamNumber: 2,
-                player1: row.ganda_tim2_player1,
-                phone1: cleanPhoneNumber(row.ganda_tim2_player1_phone),
-                player2: row.ganda_tim2_player2,
-                phone2: cleanPhoneNumber(row.ganda_tim2_player2_phone),
-              });
-            }
-          }
-          // Single Putra 1
-          if (row.single_putra_player && !existingSinglePa) {
-            existingSinglePa = {
-              playerNumber: 1,
-              player: row.single_putra_player,
-              phone: cleanPhoneNumber(row.single_putra_phone),
-            };
-          }
-          // Single Putri 1
-          if (row.single_putri_player && !existingSinglePi) {
-            existingSinglePi = {
-              playerNumber: 1,
-              player: row.single_putri_player,
-              phone: cleanPhoneNumber(row.single_putri_phone),
-            };
-          }
+        const isNewSchemaData = existingRows.some(
+          (r) => r.category === "GANDA" || r.category === "SINGLE_PUTRA" || r.category === "SINGLE_PUTRI"
+        );
 
-          // Notes extra teams
-          if (row.notes) {
-            try {
-              if (row.notes.includes("extraGandaTeams") || row.notes.startsWith("{")) {
-                const parsed = JSON.parse(row.notes);
-                if (Array.isArray(parsed.extraGandaTeams)) {
-                  parsed.extraGandaTeams.forEach((eg: any) => {
-                    if (
-                      eg.player1 &&
-                      eg.player2 &&
-                      !existingGandaTeams.some((t) => t.teamNumber === eg.teamNumber)
-                    ) {
-                      existingGandaTeams.push({
-                        teamNumber: eg.teamNumber || existingGandaTeams.length + 3,
-                        player1: eg.player1,
-                        phone1: cleanPhoneNumber(eg.phone1),
-                        player2: eg.player2,
-                        phone2: cleanPhoneNumber(eg.phone2),
-                      });
-                    }
+        if (isNewSchemaData) {
+          const extractNum = (label: string | null | undefined): number => {
+            if (!label) return 1;
+            const m = label.match(/(\d+)/);
+            return m ? parseInt(m[1], 10) : 1;
+          };
+
+          for (const row of existingRows) {
+            if (row.category === "GANDA") {
+              const num = extractNum(row.team_label);
+              if (!existingGandaTeams.some((t) => t.teamNumber === num)) {
+                existingGandaTeams.push({
+                  teamNumber: num,
+                  player1: row.player1_name || "",
+                  phone1: cleanPhoneNumber(row.player1_phone),
+                  player2: row.player2_name || "",
+                  phone2: cleanPhoneNumber(row.player2_phone),
+                });
+              }
+            } else if (row.category === "SINGLE_PUTRA") {
+              const num = extractNum(row.team_label);
+              if (num === 1 && !existingSinglePa) {
+                existingSinglePa = {
+                  playerNumber: 1,
+                  player: row.player1_name || "",
+                  phone: cleanPhoneNumber(row.player1_phone),
+                };
+              } else {
+                if (!existingExtraSinglePa.some((x) => x.playerNumber === num)) {
+                  existingExtraSinglePa.push({
+                    playerNumber: num,
+                    player: row.player1_name || "",
+                    phone: cleanPhoneNumber(row.player1_phone),
                   });
-                }
-                if (Array.isArray(parsed.extraSinglePutra)) {
-                  parsed.extraSinglePutra.forEach((esp: any) => {
-                    if (
-                      esp.player &&
-                      !existingExtraSinglePa.some((x) => x.playerNumber === esp.playerNumber)
-                    ) {
-                      existingExtraSinglePa.push({
-                        playerNumber: esp.playerNumber,
-                        player: esp.player,
-                        phone: cleanPhoneNumber(esp.phone),
-                      });
-                    }
-                  });
-                }
-                if (Array.isArray(parsed.extraSinglePutri)) {
-                  parsed.extraSinglePutri.forEach((espi: any) => {
-                    if (
-                      espi.player &&
-                      !existingExtraSinglePi.some((x) => x.playerNumber === espi.playerNumber)
-                    ) {
-                      existingExtraSinglePi.push({
-                        playerNumber: espi.playerNumber,
-                        player: espi.player,
-                        phone: cleanPhoneNumber(espi.phone),
-                      });
-                    }
-                  });
-                }
-                if (parsed.userNote) {
-                  existingNotesText = parsed.userNote;
                 }
               }
-            } catch {
-              // ignore non-json notes
+            } else if (row.category === "SINGLE_PUTRI") {
+              const num = extractNum(row.team_label);
+              if (num === 1 && !existingSinglePi) {
+                existingSinglePi = {
+                  playerNumber: 1,
+                  player: row.player1_name || "",
+                  phone: cleanPhoneNumber(row.player1_phone),
+                };
+              } else {
+                if (!existingExtraSinglePi.some((x) => x.playerNumber === num)) {
+                  existingExtraSinglePi.push({
+                    playerNumber: num,
+                    player: row.player1_name || "",
+                    phone: cleanPhoneNumber(row.player1_phone),
+                  });
+                }
+              }
+            }
+          }
+        } else {
+          for (const row of existingRows) {
+            // Ganda Tim 1
+            if (row.ganda_tim1_player1 && row.ganda_tim1_player2) {
+              if (!existingGandaTeams.some((t) => t.teamNumber === 1)) {
+                existingGandaTeams.push({
+                  teamNumber: 1,
+                  player1: row.ganda_tim1_player1,
+                  phone1: cleanPhoneNumber(row.ganda_tim1_player1_phone),
+                  player2: row.ganda_tim1_player2,
+                  phone2: cleanPhoneNumber(row.ganda_tim1_player2_phone),
+                });
+              }
+            }
+            // Ganda Tim 2
+            if (row.ganda_tim2_player1 && row.ganda_tim2_player2) {
+              if (!existingGandaTeams.some((t) => t.teamNumber === 2)) {
+                existingGandaTeams.push({
+                  teamNumber: 2,
+                  player1: row.ganda_tim2_player1,
+                  phone1: cleanPhoneNumber(row.ganda_tim2_player1_phone),
+                  player2: row.ganda_tim2_player2,
+                  phone2: cleanPhoneNumber(row.ganda_tim2_player2_phone),
+                });
+              }
+            }
+            // Single Putra 1
+            if (row.single_putra_player && !existingSinglePa) {
+              existingSinglePa = {
+                playerNumber: 1,
+                player: row.single_putra_player,
+                phone: cleanPhoneNumber(row.single_putra_phone),
+              };
+            }
+            // Single Putri 1
+            if (row.single_putri_player && !existingSinglePi) {
+              existingSinglePi = {
+                playerNumber: 1,
+                player: row.single_putri_player,
+                phone: cleanPhoneNumber(row.single_putri_phone),
+              };
+            }
+
+            // Notes extra teams
+            if (row.notes) {
+              try {
+                if (row.notes.includes("extraGandaTeams") || row.notes.startsWith("{")) {
+                  const parsed = JSON.parse(row.notes);
+                  if (Array.isArray(parsed.extraGandaTeams)) {
+                    parsed.extraGandaTeams.forEach((eg: any) => {
+                      if (
+                        eg.player1 &&
+                        eg.player2 &&
+                        !existingGandaTeams.some((t) => t.teamNumber === eg.teamNumber)
+                      ) {
+                        existingGandaTeams.push({
+                          teamNumber: eg.teamNumber || existingGandaTeams.length + 3,
+                          player1: eg.player1,
+                          phone1: cleanPhoneNumber(eg.phone1),
+                          player2: eg.player2,
+                          phone2: cleanPhoneNumber(eg.phone2),
+                        });
+                      }
+                    });
+                  }
+                  if (Array.isArray(parsed.extraSinglePutra)) {
+                    parsed.extraSinglePutra.forEach((esp: any) => {
+                      if (
+                        esp.player &&
+                        !existingExtraSinglePa.some((x) => x.playerNumber === esp.playerNumber)
+                      ) {
+                        existingExtraSinglePa.push({
+                          playerNumber: esp.playerNumber,
+                          player: esp.player,
+                          phone: cleanPhoneNumber(esp.phone),
+                        });
+                      }
+                    });
+                  }
+                  if (Array.isArray(parsed.extraSinglePutri)) {
+                    parsed.extraSinglePutri.forEach((espi: any) => {
+                      if (
+                        espi.player &&
+                        !existingExtraSinglePi.some((x) => x.playerNumber === espi.playerNumber)
+                      ) {
+                        existingExtraSinglePi.push({
+                          playerNumber: espi.playerNumber,
+                          player: espi.player,
+                          phone: cleanPhoneNumber(espi.phone),
+                        });
+                      }
+                    });
+                  }
+                  if (parsed.userNote) {
+                    existingNotesText = parsed.userNote;
+                  }
+                }
+              } catch {
+                // ignore non-json notes
+              }
             }
           }
         }
