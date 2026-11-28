@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getParticipantsWithRosters } from "@/app/actions/bidang";
+import Link from "next/link";
 import { ParticipantTeam, GroupStageData, GroupTeamStanding } from "@/types/tournament";
 import {
   Trophy,
@@ -13,12 +13,8 @@ import {
   Calendar,
   Sparkles,
   Dices,
-  Shuffle,
-  RotateCw,
-  RefreshCw,
   AlertCircle,
-  Play,
-  Flame,
+  ExternalLink,
 } from "lucide-react";
 
 interface CategoryStageConfig {
@@ -30,14 +26,11 @@ interface CategoryStageConfig {
   icon: typeof Trophy;
 }
 
-const STORAGE_KEY_PREFIX = "ti_billiard_drawn_groups_v2_";
+export const STORAGE_KEY_ROULETTE = "ti_billiard_drawn_groups_v3_";
 
 export const GroupStageView: React.FC = () => {
-  const [participants, setParticipants] = useState<ParticipantTeam[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [drawnGroupsMap, setDrawnGroupsMap] = useState<Record<string, GroupStageData[]>>({});
-  const [isRollingMap, setIsRollingMap] = useState<Record<string, boolean>>({});
-  const [rollingTicker, setRollingTicker] = useState<string>("");
 
   const categories: CategoryStageConfig[] = [
     {
@@ -66,31 +59,14 @@ export const GroupStageView: React.FC = () => {
     },
   ];
 
-  // Load participants & restore saved drawings from localStorage
+  // Restore saved drawings from localStorage (generated via /roulette)
   useEffect(() => {
-    let isMounted = true;
     setIsLoading(true);
-
-    getParticipantsWithRosters()
-      .then((res) => {
-        if (isMounted) {
-          if (res.participants && res.participants.length > 0) {
-            setParticipants(res.participants);
-          }
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.warn("Using default participants for groups:", err);
-        if (isMounted) setIsLoading(false);
-      });
-
-    // Check localStorage for previously drawn groups
     if (typeof window !== "undefined") {
       const restored: Record<string, GroupStageData[]> = {};
       categories.forEach((cat) => {
         try {
-          const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}${cat.id}`);
+          const saved = localStorage.getItem(`${STORAGE_KEY_ROULETTE}${cat.id}`);
           if (saved) {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length === 4) {
@@ -103,10 +79,7 @@ export const GroupStageView: React.FC = () => {
       });
       setDrawnGroupsMap(restored);
     }
-
-    return () => {
-      isMounted = false;
-    };
+    setIsLoading(false);
   }, []);
 
   // Helper to generate default 4 groups (A, B, C, D) with TBD slots
@@ -160,209 +133,11 @@ export const GroupStageView: React.FC = () => {
     });
   };
 
-  // Extract candidates pool for a category from registered participants
-  const getCandidatesForCategory = (categoryKey: string): { teamName: string; shortName: string; playerName?: string }[] => {
-    if (!participants || participants.length === 0) return [];
-
-    const candidates: { teamName: string; shortName: string; playerName?: string }[] = [];
-    const usedBidang = new Set<string>();
-
-    // 1. Ambil seluruh tim/atlet yang terdaftar (termasuk seluruh tim dari Teknologi Informasi & bidang lain)
-    participants.forEach((p) => {
-      let matchedSlots: typeof p.slots = [];
-
-      if (categoryKey === "ganda-putra") {
-        matchedSlots = p.slots.filter(
-          (s) => s.category.includes("Ganda") && s.playerName && !s.playerName.includes("TBD")
-        );
-      } else if (categoryKey === "single-putra") {
-        matchedSlots = p.slots.filter(
-          (s) => s.category === "Single Putra" && s.playerName && !s.playerName.includes("TBD")
-        );
-      } else if (categoryKey === "single-putri") {
-        matchedSlots = p.slots.filter(
-          (s) => s.category === "Single Putri" && s.playerName && !s.playerName.includes("TBD")
-        );
-      }
-
-      if (matchedSlots.length > 0) {
-        usedBidang.add(p.name);
-        matchedSlots.forEach((slot) => {
-          let label = p.name;
-          if (matchedSlots.length > 1) {
-            label = `${p.name} (${slot.role})`;
-          } else if (slot.role && (slot.role.includes("Ganda") || slot.role.includes("Atlet"))) {
-            label = `${p.name} (${slot.role})`;
-          }
-
-          candidates.push({
-            teamName: label,
-            shortName: p.shortName,
-            playerName: slot.playerName,
-          });
-        });
-      }
-    });
-
-    // 2. Isi slot tersisa hingga minimal 20 slot dengan bidang yang belum mendaftarkan atletnya
-    participants.forEach((p) => {
-      if (!usedBidang.has(p.name)) {
-        candidates.push({
-          teamName: p.name,
-          shortName: p.shortName,
-          playerName: "Belum Ada Atlet Terdaftar (TBD)",
-        });
-      }
-    });
-
-    return candidates;
-  };
-
-  // Perform Roulette / Shuffle for a specific category
-  const handleRollCategory = (categoryKey: string) => {
-    const candidates = getCandidatesForCategory(categoryKey);
-    if (candidates.length === 0) return;
-
-    setIsRollingMap((prev) => ({ ...prev, [categoryKey]: true }));
-
-    // Start exciting rolling ticker animation
-    let tickCount = 0;
-    const tickerInterval = setInterval(() => {
-      const randCand = candidates[Math.floor(Math.random() * candidates.length)];
-      setRollingTicker(randCand.teamName);
-      tickCount++;
-      if (tickCount > 15) {
-        clearInterval(tickerInterval);
-      }
-    }, 90);
-
-    // After 1.6 seconds, settle the roulette
-    setTimeout(() => {
-      clearInterval(tickerInterval);
-
-      // Fisher-Yates Shuffle
-      const shuffled = [...candidates];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-
-      const groupLetters: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
-      const baseSize = Math.floor(shuffled.length / 4);
-      const remainder = shuffled.length % 4;
-
-      let startIndex = 0;
-      const newGroups: GroupStageData[] = groupLetters.map((letter, gIdx) => {
-        const groupSize = baseSize + (gIdx < remainder ? 1 : 0);
-        const groupTeams = shuffled.slice(startIndex, startIndex + groupSize);
-        startIndex += groupSize;
-
-        const standings: GroupTeamStanding[] = groupTeams.map((team, idx) => ({
-          pos: idx + 1,
-          teamId: `${categoryKey}-${letter.toLowerCase()}-team-${idx + 1}`,
-          teamName: team.teamName,
-          shortName: team.shortName,
-          playerName: team.playerName,
-          matchesPlayed: 0,
-          seriesWon: 0,
-          seriesLost: 0,
-          racksWon: 0,
-          racksLost: 0,
-          rackDiff: 0,
-          points: 0,
-          status: null,
-        }));
-
-        // Dynamic round-robin match pairs
-        const roundRobinPairs: [number, number][] = [];
-        for (let i = 0; i < groupTeams.length; i++) {
-          for (let j = i + 1; j < groupTeams.length; j++) {
-            roundRobinPairs.push([i, j]);
-          }
-        }
-
-        const matches = roundRobinPairs.map(([t1, t2], mIdx) => {
-          const team1 = standings[t1]?.teamName || "TBD";
-          const team2 = standings[t2]?.teamName || "TBD";
-          return {
-            id: `${categoryKey}-${letter}-m${mIdx + 1}`,
-            team1,
-            team2,
-            score1: 0,
-            score2: 0,
-            status: "upcoming" as const,
-          };
-        });
-
-        return {
-          groupId: `${categoryKey}-group-${letter.toLowerCase()}`,
-          groupName: `Grup ${letter} — Babak Penyisihan`,
-          standings,
-          matches,
-        };
-      });
-
-      // Save to state and localStorage
-      setDrawnGroupsMap((prev) => ({ ...prev, [categoryKey]: newGroups }));
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.setItem(`${STORAGE_KEY_PREFIX}${categoryKey}`, JSON.stringify(newGroups));
-        } catch (e) {
-          console.warn("Failed saving draw to localStorage:", e);
-        }
-      }
-
-      setIsRollingMap((prev) => ({ ...prev, [categoryKey]: false }));
-      setRollingTicker("");
-    }, 1600);
-  };
-
-  // Roll All Categories simultaneously
-  const handleRollAll = () => {
-    categories.forEach((cat) => {
-      handleRollCategory(cat.id);
-    });
-  };
-
-  // Reset a specific category to TBD
-  const handleResetCategory = (categoryKey: string) => {
-    setDrawnGroupsMap((prev) => {
-      const copy = { ...prev };
-      delete copy[categoryKey];
-      return copy;
-    });
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem(`${STORAGE_KEY_PREFIX}${categoryKey}`);
-      } catch (e) {
-        console.warn("Failed removing from localStorage:", e);
-      }
-    }
-  };
-
-  // Reset All to TBD
-  const handleResetAll = () => {
-    setDrawnGroupsMap({});
-    if (typeof window !== "undefined") {
-      categories.forEach((cat) => {
-        try {
-          localStorage.removeItem(`${STORAGE_KEY_PREFIX}${cat.id}`);
-        } catch (e) {
-          console.warn("Failed clearing localStorage:", e);
-        }
-      });
-    }
-  };
-
-  const renderGroupTable = (group: GroupStageData, isRolling: boolean) => {
+  const renderGroupTable = (group: GroupStageData) => {
     return (
       <div
         key={group.groupId}
-        className={`bg-white rounded-3xl border transition-all duration-300 overflow-hidden flex flex-col justify-between ${
-          isRolling
-            ? "border-amber-400 ring-4 ring-amber-300/40 shadow-lg scale-[1.01]"
-            : "border-slate-200/90 shadow-sm"
-        }`}
+        className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between"
       >
         {/* Table Header Banner */}
         <div className="p-3.5 sm:p-4 bg-slate-50 text-slate-900 flex items-center justify-between border-b border-slate-200">
@@ -370,9 +145,8 @@ export const GroupStageView: React.FC = () => {
             <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-100/80 px-2 py-0.5 rounded-full border border-red-200">
               Babak Penyisihan
             </span>
-            <h3 className="text-sm sm:text-base font-black mt-1 text-slate-900 tracking-tight flex items-center gap-1.5">
+            <h3 className="text-sm sm:text-base font-black mt-1 text-slate-900 tracking-tight">
               {group.groupName}
-              {isRolling && <Dices className="w-4 h-4 text-amber-500 animate-spin" />}
             </h3>
           </div>
           <span className="text-[11px] sm:text-xs font-bold text-slate-600 bg-white px-2.5 sm:px-3 py-1 rounded-xl border border-slate-200 shadow-2xs">
@@ -430,7 +204,7 @@ export const GroupStageView: React.FC = () => {
                     <td className="py-2.5 sm:py-3.5 px-2 sm:px-4">
                       {isTBD ? (
                         <span className="text-xs text-slate-400 font-mono font-bold block">
-                          TBD (Menunggu Undian)
+                          TBD (Menunggu Hasil Undian)
                         </span>
                       ) : (
                         <div className="min-w-0 pr-1">
@@ -533,7 +307,7 @@ export const GroupStageView: React.FC = () => {
 
   return (
     <div className="space-y-10 w-full min-w-0 max-w-full">
-      {/* Top Header Banner with Global Roulette Controls */}
+      {/* Top Header Banner with Link to /roulette */}
       <div className="p-5 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2 flex-wrap">
@@ -548,37 +322,25 @@ export const GroupStageView: React.FC = () => {
             ) : (
               <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 flex items-center gap-1.5">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                <span>Menunggu Undian Resmi</span>
+                <span>Menunggu Hasil Undian Roda</span>
               </span>
             )}
           </div>
           <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
-            Pengundian 20 kontingen perwakilan bidang ke dalam 4 grup (A, B, C, D) masing-masing 5 tim. Gunakan tombol <strong>Roulette Undian</strong> untuk mengocok susunan grup secara acak dan adil per kategori.
+            Klasemen 4 grup (A, B, C, D) untuk seluruh kategori turnamen. Juara dan runner-up masing-masing grup berhak melaju ke Babak 8 Besar (Playoffs).
           </p>
         </div>
 
-        {/* Global Action Buttons */}
+        {/* CTA to Roulette Page */}
         <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-          <button
-            type="button"
-            onClick={handleRollAll}
+          <Link
+            href="/roulette"
             className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <Dices className="w-4 h-4 text-amber-200 animate-spin" />
-            <span>🎰 Roulette Semua Kategori</span>
-          </button>
-
-          {totalDrawn > 0 && (
-            <button
-              type="button"
-              onClick={handleResetAll}
-              className="px-3.5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold flex items-center gap-1.5 transition-colors"
-              title="Reset Semua Kategori Kembali ke TBD"
-            >
-              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-              <span>Reset TBD</span>
-            </button>
-          )}
+            <span>🎯 Buka Roda Undian (Wheel of Names)</span>
+            <ExternalLink className="w-3.5 h-3.5 text-white/80" />
+          </Link>
         </div>
       </div>
 
@@ -604,13 +366,12 @@ export const GroupStageView: React.FC = () => {
         <div className="space-y-14">
           {categories.map((cat) => {
             const Icon = cat.icon;
-            const isRolling = !!isRollingMap[cat.id];
             const hasDrawn = !!drawnGroupsMap[cat.id];
             const groups = drawnGroupsMap[cat.id] || generateDefaultGroups(cat.id);
 
             return (
               <section key={cat.id} className="space-y-5">
-                {/* Prominent Category Section Title Banner with Roulette Button */}
+                {/* Prominent Category Section Title Banner */}
                 <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-red-50/90 via-white to-amber-50/70 text-slate-900 border border-red-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
                     <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black shadow-sm shrink-0">
@@ -623,11 +384,11 @@ export const GroupStageView: React.FC = () => {
                         </h3>
                         {hasDrawn ? (
                           <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                            ✓ Terundi Resmi
+                            ✓ Hasil Undian Roda Tersimpan
                           </span>
                         ) : (
                           <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
-                            Slot TBD
+                            Menunggu Undian di /roulette
                           </span>
                         )}
                       </div>
@@ -637,40 +398,15 @@ export const GroupStageView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Category Action Controls */}
+                  {/* Category Action Link */}
                   <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
-                    <button
-                      type="button"
-                      disabled={isRolling}
-                      onClick={() => handleRollCategory(cat.id)}
-                      className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-2xs transition-all ${
-                        isRolling
-                          ? "bg-amber-500 text-white cursor-wait"
-                          : hasDrawn
-                          ? "bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 hover:border-slate-400"
-                          : "bg-red-600 hover:bg-red-700 text-white hover:scale-[1.02] active:scale-[0.98]"
-                      }`}
+                    <Link
+                      href={`/roulette?category=${cat.id}`}
+                      className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-red-600 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
                     >
-                      <Dices className={`w-4 h-4 ${isRolling ? "animate-spin text-white" : "text-amber-500"}`} />
-                      <span>
-                        {isRolling
-                          ? "Mengundi..."
-                          : hasDrawn
-                          ? "↻ Acak Ulang (Roulette)"
-                          : "🎰 Putar Roulette Grup"}
-                      </span>
-                    </button>
-
-                    {hasDrawn && (
-                      <button
-                        type="button"
-                        onClick={() => handleResetCategory(cat.id)}
-                        className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-red-600 hover:border-red-200 text-xs transition-colors"
-                        title="Reset kategori ini ke TBD"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                      <Dices className="w-3.5 h-3.5 text-red-600" />
+                      <span>{hasDrawn ? "Lihat / Undi Ulang di Wheel" : "Undi di Wheel of Names"}</span>
+                    </Link>
 
                     <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-xl border ${cat.badgeColor} shrink-0 shadow-2xs`}>
                       {cat.badge}
@@ -678,29 +414,9 @@ export const GroupStageView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Live Rolling Notification Alert */}
-                {isRolling && (
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-red-50 to-amber-50 border border-amber-300 text-amber-900 flex items-center justify-between gap-3 animate-pulse shadow-sm">
-                    <div className="flex items-center gap-2.5">
-                      <Dices className="w-5 h-5 text-amber-600 animate-spin shrink-0" />
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-wider text-amber-950">
-                          Sedang Mengundi Grup {cat.title}...
-                        </p>
-                        <p className="text-xs text-amber-800 font-mono mt-0.5 font-bold truncate max-w-md">
-                          Mengocok kontingen: {rollingTicker || "Menyiapkan slot tim..."}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-200 text-amber-900">
-                      Roulette Berputar
-                    </span>
-                  </div>
-                )}
-
                 {/* 4 Groups for this Category (Grup A, B, C, D) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {groups.map((group) => renderGroupTable(group, isRolling))}
+                  {groups.map((group) => renderGroupTable(group))}
                 </div>
               </section>
             );
