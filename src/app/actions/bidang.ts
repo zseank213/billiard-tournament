@@ -84,8 +84,6 @@ export async function getParticipantsWithRosters(): Promise<{
       const { data: regData } = await supabase
         .from("registrations")
         .select("*")
-        .neq("category", "drawn-group-stage")
-        .neq("category", "tournament-drawn-state")
         .order("created_at", { ascending: false }); // Latest first
 
       if (regData && regData.length > 0) {
@@ -118,7 +116,11 @@ export async function getParticipantsWithRosters(): Promise<{
     const participants: ParticipantTeam[] = bidang.map((b) => {
       // Filter rows belonging to this bidang (sorted by created_at ascending)
       const bRegs = rawRegData
-        .filter((r) => r.bidang_name === b.name || r.bidang_name === b.short_name)
+        .filter(
+          (r) =>
+            (r.bidang_name || "").trim().toLowerCase() === (b.name || "").trim().toLowerCase() ||
+            (r.bidang_name || "").trim().toLowerCase() === (b.short_name || "").trim().toLowerCase()
+        )
         .reverse();
 
       const isRegistered = bRegs.length > 0;

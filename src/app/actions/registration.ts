@@ -72,7 +72,7 @@ export async function checkBidangRegistration(bidangName: string): Promise<Bidan
       const { data, error } = await supabase
         .from("registrations")
         .select("*")
-        .or(`bidang_name.eq."${cleanName}",club_name.eq."${cleanName}"`)
+        .eq("bidang_name", cleanName)
         .order("created_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
@@ -86,110 +86,187 @@ export async function checkBidangRegistration(bidangName: string): Promise<Bidan
         let extraSinglePutra: { isRegistered: boolean; player?: string; phone?: string; playerNumber: number }[] = [];
         let extraSinglePutri: { isRegistered: boolean; player?: string; phone?: string; playerNumber: number }[] = [];
 
-        for (const row of data) {
-          // Check notes for extra teams/players (Host privilege)
-          if (row.notes) {
-            try {
-              if (row.notes.includes("extraGandaTeams") || row.notes.startsWith("{")) {
-                const parsed = JSON.parse(row.notes);
-                if (Array.isArray(parsed.extraGandaTeams)) {
-                  parsed.extraGandaTeams.forEach((eg: any) => {
-                    if (eg.player1 && eg.player2 && !extraGandaTeams.some((x) => x.teamNumber === eg.teamNumber)) {
-                      extraGandaTeams.push({
-                        isRegistered: true,
-                        player1: eg.player1,
-                        phone1: eg.phone1,
-                        player2: eg.player2,
-                        phone2: eg.phone2,
-                        teamNumber: eg.teamNumber || extraGandaTeams.length + 3,
-                      });
-                    }
-                  });
-                }
-                if (Array.isArray(parsed.extraSinglePutra)) {
-                  parsed.extraSinglePutra.forEach((esp: any) => {
-                    if (esp.player && !extraSinglePutra.some((x) => x.playerNumber === esp.playerNumber)) {
-                      extraSinglePutra.push({
-                        isRegistered: true,
-                        player: esp.player,
-                        phone: esp.phone,
-                        playerNumber: esp.playerNumber || extraSinglePutra.length + 2,
-                      });
-                    }
-                  });
-                }
-                if (Array.isArray(parsed.extraSinglePutri)) {
-                  parsed.extraSinglePutri.forEach((espi: any) => {
-                    if (espi.player && !extraSinglePutri.some((x) => x.playerNumber === espi.playerNumber)) {
-                      extraSinglePutri.push({
-                        isRegistered: true,
-                        player: espi.player,
-                        phone: espi.phone,
-                        playerNumber: espi.playerNumber || extraSinglePutri.length + 2,
-                      });
-                    }
-                  });
-                }
+        const isNewSchema = data.some(
+          (r) => r.category === "GANDA" || r.category === "SINGLE_PUTRA" || r.category === "SINGLE_PUTRI"
+        );
+
+        if (isNewSchema) {
+          const sorted = [...data].reverse();
+          for (const row of sorted) {
+            if (row.category === "GANDA") {
+              const label = row.team_label || "";
+              const matchNum = label.match(/(\d+)/);
+              const num = matchNum ? parseInt(matchNum[1], 10) : 1;
+              if (num === 1 && !gandaTim1.isRegistered) {
+                gandaTim1 = {
+                  isRegistered: true,
+                  player1: row.player1_name || "",
+                  phone1: row.player1_phone || "",
+                  player2: row.player2_name || "",
+                  phone2: row.player2_phone || "",
+                };
+              } else if (num === 2 && !gandaTim2.isRegistered) {
+                gandaTim2 = {
+                  isRegistered: true,
+                  player1: row.player1_name || "",
+                  phone1: row.player1_phone || "",
+                  player2: row.player2_name || "",
+                  phone2: row.player2_phone || "",
+                };
+              } else {
+                extraGandaTeams.push({
+                  isRegistered: true,
+                  player1: row.player1_name || "",
+                  phone1: row.player1_phone || "",
+                  player2: row.player2_name || "",
+                  phone2: row.player2_phone || "",
+                  teamNumber: num || extraGandaTeams.length + 3,
+                });
               }
-            } catch {
-              // Not JSON notes
+            } else if (row.category === "SINGLE_PUTRA") {
+              const label = row.team_label || "";
+              const matchNum = label.match(/(\d+)/);
+              const num = matchNum ? parseInt(matchNum[1], 10) : 1;
+              if (num === 1 && !singlePutra.isRegistered) {
+                singlePutra = {
+                  isRegistered: true,
+                  player: row.player1_name || "",
+                  phone: row.player1_phone || "",
+                };
+              } else {
+                extraSinglePutra.push({
+                  isRegistered: true,
+                  player: row.player1_name || "",
+                  phone: row.player1_phone || "",
+                  playerNumber: num || extraSinglePutra.length + 2,
+                });
+              }
+            } else if (row.category === "SINGLE_PUTRI") {
+              const label = row.team_label || "";
+              const matchNum = label.match(/(\d+)/);
+              const num = matchNum ? parseInt(matchNum[1], 10) : 1;
+              if (num === 1 && !singlePutri.isRegistered) {
+                singlePutri = {
+                  isRegistered: true,
+                  player: row.player1_name || "",
+                  phone: row.player1_phone || "",
+                };
+              } else {
+                extraSinglePutri.push({
+                  isRegistered: true,
+                  player: row.player1_name || "",
+                  phone: row.player1_phone || "",
+                  playerNumber: num || extraSinglePutri.length + 2,
+                });
+              }
             }
           }
+        } else {
+          for (const row of data) {
+            // Check notes for extra teams/players (Host privilege)
+            if (row.notes) {
+              try {
+                if (row.notes.includes("extraGandaTeams") || row.notes.startsWith("{")) {
+                  const parsed = JSON.parse(row.notes);
+                  if (Array.isArray(parsed.extraGandaTeams)) {
+                    parsed.extraGandaTeams.forEach((eg: any) => {
+                      if (eg.player1 && eg.player2 && !extraGandaTeams.some((x) => x.teamNumber === eg.teamNumber)) {
+                        extraGandaTeams.push({
+                          isRegistered: true,
+                          player1: eg.player1,
+                          phone1: eg.phone1,
+                          player2: eg.player2,
+                          phone2: eg.phone2,
+                          teamNumber: eg.teamNumber || extraGandaTeams.length + 3,
+                        });
+                      }
+                    });
+                  }
+                  if (Array.isArray(parsed.extraSinglePutra)) {
+                    parsed.extraSinglePutra.forEach((esp: any) => {
+                      if (esp.player && !extraSinglePutra.some((x) => x.playerNumber === esp.playerNumber)) {
+                        extraSinglePutra.push({
+                          isRegistered: true,
+                          player: esp.player,
+                          phone: esp.phone,
+                          playerNumber: esp.playerNumber || extraSinglePutra.length + 2,
+                        });
+                      }
+                    });
+                  }
+                  if (Array.isArray(parsed.extraSinglePutri)) {
+                    parsed.extraSinglePutri.forEach((espi: any) => {
+                      if (espi.player && !extraSinglePutri.some((x) => x.playerNumber === espi.playerNumber)) {
+                        extraSinglePutri.push({
+                          isRegistered: true,
+                          player: espi.player,
+                          phone: espi.phone,
+                          playerNumber: espi.playerNumber || extraSinglePutri.length + 2,
+                        });
+                      }
+                    });
+                  }
+                }
+              } catch {
+                // Not JSON notes
+              }
+            }
 
-          // Ganda Tim 1
-          if (
-            !gandaTim1.isRegistered &&
-            (row.ganda_tim1_player1 ||
-              (row.category === "ganda-putra" && row.player1_name && (row.team_number === 1 || !row.team_number)))
-          ) {
-            gandaTim1 = {
-              isRegistered: true,
-              player1: row.ganda_tim1_player1 || row.player1_name || "",
-              phone1: row.ganda_tim1_player1_phone || row.phone_number || "",
-              player2: row.ganda_tim1_player2 || row.player2_name || "",
-              phone2: row.ganda_tim1_player2_phone || "",
-            };
-          }
+            // Ganda Tim 1
+            if (
+              !gandaTim1.isRegistered &&
+              (row.ganda_tim1_player1 ||
+                (row.category === "ganda-putra" && row.player1_name && (row.team_number === 1 || !row.team_number)))
+            ) {
+              gandaTim1 = {
+                isRegistered: true,
+                player1: row.ganda_tim1_player1 || row.player1_name || "",
+                phone1: row.ganda_tim1_player1_phone || row.phone_number || "",
+                player2: row.ganda_tim1_player2 || row.player2_name || "",
+                phone2: row.ganda_tim1_player2_phone || "",
+              };
+            }
 
-          // Ganda Tim 2
-          if (
-            !gandaTim2.isRegistered &&
-            (row.ganda_tim2_player1 ||
-              (row.category === "ganda-putra" && row.player1_name && row.team_number === 2))
-          ) {
-            gandaTim2 = {
-              isRegistered: true,
-              player1: row.ganda_tim2_player1 || row.player1_name || "",
-              phone1: row.ganda_tim2_player1_phone || row.phone_number || "",
-              player2: row.ganda_tim2_player2 || row.player2_name || "",
-              phone2: row.ganda_tim2_player2_phone || "",
-            };
-          }
+            // Ganda Tim 2
+            if (
+              !gandaTim2.isRegistered &&
+              (row.ganda_tim2_player1 ||
+                (row.category === "ganda-putra" && row.player1_name && row.team_number === 2))
+            ) {
+              gandaTim2 = {
+                isRegistered: true,
+                player1: row.ganda_tim2_player1 || row.player1_name || "",
+                phone1: row.ganda_tim2_player1_phone || row.phone_number || "",
+                player2: row.ganda_tim2_player2 || row.player2_name || "",
+                phone2: row.ganda_tim2_player2_phone || "",
+              };
+            }
 
-          // Single Putra
-          if (
-            !singlePutra.isRegistered &&
-            (row.single_putra_player ||
-              (row.category === "single-putra" && (row.player1_name || row.full_name)))
-          ) {
-            singlePutra = {
-              isRegistered: true,
-              player: row.single_putra_player || row.player1_name || row.full_name || "",
-              phone: row.single_putra_phone || row.phone_number || "",
-            };
-          }
+            // Single Putra
+            if (
+              !singlePutra.isRegistered &&
+              (row.single_putra_player ||
+                (row.category === "single-putra" && (row.player1_name || row.full_name)))
+            ) {
+              singlePutra = {
+                isRegistered: true,
+                player: row.single_putra_player || row.player1_name || row.full_name || "",
+                phone: row.single_putra_phone || row.phone_number || "",
+              };
+            }
 
-          // Single Putri
-          if (
-            !singlePutri.isRegistered &&
-            (row.single_putri_player ||
-              (row.category === "single-putri" && (row.player1_name || row.full_name)))
-          ) {
-            singlePutri = {
-              isRegistered: true,
-              player: row.single_putri_player || row.player1_name || row.full_name || "",
-              phone: row.single_putri_phone || row.phone_number || "",
-            };
+            // Single Putri
+            if (
+              !singlePutri.isRegistered &&
+              (row.single_putri_player ||
+                (row.category === "single-putri" && (row.player1_name || row.full_name)))
+            ) {
+              singlePutri = {
+                isRegistered: true,
+                player: row.single_putri_player || row.player1_name || row.full_name || "",
+                phone: row.single_putri_phone || row.phone_number || "",
+              };
+            }
           }
         }
 
@@ -368,7 +445,7 @@ export async function submitBidangFullRegistration(
       const { data: existingRows } = await supabase
         .from("registrations")
         .select("*")
-        .or(`bidang_name.eq."${cleanName}",club_name.eq."${cleanName}"`)
+        .eq("bidang_name", cleanName)
         .order("created_at", { ascending: true });
 
       interface RegisteredGandaTeam {
@@ -1094,7 +1171,7 @@ export async function checkRegistration(
     const { data, error } = await supabase
       .from("registrations")
       .select("*")
-      .or(`registration_code.ilike.%${query}%,phone_number.ilike.%${query}%`)
+      .or(`bidang_name.ilike.%${query}%,player1_name.ilike.%${query}%,player1_phone.ilike.%${query}%,player2_name.ilike.%${query}%,player2_phone.ilike.%${query}%`)
       .order("created_at", { ascending: false });
 
     if (error) {

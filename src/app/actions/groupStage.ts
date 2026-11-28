@@ -26,64 +26,44 @@ export async function saveGroupStageDraw(
     const cleanKey = categoryKey.trim().toLowerCase();
     const payloadNotes = JSON.stringify(groups);
 
-    // 1. Try primary dedicated tournament_draws table first
-    let savedToDedicated = false;
-    try {
-      const { error: drawErr } = await supabase.from("tournament_draws").upsert({
-        category: cleanKey,
-        groups_data: groups,
-        updated_at: new Date().toISOString(),
-      });
-      if (!drawErr) {
-        savedToDedicated = true;
-      }
-    } catch {
-      // Table might not exist yet if SQL migration has not run
-    }
+    // 1. Save to primary dedicated tournament_draws table
+    const { error: drawErr } = await supabase.from("tournament_draws").upsert({
+      category: cleanKey,
+      groups_data: groups,
+      updated_at: new Date().toISOString(),
+    });
 
-    // 2. Fallback / replica save to registrations
-    const { error: insertError } = await supabase.from("registrations").insert([
-      {
-        registration_code: `DRAWN_${cleanKey}_${Date.now()}`,
-        full_name: `Hasil Undian ${cleanKey} (Official)`,
-        bidang_name: cleanKey,
-        phone_number: "08000000000",
-        category: "drawn-group-stage",
-        city: "Bandung",
-        notes: payloadNotes,
-        payment_status: "confirmed",
-      },
-    ]);
-
-    if (!savedToDedicated && insertError) {
-      console.warn("Failed to insert group stage draw to Supabase:", insertError);
+    if (drawErr) {
+      console.warn("Failed to upsert to tournament_draws:", drawErr);
       return {
         success: false,
-        message: `Gagal menyimpan ke server: ${insertError.message}`,
+        message: `Gagal menyimpan ke server: ${drawErr.message}`,
       };
     }
 
     // Try optional sync to group_standings and group_matches if tables have open policies
     try {
-      for (const group of groups) {
-        for (const standing of group.standings) {
-          if (standing.teamName && !standing.teamName.includes("TBD")) {
-            await supabase.from("group_standings").upsert({
-              group_name: group.groupName.split("—")[0].trim(),
-              category: cleanKey,
-              pos: standing.pos,
-              team_id: standing.teamId,
-              team_name: standing.teamName,
-              short_name: standing.shortName,
-              matches_played: standing.matchesPlayed,
-              series_won: standing.seriesWon,
-              series_lost: standing.seriesLost,
-              racks_won: standing.racksWon,
-              racks_lost: standing.racksLost,
-              rack_diff: standing.rackDiff,
-              points: standing.points,
-              status: standing.status,
-            });
+      if (supabase) {
+        for (const group of groups) {
+          for (const standing of group.standings) {
+            if (standing.teamName && !standing.teamName.includes("TBD")) {
+              await supabase.from("group_standings").upsert({
+                group_name: group.groupName.split("—")[0].trim(),
+                category: cleanKey,
+                pos: standing.pos,
+                team_id: standing.teamId,
+                team_name: standing.teamName,
+                short_name: standing.shortName,
+                matches_played: standing.matchesPlayed,
+                series_won: standing.seriesWon,
+                series_lost: standing.seriesLost,
+                racks_won: standing.racksWon,
+                racks_lost: standing.racksLost,
+                rack_diff: standing.rackDiff,
+                points: standing.points,
+                status: standing.status,
+              });
+            }
           }
         }
       }
@@ -138,60 +118,13 @@ export async function getGroupStageDraws(): Promise<{
         };
       }
     }
-  } catch {
-    // tournament_draws table may not exist yet, fallback to registrations
-  }
-
-  // 2. Fallback read from registrations
-  try {
-    const { data, error } = await supabase
-      .from("registrations")
-      .select("bidang_name, notes, created_at")
-      .eq("category", "drawn-group-stage")
-      .order("created_at", { ascending: false });
-
-    if (error || !data || data.length === 0) {
-      return {
-        draws: {},
-        isLiveSupabase: true,
-      };
-    }
-
-    const latestByCategory: Record<string, GroupStageData[]> = {};
-
-    for (const row of data) {
-      const catKey = (row.bidang_name || "").toLowerCase().trim();
-      if (catKey && latestByCategory[catKey] === undefined && row.notes) {
-        try {
-          const parsed = JSON.parse(row.notes);
-          if (Array.isArray(parsed)) {
-            // Store the latest draw record (even if empty, marking reset)
-            latestByCategory[catKey] = parsed as GroupStageData[];
-          }
-        } catch (e) {
-          console.warn(`Failed parsing draw notes for category ${catKey}:`, e);
-        }
-      }
-    }
-
-    // Filter out categories where draw is empty array (meaning reset/cleared)
-    const validDraws: Record<string, GroupStageData[]> = {};
-    for (const [k, v] of Object.entries(latestByCategory)) {
-      if (v && v.length > 0) {
-        validDraws[k] = v;
-      }
-    }
-
-    return {
-      draws: validDraws,
-      isLiveSupabase: true,
-    };
   } catch (err) {
-    console.warn("Failed fetching group stage draws from Supabase:", err);
-    return {
-      draws: {},
-      isLiveSupabase: false,
-    };
+    console.warn("Error reading from tournament_draws:", err);
   }
+
+  return {
+    draws: {},
+    isLiveSupabase: true,
+  };
 }
 
