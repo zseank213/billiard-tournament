@@ -74,6 +74,7 @@ export interface GroupTeamStanding {
   rackDiff: number;
   points: number;
   status?: "playoffs" | "qualified" | "eliminated" | "upper" | "lower" | null;
+  playerName?: string;
 }
 
 export interface GroupStageData {
