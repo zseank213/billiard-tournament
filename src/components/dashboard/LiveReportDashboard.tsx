@@ -143,10 +143,16 @@ export const LiveReportDashboard: React.FC = () => {
 
     const updatedMatches = currentGroup.matches.map((m) => {
       if (m.id === matchId) {
-        return {
+        const val = field === "score1" || field === "score2" ? Math.max(0, parseInt(value, 10) || 0) : value;
+        const updated = {
           ...m,
-          [field]: field === "score1" || field === "score2" ? Math.max(0, parseInt(value, 10) || 0) : value,
+          [field]: val,
         };
+        // Auto-switch status to completed if score is entered and status was upcoming
+        if ((field === "score1" || field === "score2") && m.status === "upcoming" && (updated.score1 > 0 || updated.score2 > 0)) {
+          updated.status = "completed" as const;
+        }
+        return updated;
       }
       return m;
     });
@@ -635,6 +641,15 @@ export const LiveReportDashboard: React.FC = () => {
                     )}
                     <span>Simpan Klasemen &amp; Skor</span>
                   </button>
+                </div>
+
+                <div className="flex items-start sm:items-center gap-2.5 p-3 bg-blue-50/80 border border-blue-200/80 rounded-2xl text-xs text-blue-900">
+                  <span className="font-black px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] uppercase tracking-wider shrink-0 mt-0.5 sm:mt-0">
+                    Otomatis
+                  </span>
+                  <span>
+                    Kolom <strong>Selisih</strong>, <strong>Game</strong>, dan <strong>Poin</strong> tidak perlu diisi manual. Sistem langsung menghitung otomatis dari skor match di bawah ini (misal menang <strong>2 - 0</strong> = Selisih <strong>+2</strong>, kalah <strong>0 - 2</strong> = Selisih <strong>-2</strong>).
+                  </span>
                 </div>
 
                 {groupSuccessMsg && (

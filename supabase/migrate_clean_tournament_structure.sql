@@ -96,3 +96,4 @@ CREATE TABLE IF NOT EXISTS public.playoff_matches_clean (
 ALTER TABLE public.playoff_matches_clean ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public can view playoff_matches_clean" ON public.playoff_matches_clean;
 CREATE POLICY "Public can view playoff_matches_clean" ON public.playoff_matches_clean FOR SELECT TO anon, authenticated USING (true);
+

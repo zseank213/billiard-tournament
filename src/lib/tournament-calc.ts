@@ -30,14 +30,15 @@ export function recalculateGroupStandings(group: GroupStageData): GroupStageData
     }
   }
 
-  // Calculate from completed matches
+  // Calculate from completed matches or matches with scores entered
   for (const m of group.matches) {
-    if (m.status === "completed") {
-      const s1 = Number(m.score1) || 0;
-      const s2 = Number(m.score2) || 0;
-      const t1 = m.team1;
-      const t2 = m.team2;
+    const s1 = Number(m.score1) || 0;
+    const s2 = Number(m.score2) || 0;
+    const t1 = m.team1;
+    const t2 = m.team2;
 
+    // Count if match is marked completed or has scores
+    if (m.status === "completed" || s1 > 0 || s2 > 0) {
       if (standingsMap[t1] && standingsMap[t2]) {
         standingsMap[t1].matchesPlayed += 1;
         standingsMap[t2].matchesPlayed += 1;
