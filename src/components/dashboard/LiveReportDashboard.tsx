@@ -283,6 +283,9 @@ export const LiveReportDashboard: React.FC = () => {
       if (field === "winner") {
         match.team1.isWinner = value === match.team1.name;
         match.team2.isWinner = value === match.team2.name;
+        if (value) {
+          match.status = "completed";
+        }
       }
     } else {
       const match = updatedBracket[roundKey][matchIndex];
@@ -295,6 +298,9 @@ export const LiveReportDashboard: React.FC = () => {
       if (field === "winner") {
         match.team1.isWinner = value === match.team1.name;
         match.team2.isWinner = value === match.team2.name;
+        if (value) {
+          match.status = "completed";
+        }
 
         // Auto-advance winners if QF
         if (roundKey === "quarterfinals") {

@@ -150,7 +150,10 @@ export async function savePlayoffsData(
         team2_short: m.team2?.shortName || null,
         team2_score: m.team2?.score ?? 0,
         race_to: m.raceTo || 4,
-        status: m.status || "upcoming",
+        status:
+          m.team1?.isWinner || m.team2?.isWinner || m.status === "completed"
+            ? "completed"
+            : m.status || "upcoming",
         winner: m.team1?.isWinner ? m.team1.name : m.team2?.isWinner ? m.team2.name : null,
       }));
 

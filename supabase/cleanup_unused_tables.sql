@@ -31,3 +31,4 @@ CREATE POLICY "Public can manage playoff_matches" ON public.playoff_matches
 -- 4. tournament_draws    -> Snapshot undian grup, skor babak grup, klasemen
 -- 5. playoff_matches     -> Tabel 24 pertandingan bagan playoff (QF, SF, Bronze, Final)
 -- =============================================================================
+
